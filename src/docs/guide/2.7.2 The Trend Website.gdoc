@@ -1,0 +1,661 @@
+In the *[Getting Started|http://www.jbilling.com/documentation/getting-started-with-jbilling]* guide, you were introduced to *j*Billing's capabilities by means of a
+small tutorial centered around a hypothetical 'Trend' company, which runs a website. Following the tutorial, you were able to create the 
+Trend entity, added an Item and created an Order and an Invoice. We'll build on this example, examining how *j*Billing's integration features could be
+applied to the Trend website, which needs to integrate with *j*Billing.
+
+h3. Controlling access to the 'Paid' Area of the website
+
+Being a paid service, the Trend website obviously needs to determine whether each user that enters the site is a paying customer 
+or not, in order to provide its services only to those that have paid for it. This can be accomplished by the use of the usual user
+name/password pair, which will be provided to each customer at the end of the subscription process, once the first payment has cleared.
+
+Of course, the invoicing and payment are handled by *j*Billing, therefore the website needs a way of knowing when the given user-name 
+has become a paying customer.
+
+A solution could be to maintain a local record of customers and check each login attempt against it, but this actually represents 
+a problem: _how would the program know when a customer has paid or not?_ Without any integration calls, someone would have to keep the
+data in this record updated, a manual operation that could introduce errors and takes time.
+
+Another important consideration is that the website charges its customers a monthly fee. This means the status of customers could change 
+at any time, if the user, for example, has not paid the fee for the current month (it would fall back to non-paying). A local record of 
+customers would not have this information, at least not until the next manual update.
+
+The solution is throwing in an integration call to *j*Billing to ensure the customer at hand has paid his fee and is authorized to access 
+the website's resources. *j*Billing takes care of checking its internal data and determines if the client's payment has been processed
+and whether his subscription is still valid.
+
+The website's login form retrieves the customer's username and password, performs any local validations and checks the user's status in 
+*j*Billing (which will indicate his current payment status and therefore whether he should be authorized to login or not).
+
+The first step (regarding integration calls and not local validation) is therefore to retrieve the *j*Billing's +User ID+ number, and 
+request the user's data, so that the current status can be determined. The sequence would be:
+
+{code}
+import com.sapienter.jbilling.server.util.api.JbillingAPI;
+import com.sapienter.jbilling.server.util.api.JbillingAPIFactory;
+import com.sapienter.jbilling.server.user.UserWS;
+/*
+* We assume the String variable "username" contains the username
+* string as entered by the user in the login form.
+*/
+Integer userId = null;
+// Create and initialize the *j*Billing API.
+JbillingAPI api = JbillingAPIFactory.getAPI();
+boolean canLogin = false;
+try {
+	userId = api.getUserId(username);
+	if (userId == null) {
+		/*
+		* This shouldn't happen as the API should issue an exception if the
+		* user does not exist, but test it anyway. In this case, we simply
+		* generate an exception that is catched later in this block
+		* of code.
+		*/
+	}
+	// With the user id just retrieved, we can query the user's data.
+	UserWS userData = api.getUserWS(userId);
+	/*
+	* The user data contains many information about the user, but in
+	* this case we're mostly interested in the statusId field of the
+	* UserWS class.
+	* This field values are: 1=active, 2=Overdue 1, 3=Overdue 2,
+	* 4=Overdue 3, 5=Suspended 1, 6=Suspended 2, 7=Suspended 3,
+	* 8=Deleted. Status Ids from 1 through 4 indicate the user is able
+	* to login, all other codes cannot login.
+	*/
+	int statusId = userData.getStatusId().intValue();
+	if (statusId > 0 && statusId <= 4) {
+		/*
+		* The user can login to the system, as his current status is ok.
+		* Just print a notice in case he's late with his last payment.
+		*/
+		canLogin = true;
+		System.out.println("User can log in");
+		if (statusId != 1) {
+			System.out.println("The user's payment is overdue!");
+		}
+	}
+} catch (Exception e) {
+	/*
+	* The user does not exist in Jbilling's records. The login request
+	* should be denied, and perhaps an error message issued back to the
+	* caller. Here, we just print an error message to stdout.
+	*/
+	canLogin = false;
+	System.out.println("Invalid username: the user does not exist!");
+}
+
+if (canLogin) {
+	// Here you can grant access to the reserved area.
+} else {
+	// Here you can deny entrance to the reserved area.
+}
+{code}
+
+{note}
+As you can notice from this example, using the *j*Billing API is very straightforward and simple. The burden of setting 
+input and output parameters for the call has been hidden in the implementation of the library, and calls seem simpler. 
+Take a look at the sample code in the *Integration with non-Java applications* section to see why we strongly recommend this 
+approach for Java applications. And, as a bonus, you can easily switch between SOAP calls and Hessian calls with just a change 
+in an XML file!
+{note}
+
+In the above code:
+
+# We acquire the user's ID with the call to @api.getUserId()@ 
+# Use that ID to retrieve the user's account data via call to @api.getUserWS()@ 
+# With the user data at hand, we can check if the user's status in *j*Billing warrants his entrance to the paid area. 
+  The flag @canLogin@ is set so that we can later determine what response to give to the user.
+
+There's even a simpler way to login into the system: the @authenticate()@ function call requires two String 
+arguments (user name and password) and returns a 0 if the user is in a state that allows entrance to the paid area, 
+whereas a non-zero response indicates the user does not exist or is in disabled or suspended state. It however does 
+not provide information about what specific state the user is in, or if it is overdue or not. 
+
+A quick example using this function would be:
+
+{code}
+import com.sapienter.jbilling.server.util.api.JbillingAPI;
+import com.sapienter.jbilling.server.util.api.JbillingAPIFactory;
+import com.sapienter.jbilling.server.user.UserWS;
+
+// Create and initialize the *j*Billing API.
+JbillingAPI api = JbillingAPIFactory.getAPI();
+Integer result = api.authenticate(username, password);
+if (result.intValue() == 0) {
+	// The user is able to loging.
+} else {
+	// The user cannot login. The return value indicates why.
+}
+{code}
+
+h3. Trial Period Management
+
+You can easily set up trial accounts so that would-be customers can enter your paid area for free before actually 
+being charged. Since a trial period in *j*Billing is managed through a normal order, this will also give a practical 
+demonstration of how orders can be entered via the integration calls.
+
+*j*Billing allows you to practice two different trial period policies: _with or without preauthorization_.
+Pre-authorized trial periods require the user to enter payment information (usually in the form of credit card data), 
+which will be validated before the trial period can begin. Non pre-authorized trial periods do not require this validation phase.
+
+Trial periods are managed by simply delaying the *Active Since* date of the purchase order by a number of days equal to the Trial Period.
+Let's say Trend wishes to grant a free 15 day trial period to new customers, so we're going to enter orders with an *Active Since* date of
+TODAY + 15. 
+
+This means the login code we just saw will work correctly for trial customers as well. The user appears as _Active_, but the invoicing 
+will not take place until the order becomes active. In addition, when pre-authorization is required, you'll need to provide some
+payment information, that will be validated before the order insertion ends correctly.
+
+When the trial period ends, the order will become active and *j*Billing will automatically start invoicing the customer. 
+If the customer changes his mind and wishes to cancel his membership to the site (either before the trial expires or after actual 
+invoicing has taken place), you'll have to provide a cancellation page that will take care of deleting active 
+orders, so that no further automatic invoicing takes place. We'll take care of the cancellation code in the next section.
+
+We will need to request all necessary data from the user. Since we will be creating a new user in *j*Billing, we will require the user 
+to enter the user name/password pair she intends to use to access the site in the future. This is the minimal information we'll need
+to successfully call the user creation service for a non pre-authorized trial, but in production code you would probably need to add 
+contact information to the user record, and if you're implementing pre-authorized trials, you'll need to request some payment
+information as well. These can be added as parameters to the user creation process.
+
+Once the new user is created, we can add an order to that user with the *Active Since* date set to TODAY + 15, and *Active Until* date 
+set to _null_, which indicates the Order is permanently active and will continue to invoice until it is canceled. We are assuming the
+Item has been created as indicated in the Getting Started Guide, so that we have a 'Banners' category and a 'Front Page Banner Monthly Fee'
+item created under this category. In the example, we assume the Item ID code is '1', in a more realistic situation you could have several 
+item types to choose from, or you would otherwise need to determine what the Item ID is from the *j*Billing user interface.
+
+We also assume the periodicity code for the order is '2', which maps to monthly payments. This however depends on the setup of the specific 
+instance of *j*Billing, you can determine what specific code each period has by consulting the *[jBilling User Guide|guide:userGuide]* under *Orders -> Periods*.
+
+{note}
+The item we're creating an order for is, according to the Getting Started Guide, the fee for displaying a banner in Trend's front-page. 
+To keep the example consistent, let's say the login procedure illustrated above allows the customer to login to the area where he can 
+upload and update the banner itself, and perhaps see some statistics for his banner's exposure. The code that performs the banner rotation 
+would probably need to determine what banners to show (maybe a local database, which of course needs to be kept in sync with billing data, 
+something we'll cover in another section). 
+{note}
+
+{code}
+/*
+ * We assume the String variables "username" and "password" contain the
+ * new user's login data as entered by the user in the trial registration form.
+ */
+Integer userId = null;
+// Create and initialize the *j*Billing API.
+JbillingAPI api = JbillingAPIFactory.getAPI();
+try {
+    // Create the user's record.
+    UserWS newUser = new UserWS();
+    // Fill in the new user's data.
+    newUser.setMainRoleId(new Integer(5)); // Role "5" = "Customer".
+    newUser.setStatusId(new Integer(1)); // Status "1" = "Active".
+    newUser.setUserName(username);
+    newUser.setPassword(password);
+    // Refer to Appendix A for language codes.
+    newUser.setLanguageId(new Integer(1));
+    // Refer to Appendix A for currency codes.
+    newUser.setCurrencyId(new Integer(1));
+    newUser.setCreateDatetime(new java.util.Date()); // = now
+    // If you're entering credit card information, you'll need to create
+    // a CreditCardDTO object and fill it with data, and assign the data
+    // to this user via the setCreditCard() method of UserWS. Same goes for
+    // Contact info, a ContactDTO object can be assigned via setContact().
+    // Call the "create" method on the api to create the user.
+    Integer newUserId = api.createUser(newUser);
+    // Now let's create a new order line.
+    OrderLineWS line = new OrderLineWS();
+    line.setPrice(new BigDecimal(10)); // Order price = 10.
+    line.setTypeId(new Integer(1)); // Type 1 = "Item".
+    line.setQuantity(new Integer(1)); // Quantity = 1
+    line.setAmount(new BigDecimal(10)); // Total amount = 10
+    line.setDescription("Banner on Front Page");
+    line.setItemId(new Integer(1));
+    // Now create an order that contains the order line just created.
+    OrderWS newOrder = new OrderWS();
+    newOrder.setUserId(newUserId);
+    newOrder.setPeriod(new Integer(1));
+    // Now add the order line created above to this order.
+    newOrder.setOrderLines(new OrderLineWS[] { line });
+    newOrder.setBillingTypeId(new Integer(1)); // Prepaid order.
+    GregorianCalendar activeSinceDate = new GregorianCalendar();
+    activeSinceDate.add(Calendar.DATE, 15);
+    newOrder.setActiveSince(activeSinceDate.getTime());
+    // Now create the order.
+    Integer newOrderId = api.createOrder(newOrder);
+} catch (Exception e) {
+    /*
+     * There was an error during the user or order creation. Just print an
+     * error message.
+     */
+    System.out.println("Error in user or order creation");
+}
+{code}
+
+A few IMPORTANT details need to be pointed out: first, we create the user and order in two separate steps, 
+since we wanted to show how both operations worked on their own, but the API provides a way of doing both operations 
+in one step. Instead of calling @api.createUser(newUser)@ and @api.createOrder(newOrder)@, you can just call 
+@api.create(newUser, newOrder)@. 
+
+This call will also charge the user credit card, but not as a pre-authorization, but as a full charge (capture). 
+The method 'create' does four steps:
+
+# Creation of the user
+# Creation of the purchase order
+# Generation of an invoice based on this purchase order
+# Processing of the payment to get the invoiced paid.
+
+In the example, we only got the first two steps, which is consistent with the requirements of a free trial: 
+the invoice and payment should only happen when the trial is over and the 'active since' of the order reached. If you do the 
+single-step 'create' call, be sure to set the User ID of the new order to '-1', since you're creating the user at the same time
+you're adding the order and therefore the correct User ID is not yet known.
+
+If you wish to do pre-authorization, you'll need to fill credit card information and add it to the new user data. Then, for 
+the second step (order creation) you should call
+
+{code}
+api.createOrderPreAuthorize(newOrder)
+{code}
+
+, instead of calling the @createOrder()@ method. Note that in this case you cannot use
+the @create(newUser, newOrder)@ method indicated above, as it does not do pre-authorization. Therefore, you'll need to perform 
+the two separate steps. The @createOrderPreAuthorize()@ method  returns a @PaymentAuthorizationDTOEx@ structure, which provides info on the
+authorization released. At this point, you're probably most interested in knowing if it was successful, so just test the 
+boolean result by calling getResult(). The following snippet shows how:
+
+{code}
+PaymentAuthorizationDTOEx payment = api.createOrderPreAuthorize(newOrder);
+if (payment.getResult() == false) {
+	System.out.println("Your payment was not accepted! Trial not active!");
+	// Since the user has been already created, you might want to delete it
+}
+{code}
+
+Keep in mind that if you create the user and the trial order in two separate steps, and so you could have a situation in which the user 
+gets created but the Order could not be submitted. So, if the code catches an exception, test if the user exists (For example, if you received a User ID
+from the first call that is non-null) to intercept such a situation.
+
+Finally, this does not test whether the user existed previously with that user name. When creating a user, you can first validate if the user exists, 
+by querying its User ID, as done in the login section above, and display an error or request a different user name. It also
+does not verify whether the user has already created other trial accounts.
+
+To intercept situations in which a user creates trial accounts just to cancel them before billing takes place to create another 
+trial account, ask for some contact information (such as, for example, a valid e-mail address or just save the IP address of the caller) 
+and verify that this information is not repeated in previous trial accounts.
+
+h3. Contact Information
+
+The users data structure contains fields to keep Contact information along with your *j*Billing's user account. Adding or updating contact 
+data is quite simple: you just add it to the user's data structure whenever you call @createUser()@ or @updateUser()@. There's a shortcut 
+call that allows you to edit contact information as well:
+
+{code}
+updateUserContact()
+{code}
+
+To add contact information to an account, create the @ContactWS@ instance and fill it as necessary. Most data fields in this structure 
+are self-explanatory, such as _postalCode_ or _faxNumber_. For example, the following code snippet creates a @ContactWS@ structure and puts 
+some data into it, and later it passes it to the user creation process:
+
+{code}
+// Create the ContactWS structure
+ContactWS contactInfo = new ContactWS();
+// Put some data into it
+contactInfo.setPostalCode("12345");
+contactInfo.setFaxNumber("555-123456");
+contactInfo.setEmail("foo@bar.com");
+// Pass the contact info to the user creation call
+// This assumes userData is an already filled UserWS structure.
+userData.setContact(contactInfo);
+// Now create the user
+api.createUser(userData);
+{code}
+
+Here, we pass the contact information in the user creation process, but you could as well pass this information in an @updateUser()@ call 
+when updating user data, or in a separate call to @updateUserContact()@ if you wish to only update contact information and leave the 
+user data as it is.
+
+h4. Custom Contact Fields
+
+The User's Contact Information is extensible for adding additional user Contact information. Thus, two fields of the @ContactWS@ structure 
+deserve further understanding: _fieldNames_ and _fieldValues_., which represent custom contact data. 
+For example, let's say you need to store the user's website address. A quick look at the @ContactWS@ structure shows there's no website 
+field, so you would be left with the option of storing that info in another field not currently used, but *j*Billing offers a better alternative: 
+*Custom Contact Fields (CCF)*.
+
+To use CCF you will need to add it to the system through some configuration. This is covered in another document, but it boils down to two 
+simple steps:
+
+# add the field to the the contact_field_type table:
+
+{code}
+insert into contact_field_type (id, entity_id, prompt_key, data_type, customer_readonly) values (432, 1, 'ccf.web_site', 'string', 1);
+{code}
+
+# add the name of the field to the file ApplicationResources.properties:
+
+{code}
+ccf.web_site=Web site URL
+{code}
+
+Customizing your contact info is quite straightforward: you need to provide two arrays of strings. The first array, @fieldNames@, 
+contains the IDs for each of the CCFs that you wish to specify a value for. The second array, @fieldValues@, holds the actual values 
+for the fields. When entering custom contact data, you need to initialize both arrays with data and add them to the 
+@ContactWS@ structure. A quick example explains how:
+
+{code}
+// The CCF id to set is 432, following the above example
+public static final String CCF_WEBSITE = "432";
+
+// Now we create two string arrays for the Ids and values.
+String customContactIds[] = new String[1];
+String customContactValues[] = new String[1];
+
+// Put the values into the arrays.
+// this holds the unique ID for the field.
+customContactIds[0] = CONTACT_WEBSITE;
+// this holds the actual value.
+CustomContactValues[0] = "www.fifa.com";
+
+// Set the custom fields in the ContactWS structure.
+// We assume contactData is an already created and filled ContactWS structure.
+contactData.setFieldNames(customContactIds);
+contactData.setFieldValues(customContactValues);
+
+// We now proceed with the contact data creation process.
+{code}
+
+We defined a constant that holds a unique identifier for the custom contact fields. It will have to be equal to the ID 
+of the row in the contact_field_type table that defines this field. In this case, ID 432 will contain website information. 
+Of course, this constant would ideally be located in a separate class or externalized to a properties file, to keep things 
+simple we just declared it on the fly. We then create two String arrays (each containing just one element) and assign the ID
+number and field value, respectively. We then assign these arrays to the _fieldNames_ and _fieldValues_ fields in the @ContactWS@ structure. 
+When the api call is performed, the custom data will be saved along with the rest of the contact data. 
+A fixed length array is of course not very intuitive, but you can easily convert these two arrays into a [HashTable|api:java.util.Hashtable] and use the 
+ID value as an index to the actual data.
+
+h3. Updating and Deleting Users and Orders
+
+There are many situations in which you would need to update the user's information, such as for example when the user changes passwords or address. 
+It is also common that the user subscribes to a service, or cancels a subscription. These type of events are reflected through purchase orders 
+in *j*Billing, you will need a way to update orders programmatically. This section provides some insight into these operations.
+
+Updating a user or order is easy enough. You just need to +query its current data, change the fields you need to update, and call the proper update method+. For example, let's say a user changes his password, the sequence to perform would be:
+
+{code}
+// Get the user information from *j*Billing
+UserWS userData = api.getUserWS(userId);
+
+// Change the password in the user data and submit it back to the system.
+userData.setPassword(newPassword);
+api.updateUser(userData);
+{code}
+
+Here we assume you already have the User ID handy after the used logged in, perhaps as a session variable.
+
+There are similar functions to update orders (@updateOrder@), order lines (@updateOrderLine@), credit card information (@updateCreditCard@) 
+and contact information (@updateUserContact@). They are used much in the same manner. You can of course populate the UserWS data from scratch, 
+instead of querying it from *j*Billing, if you have all the necessary information handy. You can also delete an user or order, if necessary. 
+The methods are, as you have probably guessed, deleteUser and deleteOrder. You need only the User ID or Order ID to perform the deletion, 
+not the entire UserWS or OrderWS structures. For example:
+
+{code}
+api.deleteUser(oldUser);
+{code}
+
+This will delete the user. Keep in mind that *j*Billing does not actually delete the user from the database, it just marks it as deleted. 
+Of course, when a user gets deleted, so does the contact and credit card information that was associated to the account, and orders 
+are deactivated (they will be no longer invoiced). Deleting an order deletes the order lines associated with it, as well. When you query the
+status for a user that has been deleted (for example, in the login page), you'll get the 'Deleted' status code as response.
+
+h4. The user's _main_ order
+
+*j*Billing introduces the concept of a main order for each user. This simply tells *j*Billing which order should be the target when executing automated 
+operations such as recurring charges. *[jBilling User Guide|guide:userGuide]* covers this concept in greater detail, here we're mainly interested 
+in how the user's main order can be specified or modified by means of API calls.
+
+The main order of a user can be found on the [UserWS|api:com.sapienter.jbilling.server.user.UserWS] structure (returned by @getUserWS()@), in field _mainOrderId_ (which contains the unique identifier of the order
+that acts as main order for this user). So, it is easy to access it with user API calls:
+
+{code}
+
+// Get the user information from *j*Billing
+UserWS userData = api.getUserWS(userId);
+
+// Read the main order ID into a variable and set
+// another order (retrieved previously) as main.
+Integer mainOrder = userData.getMainOrderId();
+userData.setMainOrderId(newMainOrder);
+api.updateUser(userData);
+
+{code}
+
+It is also possible to determine if an Order is the current *main order* by examining the Order's record (there's a property named @isCurrent@ that indicates whether 
+the order is the main order or not). When creating a new order, you can also set this property to '1' to tell *j*Billing that the order being created is to be considered 
+the main order for its user:
+
+{code}
+
+OrderWS newOrder = new OrderWS();
+
+// Set order parameters here ...
+newOrder.setIsCurrent(Integer.valueOf(1));
+
+// Create the order:
+api.createOrder(newOrder);
+
+{code}
+
+h3. A word on Pricing
+
+Pricing is the process that performs calculations to the Order data to find the correct price for the order. While possibly an *Quantity * Price per Item* scenario is sufficient, 
+many companies have a much more complicated process to calculate prices. For example, you can apply a Discount for large Orders, or have preferential rates for select 
+Customers and/or Items.
+
+*j*Billing solves this problem by providing a business rule-based mechanism for price formation. While the inner workings of the Business Rules Engine lies outside the scope of
+this document (please refer to the [Extension Guide|3. Extension Guide] for details on how to integrate Drools-based rules into *j*Billing), let's briefly describe how to 
+interact with this component, and use it in your integration calls.
+
+Pricing is usually based on the characteristics of the item (For Example, 'Apply a 15% discount on Item A if quantity of Item is above 15') or order ('Apply a 10% discount to
+any orders entered by User B'). There are situations, however, when the Order or Item data is not sufficient to describe the formation of price. 
+
+For example, consider a situation in which we have created a 'click on a banner' Item (as exemplified in the Trend example of the *[Getting Started|http://www.jbilling.com/documentation/getting-started-with-jbilling]* guide) with ItemID = 2. 
+We need to apply different prices depending on the country of origin of the customers who clicks on the banner. Without a rule-based pricing system, the only solution is 
+to create as many items as there are countries, and charge the right item when the server has decoded the country of origin of the visitor, which is certainly not a good 
+solution. Therefore, by using rule-based pricing, we can create one single Item and tailor the price this Item will have according to external conditions.
+
+To address these situations, *j*Billing introduces the concept of *'pricing fields'*. A Pricing Field is simply a value that is passed verbatim to the pricing engine, to be used 
+if required during the price formation phase.
+
+The pricing fields are useful in our example because the country of origin is known only by the server that is creating the order on *j*Billing, and only after the event has taken
+place. So, the only way we can specify variable data that alters the way rules behave at runtime is passing these values to the rule engine for evaluation.
+
+Now, lets code the rules that set different prices for our *'click on a banner'* Item according to the country of origin. To keep things simple, we're assuming here that 
+the server that originates the call to *j*Billing passes the country as a string containing the ISO code of the country of origin.
+
+{code}
+
+rule 'pricing rule for the US'
+when
+	exists(PricingField( name == "countryFrom", strValue == "US" ))
+	$line : OrderLineDTO( itemId == 2 ) #the 'click on a banner' item
+then
+	$line.setPrice(10.0F); # price for US customers is 10$.
+end
+
+rule 'pricing rule for Canada'
+when
+	exists(PricingField( name == "countryFrom", strValue == "CA" ))
+	$line : OrderLineDTO( itemId = 2 )
+then
+	$line.setPrice(9.0F); # price for canadian customers is 9$.
+end
+
+{code}
+
+The above rule can be read as: "apply a price of 10$ to order lines with Item 2 for users connecting from the US, and 9$ for order lines with Item 2 for users connecting from
+Canada". We can now code the API client that passes customer country in a new PricingField variable with name "countryFrom":
+
+{code}
+
+JbillingAPI api = JbillingAPIFactory.getAPI();
+String country = "US"; // your application code determines the origin
+PricingField pf = new PricingField("countryFrom", country);
+PricingField[] pfields = new PricingField[] { pf };
+OrderWS order = new OrderWS();
+
+// Initialize order parameters here...
+order.setPricingFields(PricingField.setPricingFieldsValue(pfields));
+
+// now, let's rate the order
+OrderWS result = api.rateOrder(order);
+
+{code}
+
+This sample code creates a pricing field containing "countryFrom" = "US", so, if run, all order lines containing Item 2 are assigned a price of 10$ in the output OrderWS
+structure.	
+
+{note}
+
+A PricingField can hold one of a String, Date, Integer or Double value, a name that identifies the PricingField (and can be used as 
+demonstrated above). For more details, see the PricingField structure definition below.
+
+{note}
+
+If you examine the structure of the @OrderWS@ class, you'll see that its pricing fields are contained in a String, for serialization 
+purposes. To simplify access to this data, the @PricingField@ class offers utility methods to decode the serialized string into an array of
+@PricingField@ values and encode an array of @PricingField@ classes into a string. This of course can only be done if you're using the API, 
+SOAP clients should encode the string by hand.
+
+Encoding is actually very simple, pricing fields are separated by commas, and each element of the pricing field is separated from the 
+others by colons, in the following order: *"name:position:type:value"* (name is a string value corresponding to the name of the
+pricing field, position is an integer indicating the ordering of pricing rules, type is one of "string", "integer", "double" or "date", and 
+value has the string formatted value for the field). Correct examples of encoded strings are: *"countryFrom:1:string:US"* or *"newPrice:1:double:5.5,oldPrice:1:double:6.0"* 
+(the second example has two pricing fields encoded, notice the comma separating each element).
+
+In this manner, it is possible to quickly add pricing rules that do not apply to specific Items or Orders, but are rather applied based on 
+external events (that translate to appropriate @PricingField@ values) or other constraints not directly determined from the Order or Item data structures.
+
+h3. Keeping *j*Billing in sync with your data
+
+While you can place many service calls to *j*Billing and expect it to update its information directly, there are times in which asynchronous events take place in 
+either your system or in *j*Billing that change the data in one way or the other. For example, a scheduled payment could have been rejected by the processor, or 
+new invoices have been generated in a specific date, or users could change their status due to payment events (they become overdue or suspended, etc.).
+
+When it is your data that changes, it could be a simple matter of calling the appropriate update methods in the Client API to sync *j*Billing to your changes. 
+When it is *j*Billing that changes its data, you'll need to resort to specific API calls or setup *callback* functions.
+
+The Client API provides several query functions that can be used to update your data. Most of these functions have the *get* prefix. For example, if you keep 
+a list of all users and their current status in your system, you could simply fire up an update job every night or so and call the getUserWS() method for 
+each user in the list to update their data. This, however, is both time- and resource-consuming. It will work for small volumes of data, but it will not scale up.
+
+Some API query methods return sets of results and not just the data that corresponds to one element. The @getUsersInStatus()@ function returns a list of 
+the User IDs of all users that are in a specific status, for example, @getUserInStatus(new Integer(1))@ returns all users that are currently active. 
+As another example, @getOrderByPeriod()@ returns a list of all orders that have the same periodicity (in our previous example, @getOrderByPeriod(new Integer(2))@ 
+returns all orders that recur monthly).
+
+h4. Subscription Status
+
+The [UserWS|api:com.sapienter.jbilling.server.user.UserWS] structure maintains a field named _subscriberStatusId_ which contains the status code for subscribers. 
+This status field is kept updated internally by *j*Billing to reflect the overall status of a user as a subscriber. Event such as a failed payment, or a
+successful payment, produce changes to this status. It is easy to retrieve the current user's status by calling @getUserWS()@. Another important query method 
+is @getUserTransitions()@. This method returns a list of all users that underwent a transition in their Subscription Status in a given time period. You can call 
+this method periodically (daily, for example), to keep your application updated with who is subscribed and who is not to your services. The method receives a pair 
+of date values as arguments, indicating the starting and ending date of the period where transitions occurred. You can assign a null value to
+either or both of these parameters. The query remembers the last time you called it, so if you specify a null starting date, it will extract all transitions made 
+from the moment you last called this function. 
+
+If the ending date is null, there's no upper limit to the transition dates (i.e., the upper limit is the current date). The query returns a set of [UserTransitionResponseWS|api:com.sapienter.jbilling.server.user.UserTransitionResponseWS] 
+structures that contains all transitions of subscription status registered in the given period of time.
+
+h4. Setting up Call Backs
+
+As seen, the API provides a rich set of queries that allow your program to determine the status and information about most of the events your 
+program needs to be informed about. You can therefore use these calls to update your program's data from *j*Billing, by creating recurring tasks 
+that periodically query your *j*Billing installation and update your data accordingly.
+
+Some situations, however, warrant a finer degree of control. User status changes are the most hard to manage with API calls, since they occur 
+in a rather asynchronous manner, and checking the status for all your users could prove a resource hog. Also, you would ideally need to know 
+of the change quickly, so that you can suspend services to a user that has not paid your invoices.
+
+{note}
+Note that, although related, the 'ageing status' is not the same as the 'subscription status'. The first one is related to the ageing
+process, while the second is not, it is only affected by recurring orders and payments. Call backs are only done for changes in the 'ageing status'.
+{note}
+
+Ideally, you would need a way to receive a notification when a user status changes, so that you proceed to update only the user that has been affected 
+by the change. This is where the HTTP Call Back (*HCB*) interface comes to the rescue.
+
+The HBC feature of *j*Billing is capable of performing a web call to your application whenever a user status changes. HBC will notify your application what 
+user incurred in the change, the old and new status, the user's login name, and whether the new status allows the user to login or not. This information 
+can come handy to update your data on the fly.
+
+HBC performs a normal web request, passing the information about the status change to your application via *POST* parameters. So, your application
+needs to publish a web page that takes care of receiving the notification, get the parameters from the request form and act accordingly.
+
+{note}
+The drawback of this method is that, if the page that listens to the call backs is not responding, the call will fail and your application will 
+be outof-sync.
+{note}
+
+Setting up HBC requires you to enter *j*Billing's User Interface as an administrator, and set the callback URL in the *Ageing* screen. 
+When a valid URL is placed in this field, *j*Billing will *POST* a request to that URL whenever a user changes status. This callback can 
+be redirected to a task in your program that registers the status change in your data structures.
+
+The *POST* callback performed by *j*Billing provides the called routine with the following information pertaining the event that has occurred:
+
+* @cmd@ - A string that identifies *j*Billing's call. It is always set to @'ageing_update'@ by *j*Billing, and allows you to uniquely identify a 
+*j*Billing call (in case the callback's url is used for other purposes)
+
+* @user_id@ - The User ID of the user that is undergoing a status change in *j*Billing. You can use this ID to identify the user directly, 
+or otherwise query *j*Billing via the API to obtain the data for the user, should you need further information
+
+* @login_name@ - The user name of the user that is undergoing a status change
+
+* @from_status@ - The status the user is transitioning from. This is the status the user had before the transition took place
+
+* @to_status@ - The status the user is transitioning to. This is the status the user has once the transition took place. Subsequent calls 
+to @getUser()@ in the API will return this status code
+
+* @can_login@ - Indicates whether the user's new status allows him to have access to the website's member's area or not. 
+A value of *1* indicates the user can login to your system, a *0* means he cannot. This information can be safely ignored, if you check the
+user's status during the login phase, as explained in a previous chapter
+
+A quick example of a callback routine handler is given below. This routine simply prints a status change notice to the console, 
+but ideally your application would use this data in a more useful manner. This code constitutes the @doPost()@ method of a Java servlet
+class that services the callback inside your application:
+
+{code}
+public void doPost(HttpServletRequest request, HttpServletResponse resp)
+throws ServletException, IOException {
+    // The doPost() method of the servlet class. This services all callbacks
+    // from *j*Billing into your app.
+    String userName;
+    Integer userId;
+    Integer fromStatus;
+    Integer toStatus;
+    boolean update = false;
+    // Test whether this is a *j*Billing call by checking the "cmd" parameter.
+    if (request.getParameter("cmd").equals("ageing_update")) {
+        userName = request.getParameter("login_name");
+        try {
+            userId = new Integer(request.getParameter("user_id"));
+            fromStatus = new Integer(request.getParameter("from_status");
+            toStatus = new Integer(request.getParameter("to_status");
+        } catch (NumberFormatException e) {
+            // If the values passed were not numbers do not
+            // perform the update.
+            update = false;
+        }
+        if (update) {
+            // Here we just print out a notice. Your app should
+            // do something more sensible, such as updating your data.
+            System.out.println("User " + userName + " has changed status!");
+        }
+    }
+    else {
+        // This was not a *j*Billing call. You can process it normally
+        // or return an error, as needed.
+    }
+}
+{code}
+

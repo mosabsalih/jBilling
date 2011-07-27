@@ -1,0 +1,451 @@
+<ehcache>
+<!--
+    jBilling - The Enterprise Open Source Billing System
+    Copyright (C) 2003-2009 Enterprise jBilling Software Ltd. and Emiliano Conde
+
+    This file is part of jbilling.
+
+    jbilling is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    jbilling is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with jbilling.  If not, see <http://www.gnu.org/licenses/>.
+-->
+
+     <diskStore path="java.io.tmpdir"/>
+     
+     <!-- Default cache. Many classes use this, they are NONSTRICT_READ_WRITE -->
+     <defaultCache
+            maxElementsInMemory="5000"
+            eternal="false"
+            timeToIdleSeconds="300"
+            timeToLiveSeconds="600"
+            overflowToDisk="false"
+     />
+
+     <!-- Level 2: objects that do not change, but can be added/deleted -->
+     
+     <!-- Level 1: objects that might change ocassionaly (nonstrict_read_write)-->
+     <cache name="com.sapienter.jbilling.server.pluggableTask.admin.PluggableTaskDTO"
+            maxElementsInMemory="1000"
+            eternal="false"
+            timeToIdleSeconds="600"
+            timeToLiveSeconds="600"
+            overflowToDisk="false"
+     />                       
+     <!-- Level 1: objects that might change ocassionaly (nonstrict_read_write) More strict-->
+     <cache name="com.sapienter.jbilling.server.pluggableTask.admin.PluggableTaskParameterDTO"
+            maxElementsInMemory="1000"
+            eternal="false"
+            timeToIdleSeconds="60"
+            timeToLiveSeconds="300"
+            overflowToDisk="false"
+     />                       
+     <!-- Level 1: objects that might change ocassionaly (nonstrict_read_write) More strict-->
+     <cache name="com.sapienter.jbilling.server.pluggableTask.admin.PluggableTaskDTO.parameters"
+            maxElementsInMemory="1000"
+            eternal="false"
+            timeToIdleSeconds="60"
+            timeToLiveSeconds="300"
+            overflowToDisk="false"
+     />                       
+     <!-- Level 3: objects that do not change at all: purely static data -->
+     <cache name="com.sapienter.jbilling.server.pluggableTask.admin.PluggableTaskTypeCategoryDTO"
+            maxElementsInMemory="100"
+            eternal="true"
+            timeToIdleSeconds="1800"
+            timeToLiveSeconds="100000"
+            overflowToDisk="false"
+     />                       
+     <!-- Level 3: objects that do not change at all: purely static data -->
+     <cache name="com.sapienter.jbilling.server.pluggableTask.admin.PluggableTaskTypeDTO"
+            maxElementsInMemory="100"
+            eternal="true"
+            timeToIdleSeconds="1800"
+            timeToLiveSeconds="100000"
+            overflowToDisk="false"
+     />                       
+
+     <!-- Level 1: objects that might change ocassionaly (nonstrict_read_write)-->
+     <cache name="com.sapienter.jbilling.server.mediation.db.MediationConfiguration"
+            maxElementsInMemory="100"
+            eternal="false"
+            timeToIdleSeconds="600"
+            timeToLiveSeconds="600"
+            overflowToDisk="false"
+     />                       
+
+     <cache name="com.sapienter.jbilling.server.util.audit.db.EventLogDTO"
+            maxElementsInMemory="100"
+            eternal="false"
+            timeToIdleSeconds="600"
+            timeToLiveSeconds="600"
+            overflowToDisk="false"
+     />                       
+
+    <cache name="com.sapienter.jbilling.server.user.permisson.db.RoleDTO"
+           maxElementsInMemory="10"
+           eternal="false"
+           timeToIdleSeconds="600"
+           timeToLiveSeconds="600"
+           overflowToDisk="false"
+    />
+
+    <cache name="com.sapienter.jbilling.server.user.permisson.db.PermissionUserDTO"
+           maxElementsInMemory="100"
+           eternal="false"
+           timeToIdleSeconds="600"
+           timeToLiveSeconds="600"
+           overflowToDisk="false"
+    />
+
+     <!-- Level 3: objects that do not change at all: purely static data -->
+     <cache name="com.sapienter.jbilling.server.util.audit.db.EventLogMessageDTO"
+            maxElementsInMemory="100"
+            eternal="true"
+            timeToIdleSeconds="1800"
+            timeToLiveSeconds="100000"
+            overflowToDisk="false"
+     />                       
+     <!-- Level 3: objects that do not change at all: purely static data -->
+     <cache name="com.sapienter.jbilling.server.util.audit.db.EventLogModuleDTO"
+            maxElementsInMemory="100"
+            eternal="true"
+            timeToIdleSeconds="1800"
+            timeToLiveSeconds="100000"
+            overflowToDisk="false"
+     />                       
+
+     <!-- Level 3: objects that do not change at all: purely static data -->
+     <cache name="com.sapienter.jbilling.server.user.db.CompanyDTO"
+            maxElementsInMemory="10"
+            eternal="true"
+            timeToIdleSeconds="1800"
+            timeToLiveSeconds="100000"
+            overflowToDisk="false"
+     />                       
+
+     <!-- Level 3: objects that do not change at all: purely static data -->
+     <cache name="com.sapienter.jbilling.server.user.permisson.db.PermissionDTO"
+            maxElementsInMemory="100"
+            eternal="true"
+            timeToIdleSeconds="1800"
+            timeToLiveSeconds="100000"
+            overflowToDisk="false"
+     />                       
+
+     <!-- Level 3: objects that do not change at all: purely static data -->
+     <cache name="com.sapienter.jbilling.server.user.permisson.db.PermissionTypeDTO"
+            maxElementsInMemory="10"
+            eternal="true"
+            timeToIdleSeconds="1800"
+            timeToLiveSeconds="100000"
+            overflowToDisk="false"
+     />                       
+
+     <!-- Level 3: objects that do not change at all: purely static data -->
+     <cache name="com.sapienter.jbilling.server.util.db.PreferenceTypeDTO"
+            maxElementsInMemory="500"
+            eternal="true"
+            timeToIdleSeconds="1800"
+            timeToLiveSeconds="100000"
+            overflowToDisk="false"
+     />                       
+
+     <!-- Level 3: objects that do not change at all: purely static data -->
+     <cache name="com.sapienter.jbilling.server.util.db.generated.JbillingTable"
+            maxElementsInMemory="100"
+            eternal="true"
+            timeToIdleSeconds="3200"
+            timeToLiveSeconds="100000"
+            overflowToDisk="false"
+     />                       
+
+     <!-- Level 1: objects that might change ocassionaly (nonstrict_read_write)-->
+     <cache name="com.sapienter.jbilling.server.order.db.OrderProcessDTO"
+            maxElementsInMemory="10000"
+            eternal="false"
+            timeToIdleSeconds="600"
+            timeToLiveSeconds="1200"
+            overflowToDisk="false"
+     />                       
+
+     <!-- Level 2: objects that hardly ever change, but are constatly queried.-->
+     <cache name="com.sapienter.jbilling.server.order.db.OrderPeriodDTO"
+            maxElementsInMemory="100"
+            eternal="false"
+            timeToIdleSeconds="60"
+            timeToLiveSeconds="600"
+            overflowToDisk="false"
+     />                       
+
+     <!-- Level 2: objects that hardly ever change, but are constatly queried.-->
+     <cache name="com.sapienter.jbilling.server.util.db.CurrencyExchangeDTO"
+            maxElementsInMemory="100"
+            eternal="false"
+            timeToIdleSeconds="60"
+            timeToLiveSeconds="600"
+            overflowToDisk="false"
+     />                       
+
+     <!-- Level 3: objects that do not change at all: purely static data -->
+     <cache name="com.sapienter.jbilling.server.order.db.OrderBillingTypeDTO"
+            maxElementsInMemory="100"
+            eternal="true"
+            timeToIdleSeconds="3200"
+            timeToLiveSeconds="100000"
+            overflowToDisk="false"
+     />                       
+
+     <!-- Level 2: objects that hardly ever change, but are constatly queried.-->
+     <cache name="com.sapienter.jbilling.server.util.db.InternationalDescription"
+            maxElementsInMemory="10000"
+            eternal="false"
+            timeToIdleSeconds="300"
+            timeToLiveSeconds="600"
+            overflowToDisk="false"
+     />                       
+
+     <!-- Level 1: objects that might change ocassionaly (nonstrict_read_write)-->
+     <cache name="com.sapienter.jbilling.server.util.db.PreferenceDTO"
+            maxElementsInMemory="1000"
+            eternal="false"
+            timeToIdleSeconds="600"
+            timeToLiveSeconds="600"
+            overflowToDisk="false"
+     />                       
+
+     <!-- Level 3: objects that do not change at all: purely static data -->
+     <cache name="com.sapienter.jbilling.server.order.db.OrderLineTypeDTO"
+            maxElementsInMemory="100"
+            eternal="true"
+            timeToIdleSeconds="3200"
+            timeToLiveSeconds="100000"
+            overflowToDisk="false"
+     />                       
+
+     <!-- Level 3: objects that do not change at all: purely static data -->
+     <cache name="com.sapienter.jbilling.server.util.db.LanguageDTO"
+            maxElementsInMemory="10"
+            eternal="true"
+            timeToIdleSeconds="3200"
+            timeToLiveSeconds="100000"
+            overflowToDisk="false"
+     />                       
+
+     <!-- Level 3: objects that do not change at all: purely static data -->
+     <cache name="com.sapienter.jbilling.server.util.db.CurrencyDTO"
+            maxElementsInMemory="10"
+            eternal="true"
+            timeToIdleSeconds="3200"
+            timeToLiveSeconds="100000"
+            overflowToDisk="false"
+     />                       
+
+     <!-- Level 3: objects that do not change at all: purely static data -->
+     <cache name="com.sapienter.jbilling.server.user.contact.db.ContactFieldTypeDTO"
+            maxElementsInMemory="100"
+            eternal="true"
+            timeToIdleSeconds="3200"
+            timeToLiveSeconds="100000"
+            overflowToDisk="false"
+     />                       
+
+     <!-- Level 3: objects that do not change at all: purely static data -->
+     <cache name="com.sapienter.jbilling.server.user.contact.db.ContactTypeDTO"
+            maxElementsInMemory="10"
+            eternal="true"
+            timeToIdleSeconds="3200"
+            timeToLiveSeconds="100000"
+            overflowToDisk="false"
+     />                       
+
+
+     <!-- Level 2: objects that hardly ever change, but are constatly queried.-->
+     <cache name="com.sapienter.jbilling.server.item.db.ItemDTO"
+            maxElementsInMemory="100"
+            eternal="false"
+            timeToIdleSeconds="300"
+            timeToLiveSeconds="300"
+            overflowToDisk="false"
+     />                       
+     <!-- Level 2: objects that hardly ever change, but are constatly queried.-->
+     <cache name="com.sapienter.jbilling.server.item.db.ItemPriceDTO"
+            maxElementsInMemory="100"
+            eternal="false"
+            timeToIdleSeconds="300"
+            timeToLiveSeconds="300"
+            overflowToDisk="false"
+     />                       
+     <!-- Level 2: objects that hardly ever change, but are constatly queried.-->
+     <cache name="com.sapienter.jbilling.server.item.db.ItemTypeDTO"
+            maxElementsInMemory="100"
+            eternal="false"
+            timeToIdleSeconds="300"
+            timeToLiveSeconds="900"
+            overflowToDisk="false"
+     />                       
+     <!-- Level 2: objects that hardly ever change, but are constatly queried.-->
+     <cache name="com.sapienter.jbilling.server.item.db.ItemUserPriceDTO"
+            maxElementsInMemory="100"
+            eternal="false"
+            timeToIdleSeconds="300"
+            timeToLiveSeconds="300"
+            overflowToDisk="false"
+     />                       
+
+     <!-- Level 3: objects that do not change at all: purely static data -->
+     <cache name="com.sapienter.jbilling.server.notification.db.NotificationMessageTypeDTO"
+            maxElementsInMemory="20"
+            eternal="true"
+            timeToIdleSeconds="3200"
+            timeToLiveSeconds="100000"
+            overflowToDisk="false"
+     />   
+     <!-- Level 2: objects that hardly ever change, but are constatly queried.-->
+     <cache name="com.sapienter.jbilling.server.notification.db.NotificationMessageLineDTO"
+            maxElementsInMemory="100"
+            eternal="false"
+            timeToIdleSeconds="300"
+            timeToLiveSeconds="300"
+            overflowToDisk="false"
+     />
+     <!-- Level 2: objects that hardly ever change, but are constatly queried.-->
+     <cache name="com.sapienter.jbilling.server.notification.db.NotificationMessageDTO"
+            maxElementsInMemory="100"
+            eternal="false"
+            timeToIdleSeconds="300"
+            timeToLiveSeconds="600"
+            overflowToDisk="false"
+     />
+     <!-- Level 2: objects that hardly ever change, but are constatly queried.-->
+     <cache name="com.sapienter.jbilling.server.notification.db.NotificationMessageDTO.notificationMessageSections"
+            maxElementsInMemory="100"
+            eternal="false"
+            timeToIdleSeconds="300"
+            timeToLiveSeconds="600"
+            overflowToDisk="false"
+     />
+     <!-- Level 2: objects that hardly ever change, but are constatly queried.-->
+     <cache name="com.sapienter.jbilling.server.notification.db.NotificationMessageSectionDTO"
+            maxElementsInMemory="100"
+            eternal="false"
+            timeToIdleSeconds="300"
+            timeToLiveSeconds="600"
+            overflowToDisk="false"
+     />
+     <!-- Level 2: objects that hardly ever change, but are constatly queried.-->
+     <cache name="com.sapienter.jbilling.server.util.db.InternationalDescriptionDTO"
+            maxElementsInMemory="1000"
+            eternal="false"
+            timeToIdleSeconds="600"
+            timeToLiveSeconds="600"
+            overflowToDisk="false"
+     />
+
+     <!-- Level 2: objects that hardly ever change, but are constatly queried.-->
+     <cache name="com.sapienter.jbilling.server.notification.db.NotificationMessageSectionDTO.notificationMessageLines"
+            maxElementsInMemory="100"
+            eternal="false"
+            timeToIdleSeconds="300"
+            timeToLiveSeconds="600"
+            overflowToDisk="false"
+     />
+
+    <!-- Level 3: objects that do not change at all: purely static data -->
+     <cache name="com.sapienter.jbilling.server.invoice.db.InvoiceDeliveryMethodDTO.java"
+            maxElementsInMemory="20"
+            eternal="true"
+            timeToIdleSeconds="3200"
+            timeToLiveSeconds="100000"
+            overflowToDisk="false"
+     />
+
+    <!-- Level 3: objects that do not change at all: purely static data -->
+     <cache name="com.sapienter.jbilling.server.invoice.db.InvoiceLineTypeDTO.java"
+            maxElementsInMemory="20"
+            eternal="true"
+            timeToIdleSeconds="3200"
+            timeToLiveSeconds="100000"
+            overflowToDisk="false"
+     />
+
+    <!-- Level 3: objects that do not change at all: purely static data -->
+     <cache name="com.sapienter.jbilling.server.payment.db.PaymentResultDTO.java"
+            maxElementsInMemory="20"
+            eternal="true"
+            timeToIdleSeconds="3200"
+            timeToLiveSeconds="100000"
+            overflowToDisk="false"
+     />
+
+    <!-- Level 3: objects that do not change at all: purely static data -->
+     <cache name="com.sapienter.jbilling.server.payment.db.PaymentMethodDTO.java"
+            maxElementsInMemory="20"
+            eternal="true"
+            timeToIdleSeconds="3200"
+            timeToLiveSeconds="100000"
+            overflowToDisk="false"
+     />
+
+     <!-- Level 3: objects that do not change at all: purely static data -->
+     <cache name="com.sapienter.jbilling.server.util.db.AbstractGenericStatus"
+            maxElementsInMemory="100"
+            eternal="true"
+            timeToIdleSeconds="3200"
+            timeToLiveSeconds="100000"
+            overflowToDisk="false"
+     />
+
+     
+     <!-- Query cache regions -->
+     <cache name="org.hibernate.cache.StandardQueryCache"
+            maxElementsInMemory="5000"
+            eternal="false"
+            timeToIdleSeconds="1800"
+            timeToLiveSeconds="100000"
+            overflowToDisk="false"
+     />                       
+
+     <cache name="org.hibernate.cache.UpdateTimestampsCache"
+            maxElementsInMemory="5000"
+            eternal="true"
+            timeToIdleSeconds="1800"
+            timeToLiveSeconds="100000"
+            overflowToDisk="false"
+     />
+
+     <!-- Thrid level cache -->
+     <cache name="thirdLevel-RO"
+            maxElementsInMemory="100"
+            eternal="true"
+            timeToIdleSeconds="3200"
+            timeToLiveSeconds="100000"
+            overflowToDisk="false"
+     />
+
+     <cache name="thirdLevel-RW"
+            maxElementsInMemory="500"
+            eternal="false"
+            timeToIdleSeconds="300"
+            timeToLiveSeconds="3600"
+            overflowToDisk="false"
+     />
+
+     <!-- Item price cache -->
+     <cache name="itemPriceCache"
+            maxElementsInMemory="500"
+            eternal="false"
+            timeToIdleSeconds="300"
+            timeToLiveSeconds="3600"
+            overflowToDisk="false"
+     />
+
+</ehcache>

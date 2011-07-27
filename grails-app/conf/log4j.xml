@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd" >
+<log4j:configuration>
+  <!-- A time/date based rolling appender -->
+  <appender name="FILE" class="org.apache.log4j.DailyRollingFileAppender">
+    <param name="File" value="logs/server.log"/>
+    <param name="Append" value="false"/>
+    <param name="Threshold" value="INFO"/>
+
+    <!-- Rollover at midnight each day -->
+    <param name="DatePattern" value="'.'yyyy-MM-dd"/>
+
+    <!-- Rollover at the top of each hour
+    <param name="DatePattern" value="'.'yyyy-MM-dd-HH"/>
+    -->
+
+    <layout class="org.apache.log4j.PatternLayout">
+      <!-- The default pattern: Date Priority [Category] Message\n 
+      <param name="ConversionPattern" value="%d %-5p [%c] %m%n"/> 
+      -->
+
+      <!-- The full pattern: Date MS Priority [Category] (Thread:NDC) Message\n -->
+      <param name="ConversionPattern" value="%d %-5r %-5p [%c] (%t:%x) %m%n"/>
+       
+    </layout>       
+  </appender>
+  
+    <!-- A time/date based rolling appender -->
+  <appender name="SQL-FILE" class="org.apache.log4j.DailyRollingFileAppender">
+    <param name="File" value="logs/sql.log"/>
+    <param name="Append" value="false"/>
+    <param name="Threshold" value="DEBUG"/>
+
+    <!-- Rollover at midnight each day -->
+    <param name="DatePattern" value="'.'yyyy-MM-dd"/>
+
+    <!-- Rollover at the top of each hour
+    <param name="DatePattern" value="'.'yyyy-MM-dd-HH"/>
+    -->
+
+    <layout class="org.apache.log4j.PatternLayout">
+      <!-- The default pattern: Date Priority [Category] Message\n 
+      <param name="ConversionPattern" value="%d %-5p [%c] %m%n"/> 
+      -->
+
+      <!-- The full pattern: Date MS Priority [Category] (Thread:NDC) Message\n -->
+      <param name="ConversionPattern" value="%d %-5r %-5p [%c] (%t:%x) %m%n"/>
+       
+    </layout>       
+  </appender>
+  
+
+  <!-- ============================== -->
+  <!-- Append messages to the console -->
+  <!-- ============================== -->
+
+  <appender name="CONSOLE" class="org.apache.log4j.ConsoleAppender">
+    <param name="Threshold" value="INFO"/>
+    <param name="Target" value="System.out"/>
+
+    <layout class="org.apache.log4j.PatternLayout">
+      <!-- The default pattern: Date Priority [Category] Message\n -->
+      <param name="ConversionPattern" value="%d{ABSOLUTE} %-5p [%c{1}] %m%n"/>
+    </layout>
+  </appender>
+
+  <!-- ============================== -->
+  <!-- jbilling messages -->
+  <!-- ============================== -->
+  
+  <appender name="jbillingAppender" class="org.apache.log4j.DailyRollingFileAppender">
+    <param name="File" value="logs/jbilling.log"/>
+    <param name="Append" value="false"/>
+
+    <!-- Rollover at midnight each day -->
+    <param name="DatePattern" value="'.'yyyy-MM-dd"/>
+
+    <layout class="org.apache.log4j.PatternLayout">
+      <!-- The default pattern: Date Priority [Category] Message\n -->
+      <param name="ConversionPattern" value="%d %-5p [%c] %m%n"/>
+      
+
+      <!-- The full pattern: Date MS Priority [Category] (Thread:NDC) Message\n       
+      <param name="ConversionPattern" value="%d %-5r %-5p [%c] (%t:%x) %m%n"/>
+      -->
+
+    </layout>       
+  </appender>
+  
+  <logger name="com.sapienter.jbilling.client.authentication.CompanyUserRememberMeFilter"
+          additivity="false">
+      <level value="info"></level>
+      <appender-ref ref="jbillingAppender"/>
+  </logger>
+
+  <logger name="com.sapienter.jbilling" additivity="false">
+      <level value="debug"></level>
+      <appender-ref ref="jbillingAppender"/>
+  </logger>
+
+  <logger name="grails.app">
+      <level value="info"></level>
+      <appender-ref ref="jbillingAppender"/>
+  </logger>
+
+  <logger name="grails.app.controller">
+      <level value="debug"></level>
+      <appender-ref ref="jbillingAppender"/>
+  </logger>
+
+  <logger name="grails.app.service">
+      <level value="debug"></level>
+      <appender-ref ref="jbillingAppender"/>
+  </logger>
+
+  <logger name="grails.app.tagLib">
+      <level value="debug"></level>
+      <appender-ref ref="jbillingAppender"/>
+  </logger>
+
+<!--
+//    /*
+//     * Hibernate logging:
+//     * org.hibernate.SQL           Log all SQL DML statements as they are executed
+//     * org.hibernate.type          Log all JDBC parameters
+//     * org.hibernate.tool.hbm2ddl  Log all SQL DDL statements as they are executed
+//     * org.hibernate.pretty        Log the state of all entities (max 20 entities) associated with the session at flush time
+//     * org.hibernate.cache         Log all second-level cache activity
+//     * org.hibernate.transaction   Log transaction related activity
+//     * org.hibernate.jdbc          Log all JDBC resource acquisition
+//     * org.hibernate.hql.ast.AST   Log HQL and SQL ASTs during query parsing
+//     * org.hibernate.secure        Log all JAAS authorization requests
+//     * org.hibernate               Log everything. This is a lot of information but it is useful for troubleshooting
+//     */
+
+
+  <logger name="org.hibernate.SQL">
+      <appender-ref ref="SQL-FILE"/>
+  </logger>
+  <logger name="org.hibernate.type">
+      <appender-ref ref="SQL-FILE"/>
+  </logger>
+  <logger name="org.springmodules.cache">
+      <appender-ref ref="jbillingAppender"/>
+  </logger>
+-->
+  <logger name="com.mchange">
+      <appender-ref ref="FILE"/>
+  </logger>
+  
+
+  <!-- ======================= -->
+  <!-- Setup the Root logger -->
+  <!-- ======================= -->
+
+  <root>
+    <appender-ref ref="CONSOLE"/>
+    <appender-ref ref="FILE"/>
+  </root>
+
+</log4j:configuration>

@@ -1,0 +1,106 @@
+package PricingRule
+
+#imports
+import com.sapienter.jbilling.server.user.ContactDTOEx
+import com.sapienter.jbilling.server.item.PricingField
+import com.sapienter.jbilling.server.user.UserDTOEx
+import com.sapienter.jbilling.server.item.tasks.PricingResult
+import com.sapienter.jbilling.server.item.tasks.SubscriptionResult
+import java.math.BigDecimal;
+import org.apache.log4j.Logger;
+
+#globals
+global org.apache.log4j.Logger LOG;
+
+rule "long distance plan A subscriptions"
+    when
+        $result : PricingResult( )
+        not( exists( SubscriptionResult( userId == $result.userId, itemId == 2700 ) ) )
+    then
+        insert( new SubscriptionResult($result, 2700) );
+        LOG.debug("Plan: added subscription for item 2700 user " + $result.getUserId());
+end
+
+rule "long distance plan B subscriptions"
+    when
+        $result : PricingResult( )
+        not( exists( SubscriptionResult( userId == $result.userId, itemId == 2701 ) ) )
+    then
+        insert( new SubscriptionResult($result, 2701) );
+        LOG.debug("Plan: added subscription for item 2702 user " + $result.getUserId());
+end
+
+rule "long distance plan 1000 minutes included subscriptions"
+    when
+        $result : PricingResult( )
+        not( exists( SubscriptionResult( userId == $result.userId, itemId == 2702 ) ) )
+    then
+        insert( new SubscriptionResult($result, 2702) );
+        LOG.debug("Plan: added subscription for item 2701 user " + $result.getUserId());
+end
+
+rule "long distance plan A price"
+    when
+        $result : PricingResult( itemId == 2800, price == null ) # Long distance call
+        SubscriptionResult( itemId == 2700, userId == $result.userId, subscribed == true ) # Long Distance Plan A
+    then
+        modify( $result ) {
+            setPrice("0.20"); # Long Distance Call base price (special prices may still be set via the rating card) 
+        }
+    LOG.debug("Pricing set because of plan 2700");
+end
+
+rule "long distance plan B price"
+    when
+        $result : PricingResult( itemId == 2800, price == null ) # Long distance call
+        SubscriptionResult( itemId == 2701, userId == $result.userId, subscribed == true ) # Long Distance Plan B
+    then
+        modify( $result ) {
+            setPrice("0.05"); # Long Distance Call base price (special prices may still be set via the rating card)
+        }
+    LOG.debug("Pricing set because of plan 2701");
+end
+
+rule "long distance plan 1000 minutes included price"
+    when
+        $result : PricingResult( itemId == 2602, price == null )# Long distance call
+        SubscriptionResult( itemId == 2702, userId == $result.userId, subscribed == true ) # Long Distance Plan 1000
+    then
+        modify( $result ) {
+            setPrice("0.30"); # Long Distance Call base price (special prices may still be set via the rating card)
+        }
+    LOG.debug("Pricing set because of plan 2702");
+end
+
+rule '604 -  512'
+when
+    $src : PricingField( name == "src", strValue matches "^604.*")
+    $dst : PricingField( name == "dst", strValue matches "^512.*", resultId == $src.resultId)
+	$result : PricingResult( itemId == 2800, price == null, pricingFieldsResultId == $src.resultId )
+then
+   modify( $result ) {
+       setPrice("7");
+   }
+   LOG.debug("Processing line starting with 604 ending with 512 for item 2800. Price now 7");
+end
+
+rule "special for item 2"
+    dialect "java"
+when
+    $result : PricingResult( itemId == 2, userId == 2 )
+then
+    $result.setPrice("30");
+    LOG.debug("Pricing set because of special price ");
+end
+
+rule 'PricingField test1'
+	dialect "java"
+when
+	$newPrice : PricingField( name == "newPrice" )
+	$result : PricingResult( itemId == 2800 || itemId == 1 , price == null, pricingFieldsResultId == $newPrice.resultId )
+then
+    LOG.debug("Setting price because of a newPrice field...");
+	modify($result) {
+        setPrice(new BigDecimal($newPrice.getDoubleValue()));
+    }
+end

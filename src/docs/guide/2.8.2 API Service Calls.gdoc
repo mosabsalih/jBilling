@@ -1,0 +1,18 @@
+The Service APIs/Calls are grouped according to functional area or data entities in jBilling, for example: 
+User Management APIs, Orders, Items, etc. All data contained in the Client API data structures can be accessed by means 
+of the _getter_ and _setter_ methods of each property (i.e., @getFaxNumber()@ and @setFaxNumber()@ provide access to the _faxNumber_ property). 
+When describing data structures, this guide always provides the property name. This reference is equally useful for those 
+planning to use the web services directly, or for those that will be using the jBilling Client API. For non-Java languages, the data 
+structures will look slightly different: they are described in the WSDL descriptor and how that is translated to each language varies. 
+For those using the jBilling Client API from a Java application, the data structures can be used directly as classes.
+
+{note}
+For a finer coverage of the SOAP support, refer to the WSDL file or use a SOAP
+introspection tool (such as SoapUI). All the SOAP methods, however, share the same
+name, parameters and functionality as their API counterparts.
+{note}
+
+All service calls provided by the API are covered in the Web Services API Reference docs. 
+
+Please refer to the client/Web Services API from here: [WebServices|API Reference].
+

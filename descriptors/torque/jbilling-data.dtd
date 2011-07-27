@@ -1,0 +1,950 @@
+<!ELEMENT dataset (
+    Ach|
+    AgeingEntityStep|
+    BaseUser|
+    BillingProcess|
+    BillingProcessConfiguration|
+    ProcessRun|
+    ProcessRunTotal|
+    ProcessRunTotalPm|
+    Contact|
+    ContactField|
+    ContactFieldType|
+    ContactMap|
+    ContactType|
+    Country|
+    CreditCard|
+    Currency|
+    CurrencyEntityMap|
+    CurrencyExchange|
+    Customer|
+    Entity|
+    EntityDeliveryMethodMap|
+    EntityPaymentMethodMap|
+    EventLog|
+    EventLogMessage|
+    EventLogModule|
+    InternationalDescription|
+    Invoice|
+    InvoiceDeliveryMethod|
+    InvoiceLine|
+    InvoiceLineType|
+    Item|
+    ItemPrice|
+    ItemType|
+    ItemTypeMap|
+    ItemUserPrice|
+    JbillingTable|
+    JbillingSeqs|
+    Language|
+    List|
+    ListEntity|
+    ListField|
+    ListFieldEntity|
+    MenuOption|
+    NotificationMessage|
+    NotificationMessageArch|
+    NotificationMessageArchLine|
+    NotificationMessageLine|
+    NotificationMessageSection|
+    NotificationCategory|
+    NotificationMessageType|
+    OrderBillingType|
+    OrderLine|
+    OrderLineType|
+    OrderPeriod|
+    OrderProcess|
+    PaperInvoiceBatch|
+    Partner|
+    PartnerPayout|
+    PartnerRange|
+    Payment|
+    PaymentAuthorization|
+    PaymentInfoCheque|
+    PaymentInvoiceMap|
+    PaymentMethod|
+    PaymentResult|
+    PeriodUnit|
+    Permission|
+    PermissionRoleMap|
+    PermissionType|
+    PermissionUser|
+    PluggableTask|
+    PluggableTaskParameter|
+    PluggableTaskType|
+    PluggableTaskTypeCategory|
+    Preference|
+    PreferenceType|
+    Promotion|
+    PromotionUserMap|
+    PurchaseOrder|
+    Report|
+    ReportType|
+    ReportParameter|
+    ReportMap|
+    Role|
+    UserCreditCardMap|
+    UserRoleMap|
+    MediationCfg|
+    MediationProcess|
+    GenericStatusType|
+    GenericStatus)*>
+<!ATTLIST dataset
+    name CDATA #REQUIRED
+>
+
+<!ELEMENT Ach EMPTY>
+<!ATTLIST Ach
+    Id CDATA #REQUIRED
+    UserId CDATA #IMPLIED
+    AbaRouting CDATA #REQUIRED
+    BankAccount CDATA #REQUIRED
+    AccountType CDATA #REQUIRED
+    BankName CDATA #REQUIRED
+    AccountName CDATA #REQUIRED
+>
+
+<!ELEMENT AgeingEntityStep EMPTY>
+<!ATTLIST AgeingEntityStep
+    Id CDATA #REQUIRED
+    EntityId CDATA #IMPLIED
+    StatusId CDATA #IMPLIED
+    Days CDATA #REQUIRED
+>
+
+<!ELEMENT BaseUser EMPTY>
+<!ATTLIST BaseUser
+    Id CDATA #REQUIRED
+    EntityId CDATA #IMPLIED
+    Password CDATA #IMPLIED
+    Deleted CDATA #REQUIRED
+    LanguageId CDATA #IMPLIED
+    StatusId CDATA #IMPLIED
+    CurrencyId CDATA #IMPLIED
+    CreateDatetime CDATA #REQUIRED
+    LastStatusChange CDATA #IMPLIED
+    LastLogin CDATA #IMPLIED
+    UserName CDATA #IMPLIED
+>
+
+<!ELEMENT BillingProcess EMPTY>
+<!ATTLIST BillingProcess
+    Id CDATA #REQUIRED
+    EntityId CDATA #REQUIRED
+    BillingDate CDATA #REQUIRED
+    PeriodUnitId CDATA #REQUIRED
+    PeriodValue CDATA #REQUIRED
+    IsReview CDATA #REQUIRED
+    PaperInvoiceBatchId CDATA #IMPLIED
+    RetriesToDo CDATA #REQUIRED
+>
+
+<!ELEMENT BillingProcessConfiguration EMPTY>
+<!ATTLIST BillingProcessConfiguration
+    Id CDATA #REQUIRED
+    EntityId CDATA #IMPLIED
+    NextRunDate CDATA #REQUIRED
+    GenerateReport CDATA #REQUIRED
+    Retries CDATA #IMPLIED
+    DaysForRetry CDATA #IMPLIED
+    DaysForReport CDATA #IMPLIED
+    ReviewStatus CDATA #REQUIRED
+    PeriodUnitId CDATA #REQUIRED
+    PeriodValue CDATA #REQUIRED
+    DueDateUnitId CDATA #REQUIRED
+    DueDateValue CDATA #REQUIRED
+    DfFm CDATA #IMPLIED
+    OnlyRecurring CDATA #REQUIRED
+    InvoiceDateProcess CDATA #REQUIRED
+    AutoPayment CDATA #REQUIRED
+    MaximumPeriods CDATA #REQUIRED
+    AutoPaymentApplication CDATA #REQUIRED
+>
+
+<!ELEMENT ProcessRun EMPTY>
+<!ATTLIST ProcessRun
+    Id CDATA #REQUIRED
+    ProcessId CDATA #IMPLIED
+    RunDate CDATA #REQUIRED
+    Started CDATA #REQUIRED
+    Finished CDATA #IMPLIED
+    InvoicesGenerated CDATA #IMPLIED
+>
+
+<!ELEMENT ProcessRunTotal EMPTY>
+<!ATTLIST ProcessRunTotal
+    Id CDATA #REQUIRED
+    ProcessRunId CDATA #IMPLIED
+    CurrencyId CDATA #REQUIRED
+    TotalInvoiced CDATA #IMPLIED
+    TotalPaid CDATA #IMPLIED
+    TotalNotPaid CDATA #IMPLIED
+>
+
+<!ELEMENT ProcessRunTotalPm EMPTY>
+<!ATTLIST ProcessRunTotalPm
+    Id CDATA #REQUIRED
+    ProcessRunTotalId CDATA #IMPLIED
+    PaymentMethodId CDATA #IMPLIED
+    Total CDATA #REQUIRED
+>
+
+<!ELEMENT Contact EMPTY>
+<!ATTLIST Contact
+    Id CDATA #REQUIRED
+    OrganizationName CDATA #IMPLIED
+    StreetAddres1 CDATA #IMPLIED
+    StreetAddres2 CDATA #IMPLIED
+    City CDATA #IMPLIED
+    StateProvince CDATA #IMPLIED
+    PostalCode CDATA #IMPLIED
+    CountryCode CDATA #IMPLIED
+    LastName CDATA #IMPLIED
+    FirstName CDATA #IMPLIED
+    PersonInitial CDATA #IMPLIED
+    PersonTitle CDATA #IMPLIED
+    PhoneCountryCode CDATA #IMPLIED
+    PhoneAreaCode CDATA #IMPLIED
+    PhonePhoneNumber CDATA #IMPLIED
+    FaxCountryCode CDATA #IMPLIED
+    FaxAreaCode CDATA #IMPLIED
+    FaxPhoneNumber CDATA #IMPLIED
+    Email CDATA #IMPLIED
+    CreateDatetime CDATA #REQUIRED
+    Deleted CDATA #REQUIRED
+    NotificationInclude CDATA #IMPLIED
+    UserId CDATA #IMPLIED
+>
+
+<!ELEMENT ContactField EMPTY>
+<!ATTLIST ContactField
+    Id CDATA #REQUIRED
+    TypeId CDATA #IMPLIED
+    ContactId CDATA #IMPLIED
+    Content CDATA #REQUIRED
+>
+
+<!ELEMENT ContactFieldType EMPTY>
+<!ATTLIST ContactFieldType
+    Id CDATA #REQUIRED
+    EntityId CDATA #IMPLIED
+    PromptKey CDATA #REQUIRED
+    DataType CDATA #REQUIRED
+    CustomerReadonly CDATA #IMPLIED
+>
+
+<!ELEMENT ContactMap EMPTY>
+<!ATTLIST ContactMap
+    Id CDATA #REQUIRED
+    ContactId CDATA #IMPLIED
+    TypeId CDATA #REQUIRED
+    TableId CDATA #REQUIRED
+    ForeignId CDATA #REQUIRED
+>
+
+<!ELEMENT ContactType EMPTY>
+<!ATTLIST ContactType
+    Id CDATA #REQUIRED
+    EntityId CDATA #IMPLIED
+    IsPrimary CDATA #IMPLIED
+    Optlock CDATA #REQUIRED
+>
+
+<!ELEMENT Country EMPTY>
+<!ATTLIST Country
+    Id CDATA #REQUIRED
+    Code CDATA #REQUIRED
+>
+
+<!ELEMENT CreditCard EMPTY>
+<!ATTLIST CreditCard
+    Id CDATA #REQUIRED
+    CcNumber CDATA #REQUIRED
+    CcExpiry CDATA #REQUIRED
+    Name CDATA #IMPLIED
+    CcType CDATA #REQUIRED
+    Deleted CDATA #REQUIRED
+    SecurityCode CDATA #IMPLIED
+>
+
+<!ELEMENT Currency EMPTY>
+<!ATTLIST Currency
+    Id CDATA #REQUIRED
+    Symbol CDATA #REQUIRED
+    Code CDATA #REQUIRED
+    CountryCode CDATA #REQUIRED
+    Optlock CDATA #REQUIRED
+>
+
+<!ELEMENT CurrencyEntityMap EMPTY>
+<!ATTLIST CurrencyEntityMap
+    CurrencyId CDATA #IMPLIED
+    EntityId CDATA #IMPLIED
+>
+
+<!ELEMENT CurrencyExchange EMPTY>
+<!ATTLIST CurrencyExchange
+    Id CDATA #REQUIRED
+    EntityId CDATA #IMPLIED
+    CurrencyId CDATA #IMPLIED
+    Rate CDATA #REQUIRED
+    CreateDatetime CDATA #REQUIRED
+    Optlock CDATA #REQUIRED
+>
+
+<!ELEMENT Customer EMPTY>
+<!ATTLIST Customer
+    Id CDATA #REQUIRED
+    UserId CDATA #IMPLIED
+    PartnerId CDATA #IMPLIED
+    ReferralFeePaid CDATA #IMPLIED
+    InvoiceDeliveryMethodId CDATA #REQUIRED
+    Notes CDATA #IMPLIED
+    AutoPaymentType CDATA #IMPLIED
+    DueDateUnitId CDATA #IMPLIED
+    DueDateValue CDATA #IMPLIED
+    DfFm CDATA #IMPLIED
+    ParentId CDATA #IMPLIED
+    IsParent CDATA #IMPLIED
+    ExcludeAging CDATA #REQUIRED
+>
+
+<!ELEMENT Entity EMPTY>
+<!ATTLIST Entity
+    Id CDATA #REQUIRED
+    ExternalId CDATA #IMPLIED
+    Description CDATA #REQUIRED
+    CreateDatetime CDATA #REQUIRED
+    LanguageId CDATA #REQUIRED
+    CurrencyId CDATA #REQUIRED
+>
+
+<!ELEMENT EntityDeliveryMethodMap EMPTY>
+<!ATTLIST EntityDeliveryMethodMap
+    MethodId CDATA #IMPLIED
+    EntityId CDATA #IMPLIED
+>
+
+<!ELEMENT EntityPaymentMethodMap EMPTY>
+<!ATTLIST EntityPaymentMethodMap
+    EntityId CDATA #IMPLIED
+    PaymentMethodId CDATA #IMPLIED
+>
+
+<!ELEMENT EventLog EMPTY>
+<!ATTLIST EventLog
+    Id CDATA #REQUIRED
+    EntityId CDATA #IMPLIED
+    UserId CDATA #IMPLIED
+    TableId CDATA #IMPLIED
+    ForeignId CDATA #REQUIRED
+    CreateDatetime CDATA #REQUIRED
+    LevelField CDATA #REQUIRED
+    ModuleId CDATA #REQUIRED
+    MessageId CDATA #REQUIRED
+    OldNum CDATA #IMPLIED
+    OldStr CDATA #IMPLIED
+    OldDate CDATA #IMPLIED
+>
+
+<!ELEMENT EventLogMessage EMPTY>
+<!ATTLIST EventLogMessage
+    Id CDATA #REQUIRED
+>
+
+<!ELEMENT EventLogModule EMPTY>
+<!ATTLIST EventLogModule
+    Id CDATA #REQUIRED
+>
+
+<!ELEMENT InternationalDescription EMPTY>
+<!ATTLIST InternationalDescription
+    TableId CDATA #REQUIRED
+    ForeignId CDATA #REQUIRED
+    PsudoColumn CDATA #REQUIRED
+    LanguageId CDATA #REQUIRED
+    Content CDATA #REQUIRED
+>
+
+<!ELEMENT Invoice EMPTY>
+<!ATTLIST Invoice
+    Id CDATA #REQUIRED
+    CreateDatetime CDATA #REQUIRED
+    BillingProcessId CDATA #IMPLIED
+    UserId CDATA #IMPLIED
+    DelegatedInvoiceId CDATA #IMPLIED
+    DueDate CDATA #REQUIRED
+    Total CDATA #REQUIRED
+    PaymentAttempts CDATA #REQUIRED
+    ToProcess CDATA #REQUIRED
+    Balance CDATA #IMPLIED
+    CarriedBalance CDATA #REQUIRED
+    InProcessPayment CDATA #REQUIRED
+    IsReview CDATA #REQUIRED
+    CurrencyId CDATA #REQUIRED
+    Deleted CDATA #REQUIRED
+    PaperInvoiceBatchId CDATA #IMPLIED
+    CustomerNotes CDATA #IMPLIED
+    PublicNumber CDATA #IMPLIED
+    LastReminder CDATA #IMPLIED
+    OverdueStep CDATA #IMPLIED
+    CreateTimestamp CDATA #REQUIRED
+>
+
+<!ELEMENT InvoiceDeliveryMethod EMPTY>
+<!ATTLIST InvoiceDeliveryMethod
+    Id CDATA #REQUIRED
+>
+
+<!ELEMENT InvoiceLine EMPTY>
+<!ATTLIST InvoiceLine
+    Id CDATA #REQUIRED
+    InvoiceId CDATA #IMPLIED
+    TypeId CDATA #IMPLIED
+    Amount CDATA #REQUIRED
+    Quantity CDATA #IMPLIED
+    Price CDATA #IMPLIED
+    Deleted CDATA #REQUIRED
+    ItemId CDATA #IMPLIED
+    Description CDATA #IMPLIED
+    SourceUserId CDATA #IMPLIED
+>
+
+<!ELEMENT InvoiceLineType EMPTY>
+<!ATTLIST InvoiceLineType
+    Id CDATA #REQUIRED
+    Description CDATA #REQUIRED
+    OrderPosition CDATA #REQUIRED
+>
+
+<!ELEMENT Item EMPTY>
+<!ATTLIST Item
+    Id CDATA #REQUIRED
+    InternalNumber CDATA #IMPLIED
+    EntityId CDATA #IMPLIED
+    Percentage CDATA #IMPLIED
+    PriceManual CDATA #REQUIRED
+    Deleted CDATA #REQUIRED
+    HasDecimals CDATA #REQUIRED
+>
+
+<!ELEMENT ItemPrice EMPTY>
+<!ATTLIST ItemPrice
+    Id CDATA #REQUIRED
+    ItemId CDATA #IMPLIED
+    CurrencyId CDATA #IMPLIED
+    Price CDATA #REQUIRED
+>
+
+<!ELEMENT ItemType EMPTY>
+<!ATTLIST ItemType
+    Id CDATA #REQUIRED
+    EntityId CDATA #REQUIRED
+    Description CDATA #IMPLIED
+    OrderLineTypeId CDATA #REQUIRED
+>
+
+<!ELEMENT ItemTypeMap EMPTY>
+<!ATTLIST ItemTypeMap
+    ItemId CDATA #IMPLIED
+    TypeId CDATA #IMPLIED
+>
+
+<!ELEMENT ItemUserPrice EMPTY>
+<!ATTLIST ItemUserPrice
+    Id CDATA #REQUIRED
+    ItemId CDATA #IMPLIED
+    UserId CDATA #IMPLIED
+    Price CDATA #REQUIRED
+    CurrencyId CDATA #REQUIRED
+>
+
+<!ELEMENT JbillingTable EMPTY>
+<!ATTLIST JbillingTable
+    Id CDATA #REQUIRED
+    Name CDATA #REQUIRED
+>
+
+<!ELEMENT JbillingSeqs EMPTY>
+<!ATTLIST JbillingSeqs
+    Name CDATA #REQUIRED
+    NextId CDATA #REQUIRED
+>
+
+<!ELEMENT Language EMPTY>
+<!ATTLIST Language
+    Id CDATA #REQUIRED
+    Code CDATA #REQUIRED
+    Description CDATA #REQUIRED
+>
+
+<!ELEMENT List EMPTY>
+<!ATTLIST List
+    Id CDATA #REQUIRED
+    LegacyName CDATA #IMPLIED
+    TitleKey CDATA #REQUIRED
+    InstrKey CDATA #IMPLIED
+>
+
+<!ELEMENT ListEntity EMPTY>
+<!ATTLIST ListEntity
+    Id CDATA #REQUIRED
+    ListId CDATA #IMPLIED
+    EntityId CDATA #REQUIRED
+    TotalRecords CDATA #REQUIRED
+    LastUpdate CDATA #REQUIRED
+>
+
+<!ELEMENT ListField EMPTY>
+<!ATTLIST ListField
+    Id CDATA #REQUIRED
+    ListId CDATA #IMPLIED
+    TitleKey CDATA #REQUIRED
+    ColumnName CDATA #REQUIRED
+    Ordenable CDATA #REQUIRED
+    Searchable CDATA #REQUIRED
+    DataType CDATA #REQUIRED
+>
+
+<!ELEMENT ListFieldEntity EMPTY>
+<!ATTLIST ListFieldEntity
+    Id CDATA #REQUIRED
+    ListFieldId CDATA #IMPLIED
+    ListEntityId CDATA #IMPLIED
+    MinValue CDATA #IMPLIED
+    MaxValue CDATA #IMPLIED
+    MinStrValue CDATA #IMPLIED
+    MaxStrValue CDATA #IMPLIED
+    MinDateValue CDATA #IMPLIED
+    MaxDateValue CDATA #IMPLIED
+>
+
+<!ELEMENT MenuOption EMPTY>
+<!ATTLIST MenuOption
+    Id CDATA #REQUIRED
+    Link CDATA #REQUIRED
+    LevelField CDATA #REQUIRED
+    ParentId CDATA #IMPLIED
+>
+
+<!ELEMENT NotificationMessage EMPTY>
+<!ATTLIST NotificationMessage
+    Id CDATA #REQUIRED
+    TypeId CDATA #IMPLIED
+    EntityId CDATA #REQUIRED
+    LanguageId CDATA #REQUIRED
+    UseFlag CDATA #REQUIRED
+>
+
+<!ELEMENT NotificationMessageArch EMPTY>
+<!ATTLIST NotificationMessageArch
+    Id CDATA #REQUIRED
+    TypeId CDATA #IMPLIED
+    CreateDatetime CDATA #REQUIRED
+    UserId CDATA #IMPLIED
+    ResultMessage CDATA #IMPLIED
+>
+
+<!ELEMENT NotificationMessageArchLine EMPTY>
+<!ATTLIST NotificationMessageArchLine
+    Id CDATA #REQUIRED
+    MessageArchiveId CDATA #IMPLIED
+    Section CDATA #REQUIRED
+    Content CDATA #REQUIRED
+>
+
+<!ELEMENT NotificationMessageLine EMPTY>
+<!ATTLIST NotificationMessageLine
+    Id CDATA #REQUIRED
+    MessageSectionId CDATA #IMPLIED
+    Content CDATA #REQUIRED
+>
+
+<!ELEMENT NotificationMessageSection EMPTY>
+<!ATTLIST NotificationMessageSection
+    Id CDATA #REQUIRED
+    MessageId CDATA #IMPLIED
+    Section CDATA #IMPLIED
+>
+
+<!ELEMENT NotificationCategory EMPTY>
+<!ATTLIST NotificationCategory
+    Id CDATA #REQUIRED
+>
+
+<!ELEMENT NotificationMessageType EMPTY>
+<!ATTLIST NotificationMessageType
+    Id CDATA #REQUIRED
+    CategoryId CDATA #REQUIRED
+    Optlock CDATA #REQUIRED
+>
+
+<!ELEMENT OrderBillingType EMPTY>
+<!ATTLIST OrderBillingType
+    Id CDATA #REQUIRED
+>
+
+<!ELEMENT OrderLine EMPTY>
+<!ATTLIST OrderLine
+    Id CDATA #REQUIRED
+    OrderId CDATA #IMPLIED
+    ItemId CDATA #IMPLIED
+    TypeId CDATA #IMPLIED
+    Amount CDATA #REQUIRED
+    Quantity CDATA #IMPLIED
+    Price CDATA #IMPLIED
+    ItemPrice CDATA #IMPLIED
+    CreateDatetime CDATA #REQUIRED
+    Deleted CDATA #REQUIRED
+    Description CDATA #IMPLIED
+>
+
+<!ELEMENT OrderLineType EMPTY>
+<!ATTLIST OrderLineType
+    Id CDATA #REQUIRED
+    Editable CDATA #REQUIRED
+>
+
+<!ELEMENT OrderPeriod EMPTY>
+<!ATTLIST OrderPeriod
+    Id CDATA #REQUIRED
+    EntityId CDATA #IMPLIED
+    Value CDATA #IMPLIED
+    UnitId CDATA #IMPLIED
+    Optlock CDATA #REQUIRED
+>
+
+<!ELEMENT OrderProcess EMPTY>
+<!ATTLIST OrderProcess
+    Id CDATA #REQUIRED
+    OrderId CDATA #IMPLIED
+    InvoiceId CDATA #IMPLIED
+    BillingProcessId CDATA #IMPLIED
+    PeriodsIncluded CDATA #IMPLIED
+    PeriodStart CDATA #IMPLIED
+    PeriodEnd CDATA #IMPLIED
+    IsReview CDATA #REQUIRED
+    Origin CDATA #IMPLIED
+>
+
+<!ELEMENT OrderStatus EMPTY>
+<!ATTLIST OrderStatus
+    Id CDATA #REQUIRED
+>
+
+<!ELEMENT PaperInvoiceBatch EMPTY>
+<!ATTLIST PaperInvoiceBatch
+    Id CDATA #REQUIRED
+    TotalInvoices CDATA #REQUIRED
+    DeliveryDate CDATA #IMPLIED
+    IsSelfManaged CDATA #REQUIRED
+>
+
+<!ELEMENT Partner EMPTY>
+<!ATTLIST Partner
+    Id CDATA #REQUIRED
+    UserId CDATA #IMPLIED
+    Balance CDATA #REQUIRED
+    TotalPayments CDATA #REQUIRED
+    TotalRefunds CDATA #REQUIRED
+    TotalPayouts CDATA #REQUIRED
+    PercentageRate CDATA #IMPLIED
+    ReferralFee CDATA #IMPLIED
+    FeeCurrencyId CDATA #IMPLIED
+    OneTime CDATA #REQUIRED
+    PeriodUnitId CDATA #REQUIRED
+    PeriodValue CDATA #REQUIRED
+    NextPayoutDate CDATA #REQUIRED
+    DuePayout CDATA #IMPLIED
+    AutomaticProcess CDATA #REQUIRED
+    RelatedClerk CDATA #IMPLIED
+>
+
+<!ELEMENT PartnerPayout EMPTY>
+<!ATTLIST PartnerPayout
+    Id CDATA #REQUIRED
+    StartingDate CDATA #REQUIRED
+    EndingDate CDATA #REQUIRED
+    PaymentsAmount CDATA #REQUIRED
+    RefundsAmount CDATA #REQUIRED
+    BalanceLeft CDATA #REQUIRED
+    PaymentId CDATA #IMPLIED
+    PartnerId CDATA #IMPLIED
+>
+
+<!ELEMENT PartnerRange EMPTY>
+<!ATTLIST PartnerRange
+    Id CDATA #REQUIRED
+    PartnerId CDATA #IMPLIED
+    PercentageRate CDATA #IMPLIED
+    ReferralFee CDATA #IMPLIED
+    RangeFrom CDATA #REQUIRED
+    RangeTo CDATA #REQUIRED
+>
+
+<!ELEMENT Payment EMPTY>
+<!ATTLIST Payment
+    Id CDATA #REQUIRED
+    UserId CDATA #IMPLIED
+    Attempt CDATA #IMPLIED
+    ResultId CDATA #IMPLIED
+    Amount CDATA #REQUIRED
+    CreateDatetime CDATA #REQUIRED
+    UpdateDatetime CDATA #IMPLIED
+    PaymentDate CDATA #IMPLIED
+    MethodId CDATA #REQUIRED
+    CreditCardId CDATA #IMPLIED
+    Deleted CDATA #REQUIRED
+    IsRefund CDATA #REQUIRED
+    PaymentId CDATA #IMPLIED
+    CurrencyId CDATA #REQUIRED
+    PayoutId CDATA #IMPLIED
+    AchId CDATA #IMPLIED
+    Balance CDATA #IMPLIED
+>
+
+<!ELEMENT PaymentAuthorization EMPTY>
+<!ATTLIST PaymentAuthorization
+    Id CDATA #REQUIRED
+    PaymentId CDATA #IMPLIED
+    Processor CDATA #REQUIRED
+    Code1 CDATA #REQUIRED
+    Code2 CDATA #IMPLIED
+    Code3 CDATA #IMPLIED
+    ApprovalCode CDATA #IMPLIED
+    Avs CDATA #IMPLIED
+    TransactionId CDATA #IMPLIED
+    Md5 CDATA #IMPLIED
+    CardCode CDATA #IMPLIED
+    CreateDatetime CDATA #REQUIRED
+>
+
+<!ELEMENT PaymentInfoCheque EMPTY>
+<!ATTLIST PaymentInfoCheque
+    Id CDATA #REQUIRED
+    PaymentId CDATA #IMPLIED
+    Bank CDATA #IMPLIED
+    ChequeNumber CDATA #IMPLIED
+    ChequeDate CDATA #IMPLIED
+>
+
+<!ELEMENT PaymentInvoiceMap EMPTY>
+<!ATTLIST PaymentInvoiceMap
+    PaymentId CDATA #IMPLIED
+    InvoiceId CDATA #IMPLIED
+>
+
+<!ELEMENT PaymentMethod EMPTY>
+<!ATTLIST PaymentMethod
+    Id CDATA #REQUIRED
+>
+
+<!ELEMENT PaymentResult EMPTY>
+<!ATTLIST PaymentResult
+    Id CDATA #REQUIRED
+>
+
+<!ELEMENT PeriodUnit EMPTY>
+<!ATTLIST PeriodUnit
+    Id CDATA #REQUIRED
+>
+
+<!ELEMENT Permission EMPTY>
+<!ATTLIST Permission
+    Id CDATA #REQUIRED
+    TypeId CDATA #REQUIRED
+    ForeignId CDATA #IMPLIED
+>
+
+<!ELEMENT PermissionRoleMap EMPTY>
+<!ATTLIST PermissionRoleMap
+    PermissionId CDATA #IMPLIED
+    RoleId CDATA #IMPLIED
+>
+
+<!ELEMENT PermissionType EMPTY>
+<!ATTLIST PermissionType
+    Id CDATA #REQUIRED
+    Description CDATA #REQUIRED
+>
+
+<!ELEMENT PermissionUser EMPTY>
+<!ATTLIST PermissionUser
+    PermissionId CDATA #IMPLIED
+    UserId CDATA #IMPLIED
+    IsGrant CDATA #REQUIRED
+    Id CDATA #REQUIRED
+>
+
+<!ELEMENT PluggableTask EMPTY>
+<!ATTLIST PluggableTask
+    Id CDATA #REQUIRED
+    EntityId CDATA #REQUIRED
+    TypeId CDATA #REQUIRED
+    ProcessingOrder CDATA #REQUIRED
+>
+
+<!ELEMENT PluggableTaskParameter EMPTY>
+<!ATTLIST PluggableTaskParameter
+    Id CDATA #REQUIRED
+    TaskId CDATA #REQUIRED
+    Name CDATA #REQUIRED
+    IntValue CDATA #IMPLIED
+    StrValue CDATA #IMPLIED
+    FloatValue CDATA #IMPLIED
+>
+
+<!ELEMENT PluggableTaskType EMPTY>
+<!ATTLIST PluggableTaskType
+    Id CDATA #REQUIRED
+    CategoryId CDATA #REQUIRED
+    ClassName CDATA #REQUIRED
+    MinParameters CDATA #REQUIRED
+>
+
+<!ELEMENT PluggableTaskTypeCategory EMPTY>
+<!ATTLIST PluggableTaskTypeCategory
+    Id CDATA #REQUIRED
+    InterfaceName CDATA #REQUIRED
+>
+
+<!ELEMENT Preference EMPTY>
+<!ATTLIST Preference
+    Id CDATA #REQUIRED
+    TypeId CDATA #IMPLIED
+    TableId CDATA #REQUIRED
+    ForeignId CDATA #REQUIRED
+    IntValue CDATA #IMPLIED
+    StrValue CDATA #IMPLIED
+    FloatValue CDATA #IMPLIED
+>
+
+<!ELEMENT PreferenceType EMPTY>
+<!ATTLIST PreferenceType
+    Id CDATA #REQUIRED
+    DefValue CDATA #IMPLIED
+>
+
+<!ELEMENT Promotion EMPTY>
+<!ATTLIST Promotion
+    Id CDATA #REQUIRED
+    ItemId CDATA #IMPLIED
+    Code CDATA #REQUIRED
+    Notes CDATA #IMPLIED
+    Once CDATA #REQUIRED
+    Since CDATA #IMPLIED
+    Until CDATA #IMPLIED
+>
+
+<!ELEMENT PromotionUserMap EMPTY>
+<!ATTLIST PromotionUserMap
+    UserId CDATA #IMPLIED
+    PromotionId CDATA #IMPLIED
+>
+
+<!ELEMENT PurchaseOrder EMPTY>
+<!ATTLIST PurchaseOrder
+    Id CDATA #REQUIRED
+    UserId CDATA #IMPLIED
+    PeriodId CDATA #IMPLIED
+    BillingTypeId CDATA #REQUIRED
+    ActiveSince CDATA #IMPLIED
+    ActiveUntil CDATA #IMPLIED
+    CreateDatetime CDATA #REQUIRED
+    NextBillableDay CDATA #IMPLIED
+    CreatedBy CDATA #REQUIRED
+    StatusId CDATA #REQUIRED
+    CurrencyId CDATA #REQUIRED
+    Deleted CDATA #REQUIRED
+    Notify CDATA #IMPLIED
+    LastNotified CDATA #IMPLIED
+    NotificationStep CDATA #IMPLIED
+    DueDateUnitId CDATA #IMPLIED
+    DueDateValue CDATA #IMPLIED
+    DfFm CDATA #IMPLIED
+    AnticipatePeriods CDATA #IMPLIED
+    OwnInvoice CDATA #IMPLIED
+    Notes CDATA #IMPLIED
+    NotesInInvoice CDATA #IMPLIED
+>
+
+<!ELEMENT Report EMPTY>
+<!ATTLIST Report
+    Id CDATA #REQUIRED
+    TypeId CDATA #IMPLIED
+    Name CDATA #IMPLIED
+    FileName CDATA #REQUIRED
+    Optlock CDATA #REQUIRED
+>
+
+<!ELEMENT ReportType EMPTY>
+<!ATTLIST ReportType
+    Id CDATA #REQUIRED
+    Name CDATA #REQUIRED
+    Optlock CDATA #REQUIRED
+>
+
+<!ELEMENT ReportParameter EMPTY>
+<!ATTLIST ReportParameter
+    Id CDATA #REQUIRED
+    ReportId CDATA #REQUIRED
+    Dtype CDATA #REQUIRED
+    Name CDATA #REQUIRED
+>
+
+<!ELEMENT ReportMap EMPTY>
+<!ATTLIST ReportMap
+    ReportId CDATA #REQUIRED
+    EntityId CDATA #REQUIRED
+>
+
+<!ELEMENT Role EMPTY>
+<!ATTLIST Role
+    Id CDATA #REQUIRED
+>
+
+<!ELEMENT UserCreditCardMap EMPTY>
+<!ATTLIST UserCreditCardMap
+    UserId CDATA #IMPLIED
+    CreditCardId CDATA #IMPLIED
+>
+
+<!ELEMENT UserRoleMap EMPTY>
+<!ATTLIST UserRoleMap
+    UserId CDATA #IMPLIED
+    RoleId CDATA #IMPLIED
+>
+
+<!ELEMENT UserStatus EMPTY>
+<!ATTLIST UserStatus
+    Id CDATA #REQUIRED
+    CanLogin CDATA #REQUIRED
+>
+
+<!ELEMENT SubscriptionStatus EMPTY>
+<!ATTLIST SubscriptionStatus
+    Id CDATA #REQUIRED
+>
+
+<!ELEMENT MediationCfg EMPTY>
+<!ATTLIST MediationCfg
+    Id CDATA #REQUIRED
+>
+
+<!ELEMENT MediationProcess EMPTY>
+<!ATTLIST MediationProcess
+    Id CDATA #REQUIRED
+>
+
+<!ELEMENT GenericStatusType EMPTY>
+<!ATTLIST GenericStatusType
+    Id CDATA #REQUIRED
+>
+
+<!ELEMENT GenericStatus EMPTY>
+<!ATTLIST GenericStatus
+    Id CDATA #REQUIRED
+    Dtype CDATA #REQUIRED
+    StatusValue CDATA #REQUIRED
+    CanLogin CDATA #IMPLIED
+>

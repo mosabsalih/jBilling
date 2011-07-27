@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="total_payments_day" pageWidth="540" pageHeight="802" columnWidth="540" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0">
+	<property name="ireport.zoom" value="1.5"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<subDataset name="chart_dataset">
+		<parameter name="entityId" class="java.lang.Integer"/>
+		<parameter name="startDate" class="java.util.Date"/>
+		<parameter name="endDate" class="java.util.Date"/>
+		<queryString>
+			<![CDATA[select
+                sum(p.amount) as amount,
+                count(p.id) as payment_count,
+                p.payment_date
+            from
+                payment p
+                inner join base_user u on p.user_id = u.id
+            where
+                u.entity_id = $P{entityId}
+                and p.deleted = 0
+                and p.is_preauth = 0
+                and p.result_id in (1, 4)
+                and p.payment_date >= $P{startDate}
+                and p.payment_date <= $P{endDate}
+            group by p.payment_date
+            order by p.payment_date]]>
+		</queryString>
+		<field name="amount" class="java.math.BigDecimal"/>
+		<field name="payment_count" class="java.lang.Long"/>
+		<field name="payment_date" class="java.sql.Timestamp"/>
+	</subDataset>
+	<parameter name="entityId" class="java.lang.Integer"/>
+	<parameter name="startDate" class="java.util.Date"/>
+	<parameter name="endDate" class="java.util.Date"/>
+	<queryString>
+		<![CDATA[select
+            sum(p.amount) as amount,
+            count(p.id) as payment_count,
+            p.payment_date
+        from
+            payment p
+            inner join base_user u on p.user_id = u.id
+        where
+            u.entity_id = $P{entityId}
+            and p.deleted = 0
+            and p.is_preauth = 0      -- ignore pre-authorizations
+            and p.result_id in (1, 4) -- successful or entered
+            and p.payment_date >= $P{startDate}
+            and p.payment_date <= $P{endDate}
+        group by p.payment_date
+        order by p.payment_date]]>
+	</queryString>
+	<field name="amount" class="java.math.BigDecimal"/>
+	<field name="payment_count" class="java.lang.Long"/>
+	<field name="payment_date" class="java.sql.Timestamp"/>
+	<variable name="subtotal" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{amount}]]></variableExpression>
+		<initialValueExpression><![CDATA[new BigDecimal("0.00")]]></initialValueExpression>
+	</variable>
+	<title>
+		<band height="200">
+			<barChart>
+				<chart isShowLegend="false" theme="default">
+					<reportElement x="0" y="0" width="540" height="200"/>
+					<chartTitle/>
+					<chartSubtitle/>
+					<chartLegend/>
+				</chart>
+				<categoryDataset>
+					<dataset>
+						<datasetRun subDataset="chart_dataset">
+							<datasetParameter name="entityId">
+								<datasetParameterExpression><![CDATA[$P{entityId}]]></datasetParameterExpression>
+							</datasetParameter>
+							<datasetParameter name="startDate">
+								<datasetParameterExpression><![CDATA[$P{startDate}]]></datasetParameterExpression>
+							</datasetParameter>
+							<datasetParameter name="endDate">
+								<datasetParameterExpression><![CDATA[$P{endDate}]]></datasetParameterExpression>
+							</datasetParameter>
+							<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+						</datasetRun>
+					</dataset>
+					<categorySeries>
+						<seriesExpression><![CDATA[""]]></seriesExpression>
+						<categoryExpression><![CDATA[new SimpleDateFormat("dd/MM/yyyy").format($F{payment_date})]]></categoryExpression>
+						<valueExpression><![CDATA[$F{amount}]]></valueExpression>
+					</categorySeries>
+				</categoryDataset>
+				<barPlot>
+					<plot>
+						<seriesColor seriesOrder="0" color="#2375A3"/>
+						<seriesColor seriesOrder="1" color="#CFE7FC"/>
+						<seriesColor seriesOrder="2" color="#3977BD"/>
+						<seriesColor seriesOrder="3" color="#1B437D"/>
+					</plot>
+					<itemLabel color="#000000" backgroundColor="#FFFFFF"/>
+					<categoryAxisFormat>
+						<axisFormat>
+							<labelFont/>
+							<tickLabelFont/>
+						</axisFormat>
+					</categoryAxisFormat>
+					<valueAxisFormat>
+						<axisFormat>
+							<labelFont/>
+							<tickLabelFont/>
+						</axisFormat>
+					</valueAxisFormat>
+				</barPlot>
+			</barChart>
+		</band>
+	</title>
+	<columnHeader>
+		<band height="21">
+			<staticText>
+				<reportElement x="407" y="0" width="120" height="20"/>
+				<textElement verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Amount Received]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="0" width="140" height="20"/>
+				<textElement verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Number of Payments]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="140" y="0" width="130" height="20"/>
+				<textElement verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Date]]></text>
+			</staticText>
+			<line>
+				<reportElement x="0" y="20" width="540" height="1"/>
+				<graphicElement>
+					<pen lineWidth="2.0"/>
+				</graphicElement>
+			</line>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="20">
+			<textField>
+				<reportElement x="0" y="0" width="140" height="20"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression class="java.lang.Long"><![CDATA[$F{payment_count}]]></textFieldExpression>
+			</textField>
+			<textField pattern="MMMMM dd, yyyy">
+				<reportElement x="140" y="0" width="130" height="20"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression class="java.util.Date"><![CDATA[$F{payment_date}]]></textFieldExpression>
+			</textField>
+			<textField pattern="¤ #,##0.00">
+				<reportElement x="407" y="0" width="120" height="20"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{amount}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<lastPageFooter>
+		<band height="40">
+			<staticText>
+				<reportElement x="307" y="12" width="100" height="20"/>
+				<box rightPadding="5"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="10" isBold="true" isItalic="false"/>
+				</textElement>
+				<text><![CDATA[Total Amount:]]></text>
+			</staticText>
+			<textField pattern="¤ #,##0.00">
+				<reportElement x="407" y="12" width="120" height="20"/>
+				<textElement verticalAlignment="Middle">
+					<font isBold="false" isItalic="false" isStrikeThrough="false"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{subtotal}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="0" y="10" width="540" height="1"/>
+				<graphicElement>
+					<pen lineWidth="2.0"/>
+				</graphicElement>
+			</line>
+		</band>
+	</lastPageFooter>
+</jasperReport>

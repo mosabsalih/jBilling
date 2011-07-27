@@ -1,0 +1,8 @@
+<!ELEMENT format (field+)>
+<!ELEMENT field (name, type, isKey?, startPosition?, length?, durationFormat?)>
+<!ELEMENT name (#PCDATA)>
+<!ELEMENT type (#PCDATA)>
+<!ELEMENT startPosition (#PCDATA)>
+<!ELEMENT length (#PCDATA)>
+<!ELEMENT durationFormat (#PCDATA)>
+<!ELEMENT isKey EMPTY>

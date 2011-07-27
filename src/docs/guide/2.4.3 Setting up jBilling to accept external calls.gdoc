@@ -1,0 +1,48 @@
+As mentioned earlier, *j*Billing will not accept all external calls it gets, but will require the
+caller to identify itself with a user name and password in order to service the request.
+Otherwise, the request will receive an error in response. This is a simple but effective
+measure that improves overall security. Of course, this also means you (or the system
+administrator) will need to set up an account in *j*Billing that will be authorized to perform
+external calls.
+
+Once you've followed the *[Getting Started|http://www.jbilling.com/documentation/getting-started-with-jbilling]* 
+tutorial and created the initial billing entity, the user name and password you entered in the entity setup screen will represent the
+user name and password of *j*Billing's administrator account. You can grant access to this administrator account 
+(or any other account you create for this purpose) to connect remotely and perform service calls.
+
+In order to do so, you'll need to enter *j*Billing's database, and annotate the +User ID+ of the
+account you wish to authorize for external connection. This number can be obtained
+from the @BASE_USER@ table, you can retrieve it with a simple SQL query:
+
+{code}
+SELECT USER_ID FROM BASE_USER WHERE USER_NAME = 'your-username';
+{code}
+
+Once this number is known, you can proceed to activate external calls permission by
+adding a line in the @PERMISSION_USER@ table. The @PERMISSION_ID@ contains the code for
+web services, which is *120* by default. The SQL query that does the insertion is:
+
+{code}
+INSERT INTO PERMISSION_USER(ID, PERMISSION_ID, USER_ID, IS_GRANT) VALUES
+(SELECT MAX(ID)+1 FROM PERMISSION_USER, 120, <your-user-id>, 1);
+{code}
+
+The ID for the @PERMISSION_USER@ table is obtained by finding the largest @ID@ number
+already in use and adding 1. The @IS_GRANT@ field contains a boolean value, if it equals
+'0', the permission is not granted, if it is assigned '1', the permission is granted.
+Assuming the +User ID+ obtained in the previous step was '1', the query would be:
+
+{code}
+INSERT INTO PERMISSION_USER(ID, PERMISSION_ID, USER_ID, IS_GRANT) VALUES
+(SELECT MAX(ID)+1 FROM PERMISSION_USER, 120, 1, 1);
+{code}
+
+Now the administrator user is allowed to perform external calls. Note that you'll need to
+specify the user name and password in the caller program.
+
+{note}
+Since *j*Billing is not tied to a specific database program, it could be possible (but
+highly unlikely) that your specific database does not support the queries indicated above.
+Please consult your vendor's manual on how to query and insert data in your database,
+if the above SQL instructions do not happen to work in your specific system.
+{note}

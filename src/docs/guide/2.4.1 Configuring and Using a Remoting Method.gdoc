@@ -1,0 +1,42 @@
+h4. Configuration
+
+jBilling Integration services are configured as remote beans in @descriptors\spring\jbilling-remote-beans.xml@ file.
+This file contains three entries with Spring Bean ID starting with *'apiClient'*, one for each of the 3 integration methods 
+available in jBilling out-of-the-box. Thus, *j*Billing comes pre-configured with *Hessian/Burlap* (Bean Id: _apiClient_), *SOAP* (Bean Id: _apiClient2_) and 
+*Spring HTTP Invoker* (Bean Id: _apiClient3_) beans, ready to accept connections from clients. Unlike others, Spring HTTP Invoker is an unauthenticated 
+protocol. Therefore, in this case, we must configure an alternate authentication filter that sets the credentials to be 
+used when making non-authenticated API calls. 
+
+{code:xml}
+<xml ...>
+<beans ....>
+	
+	<!-- Hessian Remote WS Bean -->
+	<bean id="apiClient" ... >
+		<property .../>
+	</bean>
+	
+	<!-- SOAP WS Bean -->
+	<jaxws:client id="apiClient2" ... />
+	
+	<!-- Spring HTTPInvoker Remote WS Bean -->
+	<bean id="apiClient3" ... >
+		<property .../>
+	</bean>
+	
+</beans>
+{code}
+
+See the section *Enabling/Disabling authentication for jBilling web services* section below for information regarding this.
+
+!integration1.png!
+
+If other remoting methods are not being used, their definition beans may be commented out from this file to give a small 
+improvement in *j*Billing startup time and memory footprint. This can be done by commenting the appropriate bean definitions in the file
+@descriptors\spring\jbilling-remote-beans.xml@
+
+Additionally:
+
+* For disabling *Hessian/Burlap*, delete the appropriate Web Services mapping from @descriptors\web\jbilling-servlet.xml@. 
+* For disabling *SOAP*, search for and delete any sections of XML that reference *'cxf'* in @descriptors\web\web.xml@.
+

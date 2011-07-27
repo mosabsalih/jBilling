@@ -1,0 +1,492 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="ageing_balance" language="groovy" pageWidth="2200" pageHeight="792" whenNoDataType="AllSectionsNoDetail" columnWidth="2160" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20">
+	<property name="ireport.zoom" value="1.5"/>
+	<property name="ireport.x" value="1225"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="SUBREPORT_DIR" class="java.lang.String">
+		<defaultValueExpression><![CDATA[""]]></defaultValueExpression>
+	</parameter>
+	<parameter name="entity_id" class="java.lang.Integer"/>
+	<queryString>
+		<![CDATA[select
+            u.id as user_id,
+            u.user_name,
+            co.first_name,
+            co.last_name,
+            co.organization_name,
+            co.state_province,
+            co.country_code,
+            cu.auto_payment_type, -- convert to CH = Check, CC = credit card, ACH or blank
+            u.status_id,          -- convert to A = Active, S = Suspended, O = Overdue
+            max(i.create_datetime) as last_billing_date,
+            max(p.create_datetime) as last_payment_date,
+            (
+                (select coalesce(sum(i.balance), 0) from invoice i where i.deleted = 0 and i.status_id != 26 and i.is_review != 1 and i.user_id = u.id)
+                - (select coalesce(sum(p.balance), 0) from payment p where p.deleted = 0 and p.user_id = u.id)
+            ) as current_balance
+        from
+            base_user u
+            inner join customer cu on cu.user_id = u.id
+            inner join contact co on co.user_id = u.id
+            left join payment p on p.user_id = u.id
+            left join invoice i on i.user_id = u.id
+        where
+            u.entity_id = $P{entity_id}
+            and u.deleted = 0
+            and p.deleted = 0
+            and i.deleted = 0
+            and i.is_review = 0
+        group by
+            u.id,
+            u.user_name,
+            co.first_name,
+            co.last_name,
+            co.organization_name,
+            co.state_province,
+            co.country_code,
+            cu.auto_payment_type,
+            u.status_id]]>
+	</queryString>
+	<field name="user_id" class="java.lang.Integer"/>
+	<field name="user_name" class="java.lang.String"/>
+	<field name="first_name" class="java.lang.String"/>
+	<field name="last_name" class="java.lang.String"/>
+	<field name="organization_name" class="java.lang.String"/>
+	<field name="state_province" class="java.lang.String"/>
+	<field name="country_code" class="java.lang.String"/>
+	<field name="auto_payment_type" class="java.lang.Integer"/>
+	<field name="status_id" class="java.lang.Integer"/>
+	<field name="last_billing_date" class="java.sql.Timestamp"/>
+	<field name="last_payment_date" class="java.sql.Timestamp"/>
+	<field name="current_balance" class="java.math.BigDecimal"/>
+	<variable name="sub_total" class="java.lang.Double" resetType="None"/>
+	<title>
+		<band height="100" splitType="Stretch">
+			<textField pattern="MMMMM dd, yyyy">
+				<reportElement x="0" y="20" width="100" height="20"/>
+				<textElement verticalAlignment="Top"/>
+				<textFieldExpression class="java.util.Date"><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="0" y="0" width="190" height="20"/>
+				<textElement>
+					<font size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Ageing Balance Detail]]></text>
+			</staticText>
+			<line>
+				<reportElement x="1759" y="85" width="1" height="10"/>
+				<graphicElement>
+					<pen lineStyle="Dotted"/>
+				</graphicElement>
+			</line>
+			<line>
+				<reportElement x="1160" y="85" width="1" height="10"/>
+				<graphicElement>
+					<pen lineStyle="Dotted"/>
+				</graphicElement>
+			</line>
+			<line>
+				<reportElement x="1559" y="89" width="200" height="1"/>
+				<graphicElement>
+					<pen lineStyle="Dotted"/>
+				</graphicElement>
+			</line>
+			<line>
+				<reportElement x="1162" y="89" width="200" height="1"/>
+				<graphicElement>
+					<pen lineStyle="Dotted"/>
+				</graphicElement>
+			</line>
+			<staticText>
+				<reportElement mode="Opaque" x="1370" y="80" width="180" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Outstanding balance at days]]></text>
+			</staticText>
+		</band>
+	</title>
+	<pageHeader>
+		<band height="20">
+			<printWhenExpression><![CDATA[Boolean.valueOf($V{PAGE_NUMBER} > 1)]]></printWhenExpression>
+			<staticText>
+				<reportElement x="0" y="0" width="190" height="20"/>
+				<textElement>
+					<font size="10" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Ageing Balance Detail]]></text>
+			</staticText>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="22">
+			<line>
+				<reportElement x="0" y="21" width="2060" height="1"/>
+				<graphicElement>
+					<pen lineWidth="2.0"/>
+				</graphicElement>
+			</line>
+			<staticText>
+				<reportElement x="860" y="0" width="100" height="20"/>
+				<textElement verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Last Invoice]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="760" y="0" width="100" height="20"/>
+				<textElement verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Payment Type]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="360" y="0" width="100" height="20"/>
+				<textElement verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Organization]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="460" y="0" width="100" height="20"/>
+				<textElement verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[State / Prov]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="960" y="0" width="100" height="20"/>
+				<textElement verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Last Payment]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="1060" y="0" width="100" height="20"/>
+				<textElement verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Current Balance]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="1160" y="0" width="100" height="20"/>
+				<textElement verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[31-60]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="1260" y="0" width="100" height="20"/>
+				<textElement verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[61-90]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="1360" y="0" width="100" height="20"/>
+				<textElement verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[91-120]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="1460" y="0" width="100" height="20"/>
+				<textElement verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[121-150]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="1560" y="0" width="100" height="20"/>
+				<textElement verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[151-180]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="1660" y="0" width="100" height="20"/>
+				<textElement verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Plus 180]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="1760" y="0" width="100" height="20"/>
+				<textElement verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Total]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="1860" y="0" width="100" height="20"/>
+				<textElement verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Total Over 30]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="1960" y="0" width="100" height="20"/>
+				<textElement verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Total Over 90]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="560" y="0" width="100" height="20"/>
+				<textElement verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Country]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="0" width="60" height="20"/>
+				<textElement verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[User Id]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="60" y="0" width="100" height="20"/>
+				<textElement verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[User Name]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="160" y="0" width="100" height="20"/>
+				<textElement verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[First Name]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="260" y="0" width="100" height="20"/>
+				<textElement verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Last Name]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="660" y="0" width="100" height="20"/>
+				<textElement verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Status]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="25" splitType="Stretch">
+			<textField isBlankWhenNull="true">
+				<reportElement x="760" y="5" width="100" height="20"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{auto_payment_type} == null ? ""
+: $F{auto_payment_type}.equals(Integer.valueOf("1")) ? "Credit Card"
+: $F{auto_payment_type}.equals(Integer.valueOf("2")) ? "ACH"
+: $F{auto_payment_type}.equals(Integer.valueOf("3")) ? "Cheque" : "Unknown"]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="360" y="5" width="100" height="20"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{organization_name}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="460" y="5" width="100" height="20"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{state_province}]]></textFieldExpression>
+			</textField>
+			<textField pattern="MM/dd/yyyy" isBlankWhenNull="true">
+				<reportElement x="960" y="5" width="100" height="20"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression class="java.util.Date"><![CDATA[$F{last_payment_date}]]></textFieldExpression>
+			</textField>
+			<textField pattern="###0.00">
+				<reportElement x="1060" y="5" width="100" height="20"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{current_balance}]]></textFieldExpression>
+			</textField>
+			<textField pattern="MM/dd/yyyy" isBlankWhenNull="true">
+				<reportElement x="860" y="5" width="100" height="20"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression class="java.util.Date"><![CDATA[$F{last_billing_date}]]></textFieldExpression>
+			</textField>
+			<subreport>
+				<reportElement x="1160" y="5" width="100" height="20"/>
+				<subreportParameter name="end_days">
+					<subreportParameterExpression><![CDATA[61]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="start_days">
+					<subreportParameterExpression><![CDATA[31]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="user_id">
+					<subreportParameterExpression><![CDATA[$F{user_id}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<returnValue subreportVariable="sub_total" toVariable="sub_total"/>
+				<subreportExpression class="java.lang.String"><![CDATA[$P{SUBREPORT_DIR} + "ageing_balance_outstanding_sub.jasper"]]></subreportExpression>
+			</subreport>
+			<subreport>
+				<reportElement x="1260" y="5" width="100" height="20"/>
+				<subreportParameter name="end_days">
+					<subreportParameterExpression><![CDATA[91]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="start_days">
+					<subreportParameterExpression><![CDATA[61]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="user_id">
+					<subreportParameterExpression><![CDATA[$F{user_id}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<returnValue subreportVariable="sub_total" toVariable="sub_total"/>
+				<subreportExpression class="java.lang.String"><![CDATA[$P{SUBREPORT_DIR} + "ageing_balance_outstanding_sub.jasper"]]></subreportExpression>
+			</subreport>
+			<subreport>
+				<reportElement x="1360" y="5" width="100" height="20"/>
+				<subreportParameter name="end_days">
+					<subreportParameterExpression><![CDATA[121]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="start_days">
+					<subreportParameterExpression><![CDATA[91]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="user_id">
+					<subreportParameterExpression><![CDATA[$F{user_id}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<returnValue subreportVariable="sub_total" toVariable="sub_total"/>
+				<subreportExpression class="java.lang.String"><![CDATA[$P{SUBREPORT_DIR} + "ageing_balance_outstanding_sub.jasper"]]></subreportExpression>
+			</subreport>
+			<subreport>
+				<reportElement x="1460" y="5" width="100" height="20"/>
+				<subreportParameter name="end_days">
+					<subreportParameterExpression><![CDATA[151]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="start_days">
+					<subreportParameterExpression><![CDATA[121]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="user_id">
+					<subreportParameterExpression><![CDATA[$F{user_id}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<returnValue subreportVariable="sub_total" toVariable="sub_total"/>
+				<subreportExpression class="java.lang.String"><![CDATA[$P{SUBREPORT_DIR} + "ageing_balance_outstanding_sub.jasper"]]></subreportExpression>
+			</subreport>
+			<subreport>
+				<reportElement x="1560" y="5" width="100" height="20"/>
+				<subreportParameter name="end_days">
+					<subreportParameterExpression><![CDATA[181]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="start_days">
+					<subreportParameterExpression><![CDATA[151]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="user_id">
+					<subreportParameterExpression><![CDATA[$F{user_id}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<returnValue subreportVariable="sub_total" toVariable="sub_total"/>
+				<subreportExpression class="java.lang.String"><![CDATA[$P{SUBREPORT_DIR} + "ageing_balance_outstanding_sub.jasper"]]></subreportExpression>
+			</subreport>
+			<subreport>
+				<reportElement x="1660" y="5" width="100" height="20"/>
+				<subreportParameter name="end_days">
+					<subreportParameterExpression><![CDATA[366]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="start_days">
+					<subreportParameterExpression><![CDATA[180]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="user_id">
+					<subreportParameterExpression><![CDATA[$F{user_id}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<returnValue subreportVariable="sub_total" toVariable="sub_total"/>
+				<subreportExpression class="java.lang.String"><![CDATA[$P{SUBREPORT_DIR} + "ageing_balance_outstanding_sub.jasper"]]></subreportExpression>
+			</subreport>
+			<subreport>
+				<reportElement x="1860" y="5" width="100" height="20"/>
+				<subreportParameter name="end_days">
+					<subreportParameterExpression><![CDATA[366]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="start_days">
+					<subreportParameterExpression><![CDATA[30]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="user_id">
+					<subreportParameterExpression><![CDATA[$F{user_id}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression class="java.lang.String"><![CDATA[$P{SUBREPORT_DIR} + "ageing_balance_outstanding_sub.jasper"]]></subreportExpression>
+			</subreport>
+			<subreport>
+				<reportElement x="1960" y="5" width="100" height="20"/>
+				<subreportParameter name="end_days">
+					<subreportParameterExpression><![CDATA[366]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="start_days">
+					<subreportParameterExpression><![CDATA[90]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="user_id">
+					<subreportParameterExpression><![CDATA[$F{user_id}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression class="java.lang.String"><![CDATA[$P{SUBREPORT_DIR} + "ageing_balance_outstanding_sub.jasper"]]></subreportExpression>
+			</subreport>
+			<textField evaluationTime="Band" pattern="###0.00">
+				<reportElement x="1760" y="5" width="100" height="20"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{sub_total}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="560" y="5" width="100" height="20"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{country_code}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="5" width="60" height="20"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{user_id}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="60" y="5" width="100" height="20"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{user_name}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="160" y="5" width="100" height="20"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{first_name}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="260" y="5" width="100" height="20"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{last_name}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="660" y="5" width="100" height="20"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{status_id} == null ? ""
+: $F{status_id}.equals(Integer.valueOf("1")) ? "Active"
+: $F{status_id}.equals(Integer.valueOf("2")) ? "Overdue"
+: $F{status_id}.equals(Integer.valueOf("3")) ? "Overdue 2"
+: $F{status_id}.equals(Integer.valueOf("4")) ? "Overdue 3"
+: $F{status_id}.equals(Integer.valueOf("5")) ? "Suspended"
+: $F{status_id}.equals(Integer.valueOf("6")) ? "Suspended 2"
+: $F{status_id}.equals(Integer.valueOf("7")) ? "Suspended 3"
+: $F{status_id}.equals(Integer.valueOf("8")) ? "Deleted"
+: "Unknown"]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<pageFooter>
+		<band height="50">
+			<textField>
+				<reportElement x="0" y="14" width="80" height="20"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression class="java.lang.String"><![CDATA["Page "+$V{PAGE_NUMBER}+" of"]]></textFieldExpression>
+			</textField>
+			<textField evaluationTime="Report">
+				<reportElement x="80" y="14" width="40" height="20"/>
+				<textElement/>
+				<textFieldExpression class="java.lang.String"><![CDATA[" " + $V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageFooter>
+</jasperReport>

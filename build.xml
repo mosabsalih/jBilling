@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="jbilling" basedir=".">
+
+    <property file="build.properties"/>
+    <property environment="env"/>
+
+    <condition property="grails.home" value="${env.GRAILS_HOME}">
+        <isset property="env.GRAILS_HOME"/>
+    </condition>
+
+    <path id="compile.classpath">
+        <!-- jbilling libraries -->
+        <fileset dir="${source.lib.dir}">
+            <include name="*.jar"/>
+        </fileset>
+
+        <!-- grails libraries-->
+        <fileset dir="${env.GRAILS_HOME}/lib/">
+            <include name="*.jar"/>
+        </fileset>
+    </path>
+        
+    <path id="test.classpath">
+        <!-- test classes and junit -->
+        <pathelement location="${build.test.dir}"/>
+        <pathelement location="${junit.dir}/junit.jar"/>
+        <fileset dir="${easymock.dir}" includes="*.jar"/>
+
+        <!-- required dependencies -->
+        <fileset dir="${digester.dir}" includes="*.jar"/>
+        <fileset dir="${drools.dir}" includes="*.jar"/>
+        <fileset dir="${velocity.dir}" includes="*.jar"/>
+        <fileset dir="${quartz.dir}" includes="*.jar"/>
+
+        <!-- compiled jbilling classes -->
+        <pathelement path="${build.classes.dir}"/>
+    </path>
+
+    
+    <!--
+         Testing targets
+    -->
+
+    <target name="test.init">
+        <delete dir="${build.test.dir}"/>
+        <delete dir="${build.test-results.dir}"/>
+
+        <mkdir dir="${build.test.dir}"/>
+        <mkdir dir="${build.test-results.dir}"/>
+    </target>
+
+    <target name="test" depends="test.init" description="Run all class level unit tests and generate testing reports.">
+        <javac srcdir="${source.test.dir}/unit"
+               destdir="${build.test.dir}"
+               debug="true" deprecation="false" nowarn="true" fork="true"
+               includeantruntime="false">
+            <classpath refid="compile.classpath"/>
+            <classpath refid="test.classpath"/>
+        </javac>
+
+        <!-- jbilling properties for plug-in tests -->
+        <copy file="${source.java.dir}/jbilling.properties" todir="${build.test.dir}"/>
+
+        <!-- files for cache testing -->
+        <copy todir="${build.resources.dir}/mediation">
+            <fileset dir="${source.mediation.descriptor.dir}" includes="RateCard.*"/>
+        </copy>
+
+        <!-- run unit tests -->
+        <mkdir dir="${build.test-results.dir}/unit/xml"/>
+        <junit errorproperty="test.failed" failureproperty="test.failed">
+            <classpath refid="compile.classpath"/>
+            <classpath refid="test.classpath"/>                                    
+
+            <batchtest fork="yes" todir="${build.test-results.dir}/unit/xml">
+                <formatter type="brief" usefile="false"/>
+                <formatter type="xml"/>
+                <fileset dir="${source.test.dir}/unit">
+                    <!-- run specific unit tests with 'ant test-unit -Dtest=NameOfTest' -->
+                    <include name="**/*Test*.java" unless="test"/>
+                    <include name="**/${test}.java" if="test"/>
+                    <exclude name="**/*Tester*.java"/>
+                    <exclude name="**/*TestCase*.java"/>
+                </fileset>
+            </batchtest>
+        </junit>
+
+        <!-- generate testing reports -->
+        <mkdir dir="${build.test-results.dir}/unit/html"/>
+        <junitreport>
+            <fileset dir="${build.test-results.dir}/unit/xml" includes="TEST-*.xml"/>
+            <report format="frames" todir="${build.test-results.dir}/unit/html"/>
+        </junitreport>
+
+        <fail if="test.failed" message="Unit tests failed! See log's for details."/>
+    </target>
+
+
+    <!--
+        jBilling "official" release generation targets
+    -->
+
+    <!-- todo: update for Grails app releases. Should generate a .war file along with our standard artifacts. -->
+
+    <!--
+         Warning: this task needs a lot of memory (at least 400MB), otherwise it fails with an obscure error.
+         To fix set "ANT_OPTS=-Xmx400m -Xss128k"
+    -->
+    <target name="db">
+        <!-- copy the schema files into torque dirs -->
+        <copy todir="${torque.home.dir}/src/schema">
+            <fileset dir="${source.torque.descriptor.dir}" includes="jbilling*"/>
+        </copy>
+
+        <!-- mysql -->
+        <ant dir="${torque.home.dir}" antfile="build-torque.xml" target="sql">
+            <property name="torque.database" value="mysql"/>
+        </ant>
+        <copy file="${torque.home.dir}/src/sql/jbilling-schema.sql"
+              tofile="${image.source.dir}/jbilling/resources/db-samples/jbilling-schema-mysql.sql"/>
+
+        <!-- db2 -->
+        <ant dir="${torque.home.dir}" antfile="build-torque.xml" target="sql">
+            <property name="torque.database" value="db2"/>
+        </ant>
+        <copy file="${torque.home.dir}/src/sql/jbilling-schema.sql"
+              tofile="${image.source.dir}/jbilling/resources/db-samples/jbilling-schema-db2.sql"/>
+
+        <!-- hypersonic -->
+        <ant dir="${torque.home.dir}" antfile="build-torque.xml" target="sql">
+            <property name="torque.database" value="hypersonic"/>
+        </ant>
+        <copy file="${torque.home.dir}/src/sql/jbilling-schema.sql"
+              tofile="${image.source.dir}/jbilling/resources/db-samples/jbilling-schema-hypersonic.sql"/>
+
+        <!-- mssql -->
+        <ant dir="${torque.home.dir}" antfile="build-torque.xml" target="sql">
+            <property name="torque.database" value="mssql"/>
+        </ant>
+        <copy file="${torque.home.dir}/src/sql/jbilling-schema.sql"
+              tofile="${image.source.dir}/jbilling/resources/db-samples/jbilling-schema-mssql.sql"/>
+
+        <!-- oracle -->
+        <ant dir="${torque.home.dir}" antfile="build-torque.xml" target="sql">
+            <property name="torque.database" value="oracle"/>
+        </ant>
+        <copy file="${torque.home.dir}/src/sql/jbilling-schema.sql"
+              tofile="${image.source.dir}/jbilling/resources/db-samples/jbilling-schema-oracle.sql"/>
+
+        <!-- postgresql -->
+        <ant dir="${torque.home.dir}" antfile="build-torque.xml" target="sql">
+            <property name="torque.database" value="postgresql"/>
+        </ant>
+        <copy file="${torque.home.dir}/src/sql/jbilling-schema.sql"
+              tofile="${image.source.dir}/jbilling/resources/db-samples/jbilling-schema-postgresql.sql"/>
+
+        <!-- sybase -->
+        <ant dir="${torque.home.dir}" antfile="build-torque.xml" target="sql">
+            <property name="torque.database" value="sybase"/>
+        </ant>
+        <copy file="${torque.home.dir}/src/sql/jbilling-schema.sql"
+              tofile="${image.source.dir}/jbilling/resources/db-samples/jbilling-schema-sybase.sql"/>
+
+        <!-- jbilling base data -->
+        <ant dir="${torque.home.dir}" antfile="build-torque.xml" target="datasql"/>
+        <copy file="${torque.home.dir}/src/jbilling-data.sql"
+              todir="${image.source.dir}/jbilling/resources/db-samples"/>
+    </target>
+
+
+    <!--
+        Utility targets
+    -->
+
+    <!--
+         Generates rules using a velocity template file and a CSV of data given as task properties
+
+         e.g., "ant generate-rules -DrulesTemplateFile=template.vm -DrulesDataFile=data.csv"
+    -->
+    <target name="generate-rules" description="Rules generation from velocity template and csv data file">
+        <echo>Generating rules for input template ${rulesTemplateFile} and data file ${rulesDataFile}</echo>
+
+        <!-- todo: where to put generated rules? -->
+        <!-- Copy test Digester config and Velocity templates for generateRules API method. -->
+        <copy todir="${build.resources.dir}/rules">
+            <fileset dir="${source.rules.dir}">
+                <include name="**/*.vm"/>
+                <include name="**/*.xml"/>
+            </fileset>
+        </copy>        
+
+        <!-- run the rules generator -->
+        <java classname="com.sapienter.jbilling.tools.RulesGenerator" failonerror="true">
+            <classpath>
+                <path refid="compile.classpath"/>
+                <fileset dir="${digester.dir}" includes="*.jar"/>
+                <pathelement location="${build.classes.dir}"/>
+            </classpath>
+            <arg value="${source.rules.dir}/templates/${rulesTemplateFile}"/>
+            <arg value="${source.rules.dir}/${rulesDataFile}"/>
+        </java>
+
+        <!-- delete velocity output log -->
+        <delete>
+            <fileset dir="${basedir}" includes="velocity.log*"/>
+        </delete>
+    </target>
+
+
+    <!--
+        Git version control commands
+    -->
+
+    <macrodef name="git">
+        <attribute name="command"/>
+        <attribute name="dir" default=""/>
+        <element name="args" optional="true"/>
+        <sequential>
+            <echo message="git @{command}"/>
+            <exec executable="git" dir="@{dir}">
+                <arg value="@{command}"/>
+                <args/>
+            </exec>
+        </sequential>
+    </macrodef>
+
+    <macrodef name="git-clone-pull">
+        <attribute name="repository"/>
+        <attribute name="dest"/>
+        <sequential>
+            <git command="clone">
+                <args>
+                    <arg value="@{repository}"/>
+                    <arg value="@{dest}"/>
+                </args>
+            </git>
+            <git command="pull" dir="@{dest}"/>
+        </sequential>
+    </macrodef>
+
+    <target name="checkout" description="Update files from GIT">
+        <git command="pull" dir="${source.dir}"/>
+    </target>
+
+</project>

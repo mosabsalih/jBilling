@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<digester-rules>
+  <pattern value="bundles">
+    <object-create-rule classname="java.util.LinkedList" />
+    <pattern value="bundle">
+      <object-create-rule classname="com.sapienter.jbilling.server.rule.task.test.Bundle" />
+      <pattern value="original-product">
+        <object-create-rule classname="com.sapienter.jbilling.server.rule.task.test.Product" />
+        <bean-property-setter-rule pattern="name" />
+        <set-next-rule methodname="setOriginalProduct" />
+      </pattern>
+      <pattern value="replacement-product">
+        <object-create-rule classname="com.sapienter.jbilling.server.rule.task.test.Product" />
+        <bean-property-setter-rule pattern="name" />
+        <set-next-rule methodname="addReplacementProduct" />
+      </pattern>
+      <set-next-rule methodname="add" />
+    </pattern>
+  </pattern>
+</digester-rules>

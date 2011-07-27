@@ -1,0 +1,18 @@
+This section discusses the approaches available for integrating *j*Billing in your
+application. While *j*Billing exposes a unique Web Services integration API, there are
+other ways of interacting with that layer too, based on the technology available to the
+application developer in the target system. 
+
+Therefore, if your application is written in Java or at has a way of interfacing with Java,
+then the simplest way of integrating *j*Billing with your application is by making use of the +jBilling
+Client API+. The +jBilling client API+ is a pure Java API that another Java program can directly call/use.
+
+Service calls can also be performed by means of plain SOAP or Hessian/Burlap calls. This type 
+of interaction is useful for those situations in which you cannot use Java as your programming 
+language (either because your server does not support it or because your application has already 
+been written in another programming language). 
+
+Generally, it easier to use the *j*Billing API than hard-coding SOAP or Hessian/Burlap calls directly.
+
+We'll now examine the above possibilities and also see some sample code for each instance.
+

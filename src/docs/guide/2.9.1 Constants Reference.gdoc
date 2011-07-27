@@ -1,0 +1,157 @@
+h3. Language Codes
+
+{table}
+ *Code*|*Name*
+  1|English 
+  2|Portuguese 
+{table}
+
+h3. Currency Codes
+{table}
+ *Code* |*Currency Name*| *ISO Code* |*Symbol*|*Country*
+ 1|United States Dollar|USD|US$|USA 
+ 2|Canadian Dollar|CAD |C$|Canada 
+ 3|Euro|EUR|<pre>&euro;</pre>|Europe 
+ 4|Yen|JPY|¥|Japan 
+ 5|Pound Sterling|GBP|£|United Kingdom 
+ 6|South Korean Won|KRW||South Korea 
+ 7|Swiss Franc|CHF|Sf|Switzerland 
+ 8|Swedish Krona|SEK|SeK|Sweden 
+ 9|Singapore Dollar|SGD|S$|Singapore 
+ 10|Ringgit|MYR|M$|Malaysia 
+ 11|Australian Dollar|AUD|$|Australia 
+{table}
+
+h3. Role Codes
+{table}
+ *Code*|*Meaning*
+ 1 | Internal 
+ 2 | Super User 
+ 3 | Clerk 
+ 4 | Partner 
+ 5 | Customer 
+{table}
+
+h3. User Status Codes
+{table}
+ *Code* | *Meaning*
+ 1 | Active 
+ 2 | Overdue 
+ 3 | Overdue 2 
+ 4 | Overdue 3 
+ 5 | Suspended 
+ 6 | Suspended 2 
+ 7 | Suspended 3 
+ 8 | Deleted 
+{table}
+
+h3. Subscriber Status Codes
+{table}
+ *Code* | *Meaning* 
+ 1 | Active 
+ 2 | Pending Subscription 
+ 3 | Unsubscribed 
+ 4 | Pending Expiration 
+ 5 | Expired 
+ 6 | Nonsubscriber 
+{table}
+
+h3. Payment Method Codes
+{table}
+ *Code* | *Meaning* 
+ 1 | Cheque 
+ 2 | Visa 
+ 3 | MasterCard 
+ 4 | AMEX 
+ 5 | ACH 
+ 6 | Discovery 
+ 7 | Diners 
+ 8 | PayPal 
+{table}
+
+h3. Order Status Codes
+{table}
+ *Code* | *Meaning* 
+ 1 | Active 
+ 2 | Finished 
+ 3 | Suspended 
+ 4 | Suspended (auto) 
+{table}
+
+h3. Order Billing Type Codes
+{table}
+ *Code* | *Meaning* 
+ 1 | Pre-paid 
+ 2 | Post-paid 
+{table}
+
+h3. Order Line Type Codes
+{table}
+ *Code*|*Meaning* 
+ 1 | Item 
+ 2 | Tax 
+ 3 | Penalty 
+{table}
+
+h3. Invoice Status Codes
+{table}
+ *Code* | *Meaning* 
+ 1 | Paid 
+ 2 | Unpaid 
+ 3 | Unpaid, balance carried to a new invoice. 
+{table}
+
+h3. Period units (units of time)
+{table}
+ *Unit* | *Meaning* 
+ 1 | Month 
+ 2 | Week 
+ 3 | Day 
+ 4 | Year 
+{table}
+
+h3. Payment results
+{table}
+ *Code* | *Meaning* 
+ 1 | Successful 
+ 2 | Failed 
+ 3 | Payment gateway not available 
+ 4 | Manually entered (payment gateway not involved, such as a cheque). 
+{table}
+
+h3. Dynamic Balance Codes
+{table}
+ *Code* | *Meaning* 
+ 1 | No dynamic balance 
+ 2 | Pre paid 
+ 3 | Credit limit 
+{table}
+
+h3. Provisioning Status Codes
+{table}
+ *Code*| *Meaning* 
+ 1 | Active 
+ 2 | Inactive 
+ 3 | Pending Active 
+ 4 | Pending Inactive 
+ 5 | Failed 
+ 6 | Unavailable 
+{table}
+
+h3. Automatic Payment Type
+{table}
+ *Code* |  *Meaning* 
+ 1 | Credit Card 
+ 2 | ACH 
+ 3 | Cheque 
+{table}
+
+h3. Invoice Delivery Method
+{table}
+ *Code* |  *Meaning* 
+ 1 | Email 
+ 2 | Paper 
+ 3 | Both Email & Paper 
+{table}
+
+.

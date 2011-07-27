@@ -1,0 +1,25 @@
+## Bundling rules don't seem to be working for the internal event
+## rules plug-in setup, so have been commented out.
+package InternalEventsRulesTask520
+
+import com.sapienter.jbilling.server.order.OrderLineBL
+import com.sapienter.jbilling.server.order.event.OrderToInvoiceEvent
+import com.sapienter.jbilling.server.order.db.OrderDTO
+import com.sapienter.jbilling.server.order.db.OrderLineDTO
+
+#foreach( $bundle in $data )
+rule 'Bundle $velocityCount'
+when
+        OrderToInvoiceEvent(userId == 1010)
+        $order : OrderDTO(notes == "Change me.")
+##        $planLine : OrderLineDTO( itemId == $bundle.originalProduct.itemId) from $order.lines # Plan
+then
+        $order.setNotes("Modified by rules created by generateRules API method.");
+##        $order.getLines().remove($planLine); # Plan is only for grouping
+
+##foreach( $product in $bundle.replacementProducts )
+##        OrderLineBL.addItem($order, $product.itemId, false); # A product for this plan
+##end
+##        update($order);
+end
+#end

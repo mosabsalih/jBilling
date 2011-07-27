@@ -1,0 +1,224 @@
+h1. Web-Services API Reference
+
+h2. Invoice API Methods
+
+{table}
+*API Method* | *Arguments* | *Returns* | *Description*
+@getInvoiceWS(Integer invoiceId)@ | Invoice ID | @InvoiceWS@ | Returns the invoice for the given ID. Will return null if invoice is a review invoice.
+@createInvoice(Integer userId, boolean onlyRecurring)@ | User ID, Orders to include | @Integer []@ | Creates an invoice for the given user, including all orders or only recurring orders. Returns the an array of generated invoice IDs.
+@createInvoiceFromOrder(Integer orderId, Integer invoiceId)@ | Order ID, Invoice ID | @Integer@ | Creates an invoice for the given order. If an invoice ID is given, the order will be added to the selected invoice - Otherwise a new invoice will be created.
+@deleteInvoice(Integer invoiceId)@ | Invoice ID | - | Deletes the given invoice.
+@getAllInvoicesForUser(Integer userId)@ | User ID | @InvoiceWS []@ | Returns an array of invoices for the given user.
+@getAllInvoices(Integer userId)@ | User ID | @Integer []@ | Returns an array of invoice IDs for the given user.
+@getLatestInvoice(Integer userId)@ | User ID | @InvoiceWS@ | Returns the most recent invoice for the given user.
+@getLastInvoices(Integer userId, Integer number)@ | User ID, number of invoices | @Integer []@ | Returns the last _N_ invoice IDs for the given user.
+@getInvoicesByDate(String since, String until)@ | Date range in the format "yyyy-mm-dd" | @Integer []@ | Returns an array of invoice IDs created between the given dates.
+@getUserInvoicesByDate(Integer userId, String since, String until)@ | User ID, Date range in the format "yyyy-mm-dd" | @Integer []@ | Returns an array of invoice IDs created between the given dates for the given user.
+@getUnpaidInvoices(Integer userId)@ | User ID | @Integer []@ | Returns an array of un-paid invoice IDs for the given user.
+@notifyInvoiceByEmail(Integer invoiceId)@ | Invoice ID | Boolean success | Sends a notification to the user regarding the given invoice ID.
+@getPaperInvoicePDF(Integer invoiceId)@ | Invoice ID | @byte []@ | Returns the bytes of the generated PDF invoice.
+{table}
+
+* Unless otherwise stated, API methods will not return a review invoice or the ID of a review invoice.
+
+
+h2. Order API Methods
+
+{table}
+*API Method* | *Arguments* | *Returns* | *Description*
+@getOrder(Integer orderId)@ | Order ID | @OrderWS@ | Returns the order for the given ID.
+@createOrder(OrderWS order)@ | @OrderWS@ | @Integer@ | Saves the given order and returns the new ID.
+@updateOrder(OrderWS order)@ | @OrderWS@ | - | Updates the stored order details to match the given order. Given order must have an ID.
+@createUpdateOrder(OrderWS order)@ | @OrderWS@ | @Integer@ | Saves the order if it does not already exist, or updates the stored details if it does.
+@deleteOrder(Integer id)@ | Order ID | - | Deletes the given order.
+@createOrderAndInvoice(OrderWS order)@ | @OrderWS@ | @Integer@ | Saves the given order and immediately generates an invoice for the new order. Returns the ID of the new invoice.
+@getCurrentOrder(Integer userId, Date date)@ | User ID, Date | @OrderWS@ | Returns the current order (order collecting current one-time charges) for the period of given date.
+@getUserSubscriptions(Integer userId)@ | User ID | @OrderWS[]@ | Returns an array of recurring order lines for the given user.
+@getOrderLine(Integer orderLineId)@ | Order Line ID | @OrderLineWS@ | Returns the order line for the given ID.
+@updateOrderLine(OrderLineWS line)@ | @OrderLineWS@ | - | Updates the stored order line details to match the given order line. Given order line must have an ID.
+@getOrderByPeriod(Integer userId, Integer periodId)@ | User ID, Period ID | @Integer []@ | Returns an array of order IDs for the given user and period id (One-time period, Monthly period etc.).
+@getLatestOrder(Integer userId)@ | User ID | @OrderWS@ | Returns the most recent order for the given user.
+@getLastOrders(Integer userId, Integer number)@ | User ID, Integer number | @Integer []@ | Returns the last _N_ order IDs for the given user.
+@rateOrder(OrderWS order)@ | @OrderWS@ | @OrderWS@ | Processes the given order, calculating prices and running all item management plug-ins. Returns the order as it would have been created.
+@rateOrders(OrderWS orders[])@ | @OrderWS []@ | @OrderWS []@ | Rates a list of orders and returns the result.
+@updateOrderPeriods(OrderPeriodWS[] orderPeriods)@ | Order Periods | boolean success | Updates all order periods to match the given list of periods.
+@deleteOrderPeriod(Integer periodId)@ | Order Period ID | boolean success | Deletes the given order period.
+@createOrderPreAuthorize(OrderWS order)@ | @OrderWS@ | @PaymentAuthorizationDTOEx@ | Creates the given order, and attempts to pre-authorize a payment for the total order amount.
+{table}
+
+
+h2. Item API Methods
+
+{table}
+*API Method* | *Arguments* | *Returns* | *Description*
+@getItem(Integer itemId, Integer userId, String pricing)@ | Item ID, User ID, Pricing string | @ItemDTOEx@ | Returns the item for the given ID.
+@getAllItems()@ | - | @ItemDTOEx []@ | Returns an array of all items in the system.
+@createItem(ItemDTOEx item)@ | @ItemDTOEx@ | @Integer@ | Save the given item and returns the new ID.
+@updateItem(ItemDTOEx item)@ | @ItemDTOEx@ | - | Updates the stored item details to match the given item. Given item must have an ID.
+@deleteItem(Integer itemId)@ | Item ID | - | Deletes the given item.
+@getItemByCategory(Integer itemTypeId)@ | Item Type ID | @ItemDTOEx []@ | Returns an array of items belonging to the given item type.
+@getUserItemsByCategory(Integer userId, Integer categoryId)@ | User ID, Item Type ID | @Integer []@ | Returns all items for the given category that can be found on an active order for the given user.
+@getAllItemCategories()@ | - | @ItemTypeWS []@ | Returns an array of all item types in the system.
+@createItemCategory(ItemTypeWS itemType)@ | @ItemTypeWS@ | @Integer@ | Saves the given item type and returns the newly created object.
+@updateItemCategory(ItemTypeWS itemType)@ | @ItemTypeWS@ | - | Updates the stored item type and returns the updated object. Given item type must have an ID.
+@deleteItemCategory(Integer itemCategoryId)@ | Item Type ID | - | Deletes the given item type.
+@isUserSubscribedTo(Integer userId, Integer itemId)@ | User ID, Item ID| @String@ | Returns the total quantity of an item found on a users active recurring orders.
+@getLatestInvoiceByItemType(Integer userId, Integer itemTypeId)@ | User ID, Item Type ID | @InvoiceWS@ | Returns the latest invoice for a user containing an item of the given type.
+@getLastInvoicesByItemType(Integer userId, Integer itemTypeId, Integer number)@ | User ID, Item Type ID, Integer number | @Integer []@ | Returns the last _N_ invoice IDs containing an item of the given type for a user.
+@getLatestOrderByItemType(Integer userId, Integer itemTypeId)@ | User Id, Item Type ID | @OrderWS@ | Returns the latest order for a user containing an item of the given type.
+@getLastOrdersByItemType(Integer userId, Integer itemTypeId, Integer number)@ | User ID, Item Type ID, Integer number | @Integer []@ | Returns the last _N_ order IDs containing an item of the given type for a user.
+@validatePurchase(Integer userId, Integer itemId, String fields)@ | User ID, Item ID, Pricing string | @ValidatePurchaseWS@ | Runs pricing and item management plug-ins in a mock purchase for the given user and item ID.
+@validateMultiPurchase(Integer userId, Integer[] itemId, String[] fields)@ | User ID, Array of Item ID | @ValidatePurchaseWS[]@ | Runs multiple mock purchases.
+{table}
+
+
+h2. Payment API Methods
+
+{table}
+*API Method* | *Arguments* | *Returns* | *Description*
+@getPayment(Integer paymentId)@ | Payment ID | @PaymentWS@ | Returns the payment for the given ID.
+@getLatestPayment(Integer userId)@ | User ID | @PaymentWS@ | Returns the most recent payment for the given user.
+@getLastPayments(Integer userId, Integer number)@ | User ID, number of payments | @Integer []@ | Returns the last _N_ payment IDs for the given user.
+@getTotalRevenueByUser(Integer userId)@ | User ID | @BigDecimal@ | Returns the total revenue (payments recieved) for the given user.
+@getUserPaymentInstrument(Integer userId)@ | User ID | @PaymentWS@ | Returns the selected "automatic payment" details for the given user.
+@createPayment(PaymentWS payment)@ | @PaymentWS@ | @Integer@ | Saves the given payment and applies it to the user's account (as per configured entity preferences). Does not process the payment, only creates it as 'Entered'.
+@updatePayment(PaymentWS payment)@ | @PaymentWS@ | - | Updates the stored payment to match the details in the given payment. Given payment must have an ID.
+@deletePayment(Integer paymentId)@ | Payment ID | - | Deletes the given payment.
+@removePaymentLink(Integer invoiceId, Integer paymentId)@ | Invoice ID, Payment ID | - | Remove the link between a payment and invoice (un-pay the invoice).
+@createPaymentLink(Integer invoiceId, Integer paymentId)@ | Invoice ID, Payment ID | - | Link the payment to an invoice (pay the invoice).
+@payInvoice(Integer invoiceId)@ | Invoice ID | @PaymentAuthorizationDTOEx@ | Pays the given invoice using the first credit card available for the invoiced user.
+@applyPayment(PaymentWS payment, Integer invoiceId)@ | @PaymentWS@, Invoice ID | @Integer@ | Saves the given payment and applies it to the given invoice. Does not process the payment, only creates it as 'Entered'.
+@processPayment(PaymentWS payment, Integer invoiceId)@ | @PaymentWS@, Invoice ID | @PaymentAuthorizationDTOEx@ | Saves and processes the payment, applying it to the given invoice. If no payment is given, the payment will be created using the users "automatic payment" instrument. If no invoice is given, the payment will be applied to the user's account according to the configured entity preferences.
+{table}
+
+
+h2. User API Methods
+
+{table}
+*API Method* | *Arguments* | *Returns* | *Description*
+@getUserWS(Integer userId)@ | User ID | @UserWS@ | Returns the user for the given ID.
+@createUser(UserWS newUser)@ | @UserWS | @Integer@ | Save the given item and returns the new ID.
+@updateUser(UserWS user)@ | @UserWS @ | - | Updates the stored user details to match the given user object. Given user must have an ID.
+@deleteUser(Integer userId)@ | User ID | - | Deletes the given user.
+@getUserContactsWS(Integer userId)@ | User ID | @ContactWS []@ | Returns all contact details for the given user.
+@updateUserContact(Integer userId, Integer typeId, ContactWS contact)@ | User ID, Contact Type ID, @ContactWS@ | - | Updates the contact details of the given user.
+@getContactTypeWS(Integer contactTypeId)@ | Contact Type ID | @ContactTypeWS@ | Returns the contact type for the given ID.
+@createContactTypeWS(ContactTypeWS contactType)@ | @ContactTypeWS@ | @Integer@ | Saves the given contact type and returns the new ID.
+@updateCreditCard(Integer userId, CreditCardDTO creditCard)@ | User ID, Credit Card | - | Updates the given users credit card data.
+@updateAch(Integer userId, AchDTO ach)@ | User ID, ACH | - | Updates the given users ACH (automatic clearing house) data.
+@setAuthPaymentType(Integer userId, Integer autoPaymentType, boolean use)@ | User ID, Payment Type, use type? | - | Marks the users Credit Card or ACH details as being usable for automatic payments.
+@getAuthPaymentType(Integer userId)@ | User ID | @Integer@ | Returns the users preferred automatic payment type.
+@getUsersByStatus(Integer statusId, boolean in)@ | Status ID, in/ not in status | @Integer []@ |  If "in" true, returns a list of users who are in the givens status, if false, a list of users who are NOT in the given status.
+@getUsersInStatus(Integer statusId)@ | Status ID | @Integer []@ | Array of user IDs who are in the given status.
+@getUsersNotInStatus(Integer statusId)@ | Status ID | @Integer []@ | Array of user IDs who are not in the given status.
+@getUsersByCustomField(Integer typeId, String value)@ | Type ID, Value to match | @Integer []@ | Array of user IDs who have a custom contact field with the given value.
+@getUsersByCreditCard(String number)@ | Credit Card number | @Integer []@ | Array of user IDs who have the given credit card ID.
+@getUserId(String username)@ | User name | @Integer@ | Returns the user id for the given user name.
+@saveCustomContactFields(ContactFieldTypeWS[] fields)@ | @ContactFieldTypeWS []@ | - | Updates the available custom contact fields for the system.
+@processPartnerPayouts(Date runDate)@ | Run Date | - | Runs the parter payout process for the given date.
+@getPartner(Integer partnerId)@ | Patner ID | @PartnerWS@ | Returns the partner for the given ID.
+@getUserTransitions(Date from, Date to)@ | Date range | @UserTransitionResponseWS []@ | Returns an array of user transitions (status changes) for the givend date range.
+@getUserTransitionsAfterId(Integer id)@ | User ID | @UserTransitionResponseWS []@ | Returns an array of user transitions (status changes) for the given user ID.
+@create(UserWS user, OrderWS order)@ | @UserWS@, @OrderWS@ | @CreateResponseWS@ | Saves a new user and order and immediately generates a new invoice for the created user and order. Returns the ID's of the created objects.
+@saveCustomerNotes(Integer userId, String notes)@ | User ID, Notes | - | Updates the given users notes.
+{table}
+
+h2. Plans and Special Pricing API Methods
+
+{table}
+*API Method* | *Arguments* | *Returns* | *Description*
+@getPlanWS(Integer planId)@ | Plan ID | @PlanWS@ | Returns the plan for the given ID.
+@createPlan(PlanWS plan)@ | @PlanWS@ | @Integer@ | Save the given plan and return the new ID.
+@updatePlan(PlanWS plan)@ | @PlanWS@ | - | Update the stored plan details to match the given plan object. Given plan must have an ID.
+@deletePlan(Integer planId)@ | Plan ID | - | Deletes the given plan.
+@addPlanPrice(Integer planId, PlanItemWS price)@ | Plan ID, @PlanItemWS@ | - | Adds a new price to the given plan.
+@isCustomerSubscribed(Integer planId, Integer userId)@ | Plan ID, User ID | boolean | Returns true if the given user is subscribed to the plan, false if not.
+@getSubscribedCustomers(Integer planId)@ | Plan ID | @Integer []@ | Returns an array of user IDs of users who have subscribed to the given plan.
+@getPlansBySubscriptionItem(Integer itemId)@ | Item ID | @Integer []@ | Returns a list of plan IDs that modify customer pricing when the given item is added to an order.
+@getPlansByAffectedItem(Integer itemId)@ | Item ID | @Integer []@ | Returns a list of plan IDs that affect the price of the given item.
+@createCustomerPrice(Integer userId, PlanItemWS planItem)@ | User ID, @PlanItemWS@ | @PlanItemWS@ | Creates a new customer-specific price for the given user. This new price will only affect the given user.
+@updateCustomerPrice(Integer userId, PlanItemWS planItem)@ | User ID, @PlanItemWS@ | - | Updates a stored customer-specific price with the details of the given price. Price object must have an ID.
+@deleteCustomerPrice(Integer userId, Integer planItemId)@ | User ID, Plan Item ID | - | Deletes a customer-specific price.
+@getCustomerPrices(Integer userId)@ | User ID | @PlanItemWS []@ | Returns a list of applied pricing (both customer-specific and plan prices) for the given user.
+@getCustomerPrice(Integer userId, Integer itemId)@ | User ID, Item ID | @PlanItemWS []@ |Returns a list of applied pricing (both customer-specific and plan prices) for the given user and item.
+@getCustomerPriceByAttributes(Integer userId, Integer itemId, Map<String, String> attrs)@ | User ID, Item ID, Map of attributes | @PlanItemWS []@ | Returns a list of applied pricing (both customer-specific and plan prices) that matches the given attributes.
+@getCustomerPriceByWildcardAttributes(Integer userId, Integer itemId, Map<String, String> attrs)@ | User ID, Item ID, Map of attributes | @PlanItemWS []@ | Returns a list of applied pricing (both customer-specific and plan prices) that matches the given attributes. Handles wildcards for attribute values, where '*' can mean "any value".
+{table}
+
+
+h2. Billing Process API Methods
+
+{table}
+*API Method* | *Arguments* | *Returns* | *Description*
+@isBillingRunning()@ | - | boolean | Returns true if the billing process is currently running.
+@triggerBillingAsync(Date runDate)@ | Run date | - | Triggers the billing process for the given date in a new thread (non-blocking).
+@triggerBilling(Date runDate)@ | Run date | boolean | Triggers the billing process for the given date in the current thread (blocking). Returns true if the billing process was triggered successfully, false if not.
+@triggerAgeing(Date runDate)@ | Run date | - | Triggers the user ageing process.
+@getBillingProcessConfiguration()@ | - | @BillingProcessConfigurationWS@ | Returns the billing process configuration.
+@createUpdateBillingProcessConfiguration(BillingProcessConfigurationWS ws)@ | @BillingProcessConfigurationWS@ | @Integer@ | Updates the current billing configuration.
+@getBillingProcess(Integer processId)@ | Process ID | @BillingProcessWS@ | Returns the outcome of the given billing process.
+@getLastBillingProcess()@  | - | @Integer@ | Returns the billing process ID of the last run billing process.
+@getOrderProcesses(Integer orderId)@ | Order ID | @List<OrderProcessWS>@ | Returns a list of processes that have added the given order into an invoice.
+@getOrderProcessesByInvoice(Integer invoiceId)@ | Invoice ID | @List<OrderProcessWS>@ | Returns a list of processes that have created or updated the given invoice.
+@getReviewBillingProcess()@ | - | @BillingProcessWS@ | Returns the outcome of the latest review billing process.
+@setReviewApproval(Boolean flag)@ | boolean is review approved | @BillingProcessConfigurationWS@ | Approves or disapproves the latest review process. Returns the billing configuration that generated the review.
+@getBillingProcessGeneratedInvoices(Integer processId)@ | Process ID | @List<Integer>@ | Returns a list of invoice IDs generated by the given billing process.
+@getAgeingConfiguration(Integer languageId)@ | Language ID | @AgeingWS []@ | Returns a list of ageing steps and ageing messages for the given language.
+@saveAgeingConfiguration(AgeingWS[] steps, Integer gracePeriod, Integer languageId)@ | @AgeingWS []@, Grace Period, Language ID | - | Updates the current ageing configuration with the given ageing steps and grace period. Ageing notification messages will be saved for the given language ID.
+{table}
+
+
+h2. Mediation Process API Methods
+
+{table}
+*API Method* | *Arguments* | *Returns* | *Description*
+@triggerMediation()@ | - | - | Triggers the mediation process.
+@isMediationProcessing()@ | - | boolean | Returns true if the mediation process is currently running.
+@getAllMediationProcesses()@ | - | @List<MediationProcessWS>@ | Returns a list of all mediation process outcomes.
+@getMediationEventsForOrder(Integer orderId)@ | Order ID | @List<MediationRecordLineWS>@ | Returns a list of mediation events (external data read in) for the given order.
+@getMediationEventsForInvoice(Integer invoiceId)@ | Invoice ID | @List<MediationRecordLineWS>@  | Returns a list of mediation events (external data read in) for the given invoice.
+@getMediationRecordsByMediationProcess(Integer mediationProcessId)@ | Mediation Process ID | @List<MediationRecordWS>@ | Returns a list of mediation records for the given process.
+@getNumberOfMediationRecordsByStatuses()@ | - | @List<RecordCountWS>@ | Returns a breakdown of the mediation process by record status.
+@getAllMediationConfigurations()@ | - | @List<MediationConfigurationWS>@ | Returns all mediation configurations for the system.
+@createMediationConfiguration(MediationConfigurationWS cfg)@ | @MediationConfigurationWS@ | - | Saves a new mediation configuration.
+@updateAllMediationConfigurations(List<MediationConfigurationWS> configurations)@ | @List<MediationConfigurationWS>@ | @List<Integer>@ | Updates all given mediation configurations. Given configs must have an ID.
+@deleteMediationConfiguration(Integer cfgId)@ | Configuration ID | - | Deletes the given mediation configuration.
+{table}
+
+
+h2. Provisioning Process API Methods
+
+{table}
+*API Method* | *Arguments* | *Returns* | *Description*
+@triggerProvisioning()@ | - | - | Triggers the provisioning process.
+@updateOrderAndLineProvisioningStatus(Integer inOrderId, Integer inLineId, String result)@ | Order ID, Order Line ID, Result | - | Updates the order or line provisioning status to the set result (either "fail", "unavailable" or "success").
+@updateLineProvisioningStatus(Integer orderLineId, Integer provisioningStatus)@ | Order Line ID, Status ID | - | Updates the order line provisioning status.
+{table}
+
+
+h2. Preference API Methods
+
+{table}
+*API Method* | *Arguments* | *Returns* | *Description*
+@updatePreferences(PreferenceWS[] prefList)@ | @PreferenceWS []@ | - | Stores all the given preference values.
+@updatePreference(PreferenceWS preference)@ | @PreferenceWS@ | - | Stored the given preference value.
+@getPreference(Integer preferenceTypeId)@ @ | Preference Type ID | @PreferenceWS@ | Returns the preference for the given preference type id.
+@getCurrencies()@ | - | @CurrencyWS []@ | Returns a list of configured currencies.
+@updateCurrencies(CurrencyWS[] currencies)@ | @CurrencyWS []@ | - | Stores all the given currency values.
+@updateCurrency(CurrencyWS currency)@ | @CurrencyWS@ | - | Updates the given currency. Storing the exchange rate, system rate, and currency availability.
+@createCurrency(CurrencyWS currency)@ | @CurrencyWS@ | @Integer@ | Saves a new currency type and returns the new ID.
+@getCompany()@ | - | @CompanyWS@ | Returns the company contact details for the API users company.
+@updateCompany(CompanyWS companyWS)@ | @CompanyWS@ | - | Updates the company contact details for the API users company.
+@createUpdateNofications(Integer messageId, MessageDTO dto)@ | Mesage ID , @MessageDTO@ | - | Saves or updates an existing notification message.
+{table}
+
+
+h2. Plug-in API Methods
+
+{table}
+*API Method* | *Arguments* | *Returns* | *Description*
+@getPluginWS(Integer pluginId)@ | Plugin ID | @PluggableTaskWS@ | Returns the configured plug-in for the given ID.
+@createPlugin(PluggableTaskWS plugin)@ | @PluggableTaskWS@ | @Integer@ | Saves the given plugin and returns the new ID.
+@updatePlugin(PluggableTaskWS plugin)@  | @PluggableTaskWS@ | - | Updates the stored plugin. Given plugin must have an ID.
+@deletePlugin(Integer plugin)@ | @Integer@ | - | Deletes the given plugin
+{table}

@@ -1,0 +1,358 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:jms="http://www.springframework.org/schema/jms"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="
+           http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+           http://www.springframework.org/schema/jms http://www.springframework.org/schema/jms/spring-jms-2.5.xsd
+           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.0.xsd
+           http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.5.xsd">
+
+    <!--
+          ***************************************************
+          *         MAIN BEAN DEFINITIONS               *
+          ***************************************************
+    -->
+
+    <!-- bootstrap jBilling services on startup -->
+    <bean id="jBillingBootstrap"
+          class="com.sapienter.jbilling.server.util.Bootstrap"
+          scope="singleton"
+          init-method="init"
+          destroy-method="destroy"/>
+
+    <!-- Session Facade beans, used mostly for transaction control and other AOP -->
+    <bean id="itemSession" class="com.sapienter.jbilling.server.item.ItemSessionBean"/>
+    <bean id="notificationSession" class="com.sapienter.jbilling.server.notification.NotificationSessionBean"/>
+    <bean id="customerSession" class="com.sapienter.jbilling.server.customer.CustomerSessionBean"/>
+    <bean id="userSession" class="com.sapienter.jbilling.server.user.UserSessionBean"/>
+    <bean id="invoiceSession" class="com.sapienter.jbilling.server.invoice.InvoiceSessionBean"/>
+    <bean id="orderSession" class="com.sapienter.jbilling.server.order.OrderSessionBean"/>
+    <bean id="pluggableTaskSession" class="com.sapienter.jbilling.server.pluggableTask.PluggableTaskSessionBean"/>
+    <bean id="paymentSession" class="com.sapienter.jbilling.server.payment.PaymentSessionBean"/>
+    <bean id="mediationSession" class="com.sapienter.jbilling.server.mediation.MediationSessionBean"/>
+    <bean id="billingProcessSession" class="com.sapienter.jbilling.server.process.BillingProcessSessionBean"/>
+    <bean id="provisioningProcessSession" class="com.sapienter.jbilling.server.provisioning.ProvisioningProcessSessionBean"/>
+
+    <!-- The web services API, which is used as main service in the GUI -->
+    <bean id="webServicesSession" class="com.sapienter.jbilling.server.util.WebServicesSessionSpringBean">
+        <aop:scoped-proxy/>
+    </bean>
+
+    <!-- Data Access Service beans -->
+    <bean id="internationalDescriptionDAS" class="com.sapienter.jbilling.server.util.db.InternationalDescriptionDAS"
+          factory-method="getInstance" scope="prototype">
+        <property name="jbDAS" ref="jbillingTableDAS"/>
+    </bean>
+
+    <bean id="jbillingTableDAS" class="com.sapienter.jbilling.server.util.db.JbillingTableDAS"
+          factory-method="getInstance" scope="prototype">
+        <property name="cache" ref="cacheProviderFacade"/>
+        <property name="cacheModel" ref="cacheModelReadOnly"/>
+    </bean>
+
+    <bean id="pluggableTaskDAS" class="com.sapienter.jbilling.server.pluggableTask.admin.PluggableTaskDAS"
+          factory-method="getInstance" scope="prototype">
+        <property name="cache" ref="cacheProviderFacade"/>
+        <property name="cacheModel" ref="cacheModelPTDTO"/>
+        <property name="flushModel" ref="flushModelPTDTO"/>
+    </bean>
+
+    <!-- Utility beans -->
+    <bean id="velocityEngine" class="org.springframework.ui.velocity.VelocityEngineFactoryBean"/>
+
+    <!-- Thrid level cache configuration. Annotations and proxies do not work, other proxies get confused  -->
+    <bean id="cacheManager"
+          class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
+    </bean>
+
+    <bean id="cacheProviderFacade"
+          class="org.springmodules.cache.provider.ehcache.EhCacheFacade">
+        <property name="cacheManager" ref="cacheManager"/>
+    </bean>
+
+    <bean id="cacheModelReadOnly" class="org.springmodules.cache.provider.ehcache.EhCacheCachingModel">
+        <property name="cacheName" value="thirdLevel-RO"/>
+    </bean>
+
+    <bean id="cacheModelPTDTO" class="org.springmodules.cache.provider.ehcache.EhCacheCachingModel">
+        <property name="cacheName" value="thirdLevel-RW"/>
+    </bean>
+
+    <bean id="flushModelPTDTO" class="org.springmodules.cache.provider.ehcache.EhCacheFlushingModel">
+        <property name="cacheNames" value="thirdLevel-RW"/>
+        <property name="flushBeforeMethodExecution" value="true"/>
+    </bean>
+
+    <!-- Item Price cache configuration. -->
+    <bean id="cacheModelItemPrice" class="org.springmodules.cache.provider.ehcache.EhCacheCachingModel">
+        <property name="cacheName" value="itemPriceCache"/>
+    </bean>
+
+    <bean id="flushModelItemPrice" class="org.springmodules.cache.provider.ehcache.EhCacheFlushingModel">
+        <property name="cacheNames" value="itemPriceCache"/>
+        <property name="flushBeforeMethodExecution" value="true"/>
+    </bean>
+
+    <!-- Internal event processing configuration for the 'InternalEventsRulesTask' plug-in -->
+    <!-- List of internal events that the rules task subscribes to -->
+    <util:list id="invoiceEvents">
+        <value>com.sapienter.jbilling.server.order.event.OrderToInvoiceEvent</value>
+    </util:list>
+
+    <!-- map the configured events to a specific plug-in instance by id -->
+    <util:map id="internalEventsRulesTaskConfig">
+        <entry key="540" value-ref="invoiceEvents"/>
+    </util:map>
+
+
+    <!--
+          ***************************************************
+          *         AOP: Security / Logging                 *
+          ***************************************************
+    -->
+
+    <!-- Exception Advice for WebServicesSessionBean -->
+    <!-- Re-throws all exceptions as SessionInternalErrors. -->
+    <bean id="webServicesExceptionAdvice" class="com.sapienter.jbilling.server.util.WSExceptionAdvice"/>
+    <bean id="webServicesExceptionAdvisor" class="org.springframework.aop.support.RegexpMethodPointcutAdvisor">
+        <property name="advice" ref="webServicesExceptionAdvice"/>
+        <property name="pattern" value="com.sapienter.jbilling.server.util.WebServicesSessionSpringBean.*"/>
+    </bean>
+
+
+    <!--
+          ***************************************************
+          *              Validation                         *
+          ***************************************************
+    -->
+
+    <bean id="validator"
+          class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean">
+    </bean>
+
+    <!-- Validation for WebServicesSessionBean -->
+    <!-- Validates any parameter that ends with *WS -->
+    <bean id="webServicesValidationAdvice" class="com.sapienter.jbilling.server.util.api.validation.APIValidator">
+        <property name="validator" ref="validator"/>
+        <property name="objectsToTest">
+            <set>
+                <!-- Enter here endings to match. This is not a regex, just a search of suffix -->
+                <value>WS</value>
+                <value>DTOEx</value>
+            </set>
+        </property>
+    </bean>
+    <bean id="webServicesValidationAdvisor" class="org.springframework.aop.support.RegexpMethodPointcutAdvisor">
+        <property name="advice" ref="webServicesValidationAdvice"/>
+        <property name="pattern" value="com.sapienter.jbilling.server.util.WebServicesSessionSpringBean.*"/>
+    </bean>
+
+
+    <!--
+          ***************************************************
+          *         JMS Messaging                           *
+          ***************************************************
+    -->
+
+    <!-- JMS connection factory -->
+    <bean id="jmsConnectionFactory" class="org.apache.activemq.pool.PooledConnectionFactory" destroy-method="stop">
+        <property name="connectionFactory">
+           <bean class="org.apache.activemq.ActiveMQConnectionFactory">
+               <!--<property name="brokerURL" value="tcp://localhost:61616"/>-->
+               <property name="brokerURL" value="vm://localhost"/>
+           </bean>
+        </property>
+    </bean>
+
+    <bean id="jmsTemplate" class="org.springframework.jms.core.JmsTemplate">
+        <property name="connectionFactory">
+            <ref local="jmsConnectionFactory"/>
+        </property>
+    </bean>
+
+    <!-- JMS destinations -->
+    <bean id="processorsDestination" class="org.apache.activemq.command.ActiveMQQueue">
+        <constructor-arg index="0" value="queue.jbilling.processors"/>
+    </bean>
+
+    <bean id="provisioningCommandsDestination" class="org.apache.activemq.command.ActiveMQQueue">
+        <constructor-arg index="0" value="queue.jbilling.provisioningCommands"/>
+    </bean>
+
+    <bean id="provisioningCommandsReplyDestination" class="org.apache.activemq.command.ActiveMQTopic">
+        <constructor-arg index="0" value="topic.jbilling.provisioningCommandsReply"/>
+    </bean>
+
+    <!-- Message driven beans -->
+    <bean id="processPaymentMDB" class="com.sapienter.jbilling.server.payment.event.ProcessPaymentMDB"/>
+    <bean id="provisioningCommandsMDB" class="com.sapienter.jbilling.server.provisioning.task.ProvisioningCommandsMDB"/>
+    <bean id="testExternalProvisioningMDB"
+          class="com.sapienter.jbilling.server.provisioning.TestExternalProvisioningMDB"/>
+    <bean id="externalProvisioningMDB" class="com.sapienter.jbilling.server.provisioning.ExternalProvisioningMDB"/>
+
+    <!-- Queue listeners -->
+    <jms:listener-container connection-factory="jmsConnectionFactory">
+        <jms:listener ref="processPaymentMDB" destination="queue.jbilling.processors"/>
+        <jms:listener ref="externalProvisioningMDB" destination="queue.jbilling.provisioningCommands"/>
+    </jms:listener-container>
+
+    <!-- Topics listeners -->
+    <jms:listener-container connection-factory="jmsConnectionFactory" destination-type="topic">
+        <jms:listener ref="provisioningCommandsMDB" destination="topic.jbilling.provisioningCommandsReply"/>
+        <jms:listener ref="testExternalProvisioningMDB" destination="topic.jbilling.provisioningCommandsReply"/>
+    </jms:listener-container>
+
+
+    <!--
+          ***************************************************
+          *         Provisioning Configuration              *
+          ***************************************************
+    -->
+
+    <bean id="provisioning" class="com.sapienter.jbilling.server.provisioning.config.Provisioning">
+    <property name="commands">
+      <list>
+        <bean class="com.sapienter.jbilling.server.provisioning.config.Command">
+          <property name="id" value="activate_user"/>
+          <property name="fields">
+            <list>
+              <bean class="com.sapienter.jbilling.server.provisioning.config.Field">
+                <property name="name" value="msisdn"/>
+              </bean>
+              <bean class="com.sapienter.jbilling.server.provisioning.config.Field">
+                <property name="name" value="imsi"/>
+                <property name="defaultValue" value="REMOVE"/>
+              </bean>
+            </list>
+          </property>
+          <property name="processors">
+            <list>
+              <bean class="com.sapienter.jbilling.server.provisioning.config.Processor">
+                <property name="id" value="test"/>
+                <property name="requests">
+                  <list>
+                    <bean class="com.sapienter.jbilling.server.provisioning.config.Request">
+                      <property name="order" value="1"/>
+                      <property name="submit" value="CREATE:HLRSUB:MSISDN,|msisdn|:IMSI,|imsi|:PROFILE,60;"/>
+                      <property name="rollback" value="DELETE:HLRSUB:MSISDN,|msisdn|;"/>
+                      <property name="postResult" value="true"/>
+                      <property name="continueOnType" value="success"/>
+                    </bean>
+                    <bean class="com.sapienter.jbilling.server.provisioning.config.Request">
+                      <property name="order" value="2"/>
+                      <property name="submit" value="CREATE:VMSUB:SUBID,|msisdn|:EXTNO,-1:COS,201:PWD,1234;"/>
+                    </bean>
+                  </list>
+                </property>
+              </bean>
+            </list>
+          </property>
+        </bean>
+
+        <bean class="com.sapienter.jbilling.server.provisioning.config.Command">
+          <property name="id" value="result_test"/>
+          <property name="fields">
+            <list>
+              <bean class="com.sapienter.jbilling.server.provisioning.config.Field">
+                <property name="name" value="msisdn"/>
+              </bean>
+              <bean class="com.sapienter.jbilling.server.provisioning.config.Field">
+                <property name="name" value="imsi"/>
+                <property name="defaultValue" value="REMOVE"/>
+              </bean>
+            </list>
+          </property>
+          <property name="processors">
+            <list>
+              <bean class="com.sapienter.jbilling.server.provisioning.config.Processor">
+                <property name="id" value="test"/>
+                <property name="requests">
+                  <list>
+                    <bean class="com.sapienter.jbilling.server.provisioning.config.Request">
+                      <property name="order" value="1"/>
+                      <property name="submit" value="DELETE:THIS:MSISDN,|msisdn|:IMSI,|imsi|;"/>
+                      <property name="postResult" value="true"/>
+                      <property name="continueOnType" value="success"/>
+                    </bean>
+                    <bean class="com.sapienter.jbilling.server.provisioning.config.Request">
+                      <property name="order" value="2"/>
+                      <property name="submit" value="DELETE:THAT:MSISDN,|msisdn|:IMSI,|imsi|;"/>
+                      <property name="postResult" value="true"/>
+                    </bean>
+                  </list>
+                </property>
+              </bean>
+            </list>
+          </property>
+        </bean>
+
+        <bean class="com.sapienter.jbilling.server.provisioning.config.Command">
+          <property name="id" value="cai_test"/>
+          <property name="fields">
+            <list>
+              <bean class="com.sapienter.jbilling.server.provisioning.config.Field">
+                <property name="name" value="msisdn"/>
+              </bean>
+              <bean class="com.sapienter.jbilling.server.provisioning.config.Field">
+                <property name="name" value="imsi"/>
+              </bean>
+            </list>
+          </property>
+          <property name="processors">
+            <list>
+              <bean class="com.sapienter.jbilling.server.provisioning.config.Processor">
+                <property name="id" value="cai"/>
+                <property name="requests">
+                  <list>
+                    <bean class="com.sapienter.jbilling.server.provisioning.config.Request">
+                      <property name="order" value="1"/>
+                      <property name="submit" value="CREATE:HLRSUB:MSISDN,|msisdn|:IMSI,|imsi|;"/>
+                      <property name="postResult" value="true"/>
+                    </bean>
+                  </list>
+                </property>
+              </bean>
+            </list>
+          </property>
+        </bean>
+
+         <bean class="com.sapienter.jbilling.server.provisioning.config.Command">
+          <property name="id" value="mmsc_test"/>
+          <property name="fields">
+            <list>
+              <bean class="com.sapienter.jbilling.server.provisioning.config.Field">
+                <property name="name" value="msisdn"/>
+              </bean>
+              <bean class="com.sapienter.jbilling.server.provisioning.config.Field">
+                <property name="name" value="subscriptionType"/>
+              </bean>
+            </list>
+          </property>
+          <property name="processors">
+            <list>
+              <bean class="com.sapienter.jbilling.server.provisioning.config.Processor">
+                <property name="id" value="mmsc"/>
+                <property name="requests">
+                  <list>
+                    <bean class="com.sapienter.jbilling.server.provisioning.config.Request">
+                      <property name="order" value="1"/>
+                      <property name="submit" value="addCustomer:msisdn,|msisdn|:subscriptionType,|subscriptionType|;"/>
+                      <property name="postResult" value="true"/>
+                    </bean>
+                  </list>
+                </property>
+              </bean>
+            </list>
+          </property>
+        </bean>
+      </list>
+    </property>
+  </bean>
+
+  <bean id="cai" class="com.sapienter.jbilling.server.provisioning.task.TestCommunication"/>
+  <bean id="mmsc" class="com.sapienter.jbilling.server.provisioning.task.TestMMSCCommunication"/>
+
+</beans>

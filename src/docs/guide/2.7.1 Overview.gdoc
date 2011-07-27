@@ -1,0 +1,9 @@
+This section provides an introduction to the use of *j*Billing integration calls. It builds on the 'Trend' tutorial 
+found in *j*Billing's *[Getting Started|http://www.jbilling.com/documentation/getting-started-with-jbilling]* guide. 
+As such, if you wish to follow the examples in this section, you'll need to follow the *[Getting Started|http://www.jbilling.com/documentation/getting-started-with-jbilling]* Guide
+tutorial, creating the Trend entity and adding the Items and Orders. The examples in this section will mainly use the 
++jBilling client API+. If you're unable to use this API (most probably because your system does not make use of the Java 
+programming language), you'll need to substitute the API calls with direct SOAP requests. Please, refer to the Integrating *j*Billing to your 
+Application chapter, which explains the options for performing service calls to *j*Billing in more detail and provides
+examples for some programming languages and SOAP APIs available.
+

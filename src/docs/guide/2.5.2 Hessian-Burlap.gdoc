@@ -1,0 +1,8 @@
+The Hessian service URL is in the following form:
+
+@http://localhost:8080/jbilling/hessian/ApiService@
+
+Similarly for Burlap:
+
+@http://localhost:8080/jbilling/burlap/ApiService@
+

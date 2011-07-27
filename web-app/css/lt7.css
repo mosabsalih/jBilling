@@ -1,0 +1,44 @@
+/*
+ * jBilling - The Enterprise Open Source Billing System
+ * Copyright (C) 2003-2011 Enterprise jBilling Software Ltd. and Emiliano Conde
+ *
+ * This file is part of jbilling.
+ *
+ * jbilling is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * jbilling is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with jbilling.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+* html body {
+	width:expression(document.documentElement.clientWidth < 998 ? "998px" : "auto");
+}
+#navigation ul li ,
+#header .top-nav li {zoom:1; display:inline;}
+#header .top-nav li{
+	background: expression( (this===this.parentNode.childNodes[0]) ? "none" : "url(images/separator02.gif) no-repeat 0 50%"); 
+}
+#navigation ul li{
+	background: expression( (this===this.parentNode.childNodes[0]) ? "none" : "url(images/separator01.gif) no-repeat 0 50%"); 
+}
+#navigation ul li {
+	padding:0 7px;
+}
+.lightbox .bg-lightbox {
+	background:url(../images/none.gif);
+	filter: progid:dximagetransform.microsoft.alphaimageloader(src='images/bg-lightbox.png', sizingmethod='crop');
+}
+.table-box li,
+.buttons,
+.form-columns,
+.form-columns .row {
+	zoom:1;
+}

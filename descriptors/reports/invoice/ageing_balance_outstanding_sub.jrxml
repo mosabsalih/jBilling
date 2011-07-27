@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="ageing_balance_outstanding_sub" language="groovy" pageWidth="200" pageHeight="40" whenNoDataType="AllSectionsNoDetail" columnWidth="200" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0">
+	<property name="ireport.zoom" value="1.5"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="user_id" class="java.lang.Integer"/>
+	<parameter name="start_days" class="java.lang.Integer"/>
+    <parameter name="start_date" class="java.util.Date" isForPrompting="false">
+        <defaultValueExpression>
+            <![CDATA[new Date(System.currentTimeMillis() - ($P{start_days} * 1000 * 60 * 60 * 24))]]>
+        </defaultValueExpression>
+    </parameter>
+	<parameter name="end_days" class="java.lang.Integer"/>
+    <parameter name="end_date" class="java.util.Date" isForPrompting="false">
+        <defaultValueExpression>
+            <![CDATA[new Date(System.currentTimeMillis() - ($P{end_days} * 1000 * 60 * 60 * 24))]]>
+        </defaultValueExpression>
+    </parameter>
+	<queryString>
+		<![CDATA[select
+            (
+                (
+                    select coalesce(sum(i.balance), 0)
+                    from invoice i
+                    where
+                        i.deleted = 0
+                        and i.status_id != 26
+                        and i.is_review != 1
+                        and i.user_id = u.id
+                        and i.create_datetime <= $P{start_date}
+                        and i.create_datetime > $P{end_date}
+                  ) - (
+                    select coalesce(sum(p.balance), 0)
+                    from payment p
+                    where
+                        p.deleted = 0
+                        and p.user_id = u.id
+                        and p.create_datetime <= $P{start_date}
+                        and p.create_datetime > $P{end_date}
+                )
+            ) as balance
+        from
+            base_user u
+        where
+            u.id = $P!{user_id}]]>
+	</queryString>
+	<field name="balance" class="java.math.BigDecimal"/>
+	<variable name="sub_total" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{balance}]]></variableExpression>
+		<initialValueExpression><![CDATA[new BigDecimal("0.00")]]></initialValueExpression>
+	</variable>
+	<detail>
+		<band height="40" splitType="Stretch">
+			<textField pattern="###0.00">
+				<reportElement x="0" y="0" width="100" height="20">
+					<printWhenExpression><![CDATA[Boolean.valueOf($F{balance}.compareTo(new BigDecimal("0")) != 0)]]></printWhenExpression>
+				</reportElement>
+				<textElement/>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{balance}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="0" y="0" width="100" height="20">
+					<printWhenExpression><![CDATA[Boolean.valueOf($F{balance}.compareTo(new BigDecimal("0")) == 0)]]></printWhenExpression>
+				</reportElement>
+				<textElement/>
+				<text><![CDATA[-]]></text>
+			</staticText>
+		</band>
+	</detail>
+</jasperReport>

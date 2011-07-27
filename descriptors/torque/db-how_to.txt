@@ -1,0 +1,127 @@
+
+Generating the schema and data sql files:
+-----------------------------------------
+1) Download/unzip torque generator. Make sure is GENERATOR and not runtime.
+2) Edit the torque file build.properties with this line:
+        torque.project = jbilling
+3) Edit the jbilling file build.properties to match the place you've unzipped torque:
+        torque.home.dir=${tools.dir}/torque-gen-3.2
+   Make sure you also have properly configured the image properties. Here is where the resulting sql files will end up
+        image.source.dir=c:/bop/image/source
+4) Run 'ant db' . If the last part fails, make sure you have plenty of RAM for you JVM, about 300M
+
+Data types issues
+-----------------
+The mapping of the data types torque - mysql/postgres are in the 
+directories ; {torque.dir}\templates\sql\base\
+
+MySQL:
+The LONGVARCHAR generates a MEDIUMTEXT, but that won't lake a length.
+Therefore, edition of the generated file  {torque.dir}\src\sql\betty-schema.sql and
+delete the (XXX) from the MEDIUMTEXT.
+
+PostgreSQL:
+The LONGVARCHAR generates a bytea type that has to be changed for varchar2
+            
+Common errors :(
+-----------------
+
+  To run the 'create-db' target. It is useless.
+  
+MySQL getting started:
+----------------------
+ - Use this command line to run scripts:
+    mysql -D jbilling -u jbilling -h localhost --password=pass < jbilling-data.sql
+ - 
+Hypersonic getting started:
+---------------------------
+ - The database is just 4 files in jbilling\server\jbilling\data\hypersonic
+ - Deleteing this files is like dropping the database ;)
+ - To startup the server (run from jbilling\server\jbilling\data\hypersonic): java -cp ../../lib/hsqldb.jar org.hsqldb.Server -port 1701 -database.0 localDB
+ - To run a query: java -cp ../../lib/hsqldb.jar org.hsqldb.util.SqlTool --autoCommit  localDB ../../../resources/db-samples/jbilling-schema-hypersonic.sql
+  
+PostgreSQL getting started:
+----------------------------------------
+Ubuntu notes: (from https://help.ubuntu.com/community/PostgreSQL)
+------------
+sudo apt-get install postgresql-8.3
+sudo -u postgres createuser --superuser jbilling -P
+createdb jbilling
+
+Then, just type 'psql' to login. No password needed from the command line, but it is needed for
+the java data source configuration.
+The db configuration file is /etc/postgresql/8.3/main/postgresql.conf
+
+Other more lengthly mehtod. Login with postgres:
+psql -U postgres postgres
+Create a user, database, and grant all privileges
+ create user jbilling;
+ create database jbilling_test;
+ grant all on database jbilling_test to jbilling;
+
+Create a dump of the test database:
+pg_dump -U jbilling --clean jbilling_test > jbilling_test.sql
+
+When a postgres back end process is running forever you can determine what it is trying to do using
+$ ps auxww | grep ^postgres
+or watch -d -n 1 "ps auxww | grep ^postgres"
+postgres: user database host activity
+
+select * from pg_stat_activity where procpid = thepid;
+
+
+
+- To startup/shutdown : pg_ctl start/stop            
+   Ubuntu: use service: 
+    sudo /etc/init.d/postgresql-8.3 stop
+    sudo /etc/init.d/postgresql-8.3 start
+   
+The following shouldn't be necessary since the creation of the tables first drops the tables:
+- To drop a database : dropdb betty
+- To create it : createdb betty
+- All the dictionary access is directly by commands of psql, so:
+   - to see all the users : \du
+   - all tables and it owners \d
+   - ... etc ...
+   
+- Installing PostgreSQL from scratch:
+  - first, follow the installation instruction from the manual
+  - Out of the box, you can't connect to the database for scurity reasons, to fix this:
+     - Enable TCP/IP connections:
+     	- Add tcpip_socket  to /usr/local/pgsql/data/postgresql.conf (actually, quite
+     	an interesting file to tune the engine ;) ).
+     	- Add the host you want to connect from to the /usr/local/pgsql/data/pg_hba.conf
+     	EX: host    all         all         192.168.1.100     255.255.255.255   trust
+     	Again, very interesting file that acts as a database firewall.
+  - create the database
+  		createdb betty
+  - create the betty_user
+  		psql -d betty
+  		CREATE USER betty_user
+        grant all privileges on database betty to betty_user;
+  - to run the initialization scripts:
+    psql -U jbilling -f jbilling-data.sql -a -L 2.txt test 
+  - download the latest JDBC driver
+  - run a good find to lcate all the copies of the old driver and delete them.
+  Having old versions of the JDBC driver is a source of endless headaches !!.
+  - run betty's 'ant db'
+  
+- To enable/disble logging
+  There are a wide viarety of options for logging, it can be setup at runtime and in the
+  postgresql.conf file. Probably the most useful are LOG_STATEMENT and LOG_DURATION
+  update pg_settings set setting = 'all' where name = 'log_statement';
+
+Oracle:
+-------
+datasource for oracel express in the same box is:
+<datasources>
+  <local-tx-datasource>
+    <jndi-name>ApplicationDS</jndi-name>
+    <connection-url>jdbc:oracle:thin:@localhost:1521:xe</connection-url>
+    <driver-class>oracle.jdbc.driver.OracleDriver</driver-class>
+    <user-name>betty_user</user-name>
+    <password>asdfasdf</password>
+    <exception-sorter-class-name>org.jboss.resource.adapter.jdbc.vendor.OracleExceptionSorter</exception-sorter-class-name>
+  </local-tx-datasource>
+
+</datasources>

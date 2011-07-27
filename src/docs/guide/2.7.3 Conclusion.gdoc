@@ -1,0 +1,18 @@
+This document provided a hands on guide to using *j*Billing's integration services. While
+the Client API provides much more service calls and features than what was covered
+here, we hope this tutorial has provided some useful insight into how to put the
+integration API to good use in your programs.
+The sections that follow cover all service calls and data structures provided by the Client
+API in more depth, and explain what parameters they require and what information you
+get in return, where applicable. Please refer to these sections for further details.
+The *j*Billing integration layer provides a rich set of features that allow your application to
+seamlessly integrate the billing process into your business logic. The Client API provides
+a flexible and intuitive layer of abstraction that further simplifies the integration process
+and makes your application independent of the specific technology that takes care of
+communicating with the *j*Billing server. The Client API is easily available to any Java
+application.
+The SOAP layer provides further support for non-Java applications that nevertheless
+need to integrate with *j*Billing. Most modern web programming frameworks provide
+support for SOAP services, which greatly expands the set of programming languages
+and production environments that *j*Billing can integrate with.
+

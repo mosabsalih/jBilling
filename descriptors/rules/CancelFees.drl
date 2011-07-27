@@ -1,0 +1,21 @@
+package cancel_fees
+#imports
+import com.sapienter.jbilling.server.user.ContactDTOEx
+import com.sapienter.jbilling.server.item.db.ItemDTO
+import com.sapienter.jbilling.server.user.UserDTOEx
+import com.sapienter.jbilling.server.order.db.OrderLineDTO
+import com.sapienter.jbilling.server.order.task.CancellationFeeRulesTask.FeeOrderManager
+import com.sapienter.jbilling.server.item.tasks.Subscription
+#globals
+global com.sapienter.jbilling.server.order.task.CancellationFeeRulesTask.FeeOrderManager order;
+
+
+
+
+rule 'Cancel Fee - Lemonade - 1 per day monthly pass'
+when
+       OrderLineDTO( itemId == 1, $quantity : quantity )
+then
+       order.applyFee(24, $quantity);
+end
+

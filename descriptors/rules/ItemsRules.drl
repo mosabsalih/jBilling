@@ -1,0 +1,164 @@
+package ItemsRules3
+
+#imports
+import com.sapienter.jbilling.server.item.PricingField
+import com.sapienter.jbilling.server.mediation.task.MediationResult
+import com.sapienter.jbilling.server.item.db.ItemDTO
+import com.sapienter.jbilling.server.order.db.OrderLineDTO;
+import com.sapienter.jbilling.server.order.db.OrderLineDAS;
+import com.sapienter.jbilling.server.order.db.OrderDTO;
+import com.sapienter.jbilling.server.item.tasks.SubscriptionResult
+import com.sapienter.jbilling.server.order.OrderLineBL;
+import com.sapienter.jbilling.server.order.OrderBL;
+import com.sapienter.jbilling.server.item.tasks.PricingResult
+import java.util.ArrayList;
+import java.math.BigDecimal;
+import java.util.List;
+import org.apache.log4j.Logger;
+
+# globals
+global org.apache.log4j.Logger LOG;
+
+function List getOrderLines(Integer userId, Integer itemId) {
+    return new OrderLineDAS().findByUserItem(userId, itemId);
+}
+
+rule "Lemon and Coffee discount"
+	when
+        $order : OrderDTO( )    # any order
+        OrderLineDTO( itemId == 2) from $order.lines # Lemonade
+        OrderLineDTO( itemId == 3) from $order.lines # Coffee
+        # only if the discount is not already there
+        # otherwise an infinite loop happens (the no-loop attribute would
+        # have the same effect)
+        not ( OrderLineDTO( itemId == 14) from $order.lines )
+
+	then
+        OrderLineBL.addItem($order, 14, false); # 10% discount
+        update($order);
+end
+
+
+rule "Lemonade Plan"
+    when
+        $order : OrderDTO( )    # any order
+        $planLine : OrderLineDTO( itemId == 250) from $order.lines # Plan
+
+    then
+        $order.getLines().remove($planLine); # Plan is only for grouping
+        OrderLineBL.addItem($order, 1, false); # The monthly lemonade subscription
+        update($order);
+        # now add an new order
+        OrderDTO newOrder = OrderBL.createAsWithLine($order, 251, 1.0);  # The setup fee
+        newOrder.setOrderPeriodId(1); # It should be one time
+        newOrder.setNotes("As part of plan. ");
+        insert(newOrder);
+end
+
+rule "bundle lemonade plan - request item"
+no-loop # run only once
+salience 10 # run before the plan rules
+	when
+        $order : OrderDTO( orderPeriod.id == 1 )    # any one-time order
+        OrderLineDTO( itemId == 2600) from $order.lines # Generic lemonade
+	then
+        List<OrderLineDTO> lines = getOrderLines($order.getUserId(), 1); #request item 1: the plan
+        for (OrderLineDTO line: lines) {
+            insert(line);
+            LOG.debug("inserted for user " + $order.getUserId() + " new line on request " + line);
+        }
+end
+
+rule "bundle lemonade plan - included units"
+salience 0 # run after the request rule
+	when
+        $order : OrderDTO( orderPeriod.id == 1 )    # any one-time order
+        $generic : OrderLineDTO( itemId == 2600) from $order.lines # Generic lemonade
+		OrderLineDTO( itemId == 1, purchaseOrder.userId == $order.userId) # plan
+
+	then
+        $order.getLines().remove($generic); # remove the generic
+        OrderLineBL.addItem($order, 2601, false); # add the included in plan
+        update($order);
+        LOG.debug("removed the generic lemonade and added the included in plan");
+end
+
+rule "bundle lemonade plan - not included units"
+salience 0 # run after the request rule
+	when
+        $order : OrderDTO( orderPeriod.id == 1 )    # any one-time order
+        $generic : OrderLineDTO( itemId == 2600) from $order.lines # Generic lemonade
+		not OrderLineDTO( itemId == 1, purchaseOrder.userId == $order.userId) # plan
+
+	then
+        $order.getLines().remove($generic); # remove the generic
+        OrderLineBL.addItem($order, 2602, false); # add the normal item
+        update($order);
+        LOG.debug("removed the generic lemonade and added the priced item");
+end
+
+rule "long distance generic - subscribed"
+when
+    $order : OrderDTO( )
+    $subsc : SubscriptionResult( userId == $order.userId, itemId == 2702, subscribed == true )  # Plan
+    $line : OrderLineDTO(itemId == 2900, $quantity : quantity ) from $order.lines      # Generic Long Distance Call
+then
+    $order.getLines().remove($line); # remove generic item
+    OrderLineBL.addItem($order, 2801, $quantity, false); # add as included
+    update( $order );
+    LOG.debug("Plan: included calls: " + $order);
+end
+
+# for this to work from the GUI, have a new rule adding the MediationResult and PricingResult into the memory context.
+# This rule should be in a package that is not part of the mediation plug-in
+rule "long distance generic - not subscribed"
+when
+    $order : OrderDTO( )
+    $subsc : SubscriptionResult( userId == $order.userId, itemId == 2702, subscribed == false )  # Plan
+    $line : OrderLineDTO(itemId == 2900, $quantity : quantity ) from $order.lines      # Generic Long Distance Call
+    $result : MediationResult($subsc.userId == userId)
+    $price : PricingResult(itemId == 2800, pricingFieldsResultId == $result.id) # it's ok if price = null
+then
+    $order.getLines().remove($line); # remove generic item
+    OrderLineBL.addItem($order, 2800, $quantity.intValue(), $price.getPrice()); # add as normal
+    update( $order );
+    LOG.debug("Plan: not included calls: " + $order);
+end
+
+# for this to work from the GUI, have a new rule adding the MediationResult and PricingResult into the memory context.
+# This rule should be in a package that is not part of the mediation plug-in
+rule "long distance include - plan limit"
+when
+    $order : OrderDTO( )
+    $line : OrderLineDTO(itemId == 2801, $quantity : quantity, quantity.intValue > 1000 ) from $order.lines      # Long Distance Call Included
+    $result : MediationResult($order.userId == userId)
+    $price : PricingResult(itemId == 2800, pricingFieldsResultId == $result.id) # it's ok if price = null
+then
+    OrderLineBL.addItem($order, 2800, $quantity.intValue() - 1000, $price.getPrice());
+    $line.setQuantity(new BigDecimal(1000)); # only the first 1000 is included
+    update( $order );
+    LOG.debug("Plan:excess included calls: " + $order);
+end
+
+
+rule 'rateOrder test1'
+	dialect "java"
+when
+	$field : PricingField( name == "add" )
+	$order  : OrderDTO( )
+then
+    for (OrderLineDTO line: $order.getLines()) {
+        line.setPrice(line.getPrice().add(new BigDecimal($field.getDoubleValue())));
+    }
+end
+
+rule 'rateOrder test2'
+	dialect "java"
+when
+	$field : PricingField( name == "subtract" )
+	$order  : OrderDTO( )
+then
+    for (OrderLineDTO line: $order.getLines()) {
+        line.setPrice(line.getPrice().subtract(new BigDecimal( $field.getDoubleValue())));
+    }
+end

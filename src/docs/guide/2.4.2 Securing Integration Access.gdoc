@@ -1,0 +1,72 @@
+h4. Overview
+
+While integration services could be an extremely useful feature, they do bring up some
+security concerns you'll need to take into account. It is critical that the services are not
+exposed to external parties, otherwise it could be possible for them to invoke the same
+functionality you're using (and, most probably, you don't want an outsider to be able to
+create a payment or invoice).
+
+Therefore, the integration services should be exposed only to properly authorized
+parties. This is, at least in part, guaranteed by *j*Billing, since by default it requires a client
+application to identify itself via a user name/password pair, before servicing any of its
+requests. It would also be important to transmit all data over a secure channel, which
+can be accomplished by using the SOAP or Hessian/Burlap calls over an SSL tunnel,
+something we'll cover shortly.
+
+Ideally, the web services would be exposed only to the server(s) that require it, and any
+other parties should be excluded. This can be accomplished by using a firewall
+application that limits the IP addresses that have access to *j*Billing's integration services.
+Please refer to the documentation of the Operating System or platform in which your
+copy of *j*Billing is to run, in order to have some information on how to restrict access to
+specific TCP ports in your system.
+
+It is also recommended that all service calls are performed by means of an encrypted
+channel, as provided by the SSL (Secure Socket Layer) protocol. This effectively avoids
+any threats related to unauthorized interception or decryption of the service calls. SSL
+also ensures that the party you're engaging communication with is actually your intended
+recipient, nullifying any impersonation attempts.
+
+In order to determine if the party engaged in communication is actually who it is
+pretending to be, SSL uses certificates. Therefore, in order to establish an SSL
+connection to *j*Billing, it could be required to have a copy of *j*Billing's certificate in your
+development and production systems.
+
+h4. Enabling/Disabling authentication for *j*Billing web services
+
+By default, all calls to *j*Billing must be authenticated. In most cases, this is the desired
+behavior. If Spring HTTP Invoker is used to make calls to *j*Billing, authentication is not available. 
+If the *j*Billing server is called by clients within an internal network secured from outside access, 
+it maybe preferable to disable authentication to give a slight increase in performance. 
+
+If SOAP or Hessian/Burlap are being used, this can be done as follows:
+
+* Extract the *j*Billing web archive @jbilling\webapps\billing.war@
+* Open the file @descriptors\web\web.xml@ for editing
+* Comment out or delete the XML that refers to *Web Services Authentication Filter*. This includes one <filter> tag and two <filter-mapping> tags. Save the file and recreate (zip) the web archive.
+
+h4. Enabling/Disabling company security checks
+
+If only one company is using the *j*Billing installation, unnecessary security checks, which
+make sure one company is not accessing another company's data, can be disabled to
+further increase performance. To disable the check, edit the following file:
+
+@./grails-app/conf/spring/resources.xml@
+
+Comment out or delete the two XML beans under the section *AOP: Security / Logging*:
+Bean ids *webServicesSecurityAdvice* and *webServicesSecurityAdvisor*).
+
+h4. Enabling SSL for *j*Billing web services
+
+Since web services run on HTTPS, for *j*Billing this is actually managed by Tomcat. Tomcat is the web server that 
+comes with the *j*Billing distribution. Thus, the first step is to enable SSL in the Tomcat configuration. This is 
+explained in the *Security* chapter of the *[jBilling User Guide|guide:userGuide]*. Please refer to that document. 
+Once you can use your standard web client over SSL, you can immediately start doing all the web
+services communication through HTTPS, effectively securing your web services. A further step is to force all 
+the web services communication over SSL. To achieve that extract the billing web archive:
+
+@jbilling\webapps\billing.war@ and edit the file: @descriptors\web\web.xml@
+
+Notice that there is already a section at the bottom to force HTTPS, but it is commented.
+Uncomment the XML tag *<security-constraint>* and its contents to force HTTPS.
+It will use the SSL certificate that Tomcat is using to secure the standard web client.
+Recreate the web archive (compress with a zip utility program) when done.

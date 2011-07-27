@@ -1,0 +1,4 @@
+The Spring HTTP Invoker service URL is in the following form:
+
+@http://localhost:8080/jbilling/httpinvoker/ApiService@
+

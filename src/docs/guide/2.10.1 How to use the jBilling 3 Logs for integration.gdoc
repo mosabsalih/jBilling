@@ -1,0 +1,108 @@
+The jBilling 3 logs are located at @logs\jbilling.log@. The logs will contain debug statements at the entry and exit of certain API method calls.
+These debug statements at entry and exit of API method calls, specifically, from the Web Services API calls can be quite useful for developers 
+who can use this additional information for integration of other systems with jBilling 3.
+
+For example, take a look at the below snapshot from @jbilling.log@ logs. The below snapshot is an output after submitting on the 'Create Order' page of jBilling 3.
+{code}
+2011-07-20 17:02:08,660 DEBUG [com.sapienter.jbilling.server.util.api.APILogger] Done call to createOrder returning: 107900
+2011-07-20 17:02:09,280 DEBUG [com.sapienter.jbilling.server.util.api.APILogger] Call to getOrder parameters: [107900]
+2011-07-20 17:02:12,103 DEBUG [com.sapienter.jbilling.server.invoice.InvoiceBL] converstion 0
+2011-07-20 17:02:12,103 DEBUG [com.sapienter.jbilling.server.util.api.APILogger] Done call to getOrder returning: OrderWS{id=107900, userId=10790, currencyId=1, activeUntil=null, activeSince=2011-07-20 00:00:00.0, isCurrent=1, statusStr='Active', periodStr='Monthly', periodId=2, billingTypeStr='pre paid', lines=[OrderLineWS{id=208100, amount='10.0000000000', quantity='1.0000000000', price='10.0000000000', deleted=0, description='Long distance call - Generic', useItem=false, itemId=2900, typeId=1}]}
+2011-07-20 17:02:12,163 DEBUG [com.sapienter.jbilling.server.util.api.APILogger] Call to getUserWS parameters: [10790]
+2011-07-20 17:02:12,227 DEBUG [com.sapienter.jbilling.server.util.PreferenceBL] Looking for preference 43, for entity 1 and table 'entity'
+2011-07-20 17:02:12,265 DEBUG [com.sapienter.jbilling.server.util.PreferenceBL] Looking for preference 43, for entity 1 and table 'entity'
+{code}
+
+The Web Services API that is exposed for integration of jBilling with external systems is used as an inline Java API for making the same transactions that are supported via API, which has become extensive and 
+fully functional in jBilling 3. 
+
+Let us take another example of using the logs to understanding the integration API calls that may be required for example, to make a Payment. 
+
+The steps required on the GUI for making a Payment are as follows:
+# List Invoices by clicking on 'Invoices' link in the main menu
+# Select an Invoice from the list of Invoices (The selected Invoice details are displayed on the right hand side)
+# Click on 'Pay Invoice'
+# Choose a Payment option
+# Confirm and Submit
+
+Suppose we have performed above actions on the GUI, there are certain parts in the log trace that I'd like to highlight for each of the above steps.
+
+{code}
+2011-07-20 17:21:37,406 DEBUG [com.sapienter.jbilling.server.util.api.APILogger] Call to getInvoiceWS parameters: [70]
+2011-07-20 17:21:37,415 DEBUG [com.sapienter.jbilling.server.util.api.APILogger] Done call to getInvoiceWS returning: InvoiceWS [balance=20.0000000000, carriedBalance=0E-10, createDateTime=2007-07-26 00:00:00.0, createTimeStamp=2007-07-26 18:17:19.113, currencyId=1, customerNotes=null, delegatedInvoiceId=null, deleted=0, dueDate=2007-08-26 00:00:00.0, id=70, inProcessPayment=1, invoiceLines=[{id=67 description=Lemonade - all you can drink monthly amount=20.0000000000 price=20.0000000000 quantity=1.0000000000 deleted=0 itemId=2 sourceUserId=10743 isPercentage=0}], isReview=0, lastReminder=null, number=11, orders=[], overdueStep=null, paymentAttempts=0, payments=[], statusDescr=Unpaid, statusId=2, toProcess=1, total=20.0000000000, userId=10743]
+2011-07-20 17:21:37,420 DEBUG [com.sapienter.jbilling.server.util.api.APILogger] Call to getUserWS parameters: [10743]
+{code}
+
+Select a particular Invoice (70), API Call *getInvoiceWS()*
+{code}
+2011-07-20 17:21:37,572 DEBUG [com.sapienter.jbilling.server.util.api.APILogger] Done call to getUserWS returning: UserWS [ach=null, autoRecharge=0E-10, automaticPaymentType=1, balanceType=1, blacklistMatches=[], childIds=[], companyName=Prancing Pony, contact=ContactWS{id=112603, type=null, title='null', lastName='Baggins', firstName='Frodo', initial='null', organization='null', address1='null', address2='null', city='null', stateProvince='null', postalCode='null', countryCode='null', phone='', fax='', email='frodo@shire.com', type='null', include='1'}, createDatetime=2009-10-30 00:00:00.0, creditCard=null, creditLimit=0E-10, currencyId=1, customerId=1067, deleted=0, dueDateUnitId=null, dueDateValue=null, dynamicBalance=0E-10, excludeAgeing=false, failedAttempts=0, id=10743, invoiceChild=false, invoiceDeliveryMethodId=null, isParent=false, language=English, languageId=1, lastLogin=null, lastStatusChange=null, mainOrderId=null, mainRoleId=5, nextInvoiceDate=null, notes=null, owingBalance=20.0000000000, parentId=null, partnerId=null, password=46f94c8de14fb36680850768ff1b7f2a, role=Customer, status=Active, statusId=1, subscriberStatusId=6, userIdBlacklisted=false, userName=carry-over-test1]
+2011-07-20 17:21:37,576 DEBUG [com.sapienter.jbilling.server.util.api.APILogger] Call to getTotalRevenueByUser parameters: [10743]
+2011-07-20 17:21:37,587 DEBUG [com.sapienter.jbilling.server.util.api.APILogger] Done call to getTotalRevenueByUser returning: 0
+2011-07-20 17:21:37,827 DEBUG [com.sapienter.jbilling.server.util.PreferenceBL] Looking for preference 20, for entity 1 and table 'entity'
+2011-07-20 17:22:27,422 DEBUG [com.sapienter.jbilling.server.util.api.APILogger] Call to getUserWS parameters: [10743]
+2011-07-20 17:22:27,512 DEBUG [com.sapienter.jbilling.server.user.ContactBL] ContactDTO: getting custom fields
+2011-07-20 17:22:27,516 DEBUG [com.sapienter.jbilling.server.user.ContactBL] Returning dto with 3 fields
+2011-07-20 17:22:27,516 DEBUG [com.sapienter.jbilling.server.util.api.APILogger] Done call to getUserWS returning: UserWS [ach=null, autoRecharge=0E-10, automaticPaymentType=1, balanceType=1, blacklistMatches=[], childIds=[], companyName=Prancing Pony, contact=ContactWS{id=112603, type=null, title='null', lastName='Baggins', firstName='Frodo', initial='null', organization='null', address1='null', address2='null', city='null', stateProvince='null', postalCode='null', countryCode='null', phone='', fax='', email='frodo@shire.com', type='null', include='1'}, createDatetime=2009-10-30 00:00:00.0, creditCard=null, creditLimit=0E-10, currencyId=1, customerId=1067, deleted=0, dueDateUnitId=null, dueDateValue=null, dynamicBalance=0E-10, excludeAgeing=false, failedAttempts=0, id=10743, invoiceChild=false, invoiceDeliveryMethodId=null, isParent=false, language=English, languageId=1, lastLogin=null, lastStatusChange=null, mainOrderId=null, mainRoleId=5, nextInvoiceDate=null, notes=null, owingBalance=20.0000000000, parentId=null, partnerId=null, password=46f94c8de14fb36680850768ff1b7f2a, role=Customer, status=Active, statusId=1, subscriberStatusId=6, userIdBlacklisted=false, userName=carry-over-test1]
+2011-07-20 17:22:27,521 DEBUG [com.sapienter.jbilling.server.util.api.APILogger] Call to getUnpaidInvoices parameters: [10743]
+2011-07-20 17:22:27,714 DEBUG [com.sapienter.jbilling.server.util.api.APILogger] Done call to getUnpaidInvoices returning: [70]
+2011-07-20 17:22:27,717 DEBUG [com.sapienter.jbilling.server.util.api.APILogger] Call to getInvoiceWS parameters: [70]
+2011-07-20 17:22:27,726 DEBUG [com.sapienter.jbilling.server.util.api.APILogger] Done call to getInvoiceWS returning: InvoiceWS [balance=20.0000000000, carriedBalance=0E-10, createDateTime=2007-07-26 00:00:00.0, createTimeStamp=2007-07-26 18:17:19.113, currencyId=1, customerNotes=null, delegatedInvoiceId=null, deleted=0, dueDate=2007-08-26 00:00:00.0, id=70, inProcessPayment=1, invoiceLines=[{id=67 description=Lemonade - all you can drink monthly amount=20.0000000000 price=20.0000000000 quantity=1.0000000000 deleted=0 itemId=2 sourceUserId=10743 isPercentage=0}], isReview=0, lastReminder=null, number=11, orders=[], overdueStep=null, paymentAttempts=0, payments=[], statusDescr=Unpaid, statusId=2, toProcess=1, total=20.0000000000, userId=10743]
+{code}
+
+Click 'Pay Invoice', behind the scenes API Calls like *getUserPaymentInstrument()*, *getUnpaidInvoices()* etc.
+{code}
+2011-07-20 17:22:27,731 DEBUG [com.sapienter.jbilling.server.util.api.APILogger] Call to getUserPaymentInstrument parameters: [10743]
+2011-07-20 17:22:27,819 DEBUG [com.sapienter.jbilling.server.pluggableTask.admin.PluggableTaskManager] total classes = 1
+2011-07-20 17:22:27,819 DEBUG [com.sapienter.jbilling.server.pluggableTask.admin.PluggableTaskManager] Applying task com.sapienter.jbilling.server.pluggableTask.BasicPaymentInfoTask
+2011-07-20 17:22:27,951 DEBUG [com.sapienter.jbilling.server.pluggableTask.BasicPaymentInfoTask] Could not find payment instrument for user 10743
+2011-07-20 17:22:27,951 DEBUG [com.sapienter.jbilling.server.util.api.APILogger] Done call to getUserPaymentInstrument returning: null
+2011-07-20 17:23:09,081 DEBUG [com.sapienter.jbilling.server.util.api.APILogger] Call to getUserWS parameters: [10743]
+2011-07-20 17:23:09,112 DEBUG [com.sapienter.jbilling.server.util.PreferenceBL] Looking for preference 43, for entity 1 and table 'entity'
+2011-07-20 17:23:09,119 DEBUG [com.sapienter.jbilling.server.util.PreferenceBL] Looking for preference 43, for entity 1 and table 'entity'
+2011-07-20 17:23:09,170 DEBUG [com.sapienter.jbilling.server.payment.tasks.PaymentFilterTask] UserIdFilter enabled
+2011-07-20 17:23:09,170 DEBUG [com.sapienter.jbilling.server.payment.tasks.PaymentFilterTask] NameFilter enabled
+2011-07-20 17:23:09,170 DEBUG [com.sapienter.jbilling.server.payment.tasks.PaymentFilterTask] CreditCardFilter enabled
+2011-07-20 17:23:09,170 DEBUG [com.sapienter.jbilling.server.payment.tasks.PaymentFilterTask] AddressFilter enabled
+2011-07-20 17:23:09,170 DEBUG [com.sapienter.jbilling.server.payment.tasks.PaymentFilterTask] IpAddressFilter enabled
+2011-07-20 17:23:09,170 DEBUG [com.sapienter.jbilling.server.payment.tasks.PaymentFilterTask] PhoneFilter enabled
+2011-07-20 17:23:09,226 DEBUG [com.sapienter.jbilling.server.user.ContactBL] ContactDTO: getting custom fields
+2011-07-20 17:23:09,232 DEBUG [com.sapienter.jbilling.server.user.ContactBL] Returning dto with 3 fields
+2011-07-20 17:23:09,232 DEBUG [com.sapienter.jbilling.server.util.api.APILogger] Done call to getUserWS returning: UserWS [ach=null, autoRecharge=0E-10, automaticPaymentType=1, balanceType=1, blacklistMatches=[], childIds=[], companyName=Prancing Pony, contact=ContactWS{id=112603, type=null, title='null', lastName='Baggins', firstName='Frodo', initial='null', organization='null', address1='null', address2='null', city='null', stateProvince='null', postalCode='null', countryCode='null', phone='', fax='', email='frodo@shire.com', type='null', include='1'}, createDatetime=2009-10-30 00:00:00.0, creditCard=null, creditLimit=0E-10, currencyId=1, customerId=1067, deleted=0, dueDateUnitId=null, dueDateValue=null, dynamicBalance=0E-10, excludeAgeing=false, failedAttempts=0, id=10743, invoiceChild=false, invoiceDeliveryMethodId=null, isParent=false, language=English, languageId=1, lastLogin=null, lastStatusChange=null, mainOrderId=null, mainRoleId=5, nextInvoiceDate=null, notes=null, owingBalance=20.0000000000, parentId=null, partnerId=null, password=46f94c8de14fb36680850768ff1b7f2a, role=Customer, status=Active, statusId=1, subscriberStatusId=6, userIdBlacklisted=false, userName=carry-over-test1]
+2011-07-20 17:23:09,235 DEBUG [com.sapienter.jbilling.server.util.api.APILogger] Call to getUnpaidInvoices parameters: [10743]
+2011-07-20 17:23:09,246 DEBUG [com.sapienter.jbilling.server.util.api.APILogger] Done call to getUnpaidInvoices returning: [70]
+2011-07-20 17:23:09,249 DEBUG [com.sapienter.jbilling.server.util.api.APILogger] Call to getInvoiceWS parameters: [70]
+2011-07-20 17:23:09,273 DEBUG [com.sapienter.jbilling.server.util.api.APILogger] Done call to getInvoiceWS returning: InvoiceWS [balance=20.0000000000, carriedBalance=0E-10, createDateTime=2007-07-26 00:00:00.0, createTimeStamp=2007-07-26 18:17:19.113, currencyId=1, customerNotes=null, delegatedInvoiceId=null, deleted=0, dueDate=2007-08-26 00:00:00.0, id=70, inProcessPayment=1, invoiceLines=[{id=67 description=Lemonade - all you can drink monthly amount=20.0000000000 price=20.0000000000 quantity=1.0000000000 deleted=0 itemId=2 sourceUserId=10743 isPercentage=0}], isReview=0, lastReminder=null, number=11, orders=[], overdueStep=null, paymentAttempts=0, payments=[], statusDescr=Unpaid, statusId=2, toProcess=1, total=20.0000000000, userId=10743]
+{code}
+
+Make a payment, API Call *applyPayment()*
+{code}
+2011-07-20 17:23:14,077 DEBUG [grails.app.controller.jbilling.PaymentController] creating payment PaymentWS{id=0, baseUserId=null, paymentMethodId=1, method='null', amount='20.00', balance='null', isRefund=0, isPreauth=null, paymentDate=Wed Jul 20 00:00:00 IST 2011, deleted=0} for invoice 70
+2011-07-20 17:23:14,077 DEBUG [grails.app.controller.jbilling.PaymentController] creating payment PaymentWS{id=0, baseUserId=null, paymentMethodId=1, method='null', amount='20.00', balance='null', isRefund=0, isPreauth=null, paymentDate=Wed Jul 20 00:00:00 IST 2011, deleted=0} for invoice 70
+2011-07-20 17:23:14,077 DEBUG [grails.app.controller.jbilling.PaymentController] entering payment
+2011-07-20 17:23:14,077 DEBUG [grails.app.controller.jbilling.PaymentController] entering payment
+2011-07-20 17:23:14,078 DEBUG [com.sapienter.jbilling.server.util.api.APILogger] Call to applyPayment parameters: [PaymentWS{id=0, baseUserId=null, paymentMethodId=1, method='null', amount='20.00', balance='null', isRefund=0, isPreauth=null, paymentDate=Wed Jul 20 00:00:00 IST 2011, deleted=0}, 70]
+2011-07-20 17:23:14,147 DEBUG [com.sapienter.jbilling.server.util.db.JbillingTableDAS] Looking for table + payment
+2011-07-20 17:23:14,151 DEBUG [com.sapienter.jbilling.server.payment.PaymentSessionBean] applying payment to invoice 70
+2011-07-20 17:23:14,152 DEBUG [com.sapienter.jbilling.server.payment.PaymentSessionBean] Set invoice balance to: 0
+2011-07-20 17:23:14,216 DEBUG [com.sapienter.jbilling.server.pluggableTask.admin.PluggableTaskManager] total classes = 1
+2011-07-20 17:23:14,216 DEBUG [com.sapienter.jbilling.server.pluggableTask.admin.PluggableTaskManager] Applying task com.sapienter.jbilling.server.process.task.BasicAgeingTask
+2011-07-20 17:23:14,320 DEBUG [com.sapienter.jbilling.server.invoice.InvoiceBL] user with invoice:70
+2011-07-20 17:23:14,320 DEBUG [com.sapienter.jbilling.server.invoice.InvoiceBL] user with overdue: true
+2011-07-20 17:23:14,320 DEBUG [com.sapienter.jbilling.server.process.task.BasicAgeingTask] User 10743 still has overdue invoices, cannot remove from ageing.
+2011-07-20 17:23:14,323 DEBUG [com.sapienter.jbilling.server.system.event.EventManager] processing event PaymentSuccessfulEvent{paymentId=1900, amount=20.00}
+2011-07-20 17:23:14,323 DEBUG [com.sapienter.jbilling.server.system.event.InternalEventProcessor] In InternalEventProcessor::process()
+2011-07-20 17:23:14,346 DEBUG [com.sapienter.jbilling.server.pluggableTask.admin.PluggableTaskManager] total classes = 8
+2011-07-20 17:23:14,346 DEBUG [com.sapienter.jbilling.server.system.event.InternalEventProcessor] Processing PaymentSuccessfulEvent{paymentId=1900, amount=20.00} with com.sapienter.jbilling.server.user.balance.DynamicBalanceManagerTask@7fa58648
+2011-07-20 17:23:14,346 DEBUG [com.sapienter.jbilling.server.user.balance.DynamicBalanceManagerTask] Nothing to update
+2011-07-20 17:23:14,347 DEBUG [com.sapienter.jbilling.server.system.event.EventManager] Now processing with com.sapienter.jbilling.server.user.event.SubscriptionStatusEventProcessor
+2011-07-20 17:23:14,355 DEBUG [com.sapienter.jbilling.server.pluggableTask.admin.PluggableTaskManager] total classes = 1
+2011-07-20 17:23:14,355 DEBUG [com.sapienter.jbilling.server.pluggableTask.admin.PluggableTaskManager] Applying task com.sapienter.jbilling.server.user.tasks.BasicSubscriptionStatusManagerTask
+2011-07-20 17:23:14,370 DEBUG [com.sapienter.jbilling.server.system.event.EventManager] Now processing with com.sapienter.jbilling.server.payment.event.GatewayAlarmEventProcessor
+2011-07-20 17:23:14,370 DEBUG [com.sapienter.jbilling.server.util.api.APILogger] Done call to applyPayment returning: 1900
+{code}
+
+Finally, check the entry *'Done call to applyPayment returning: 1900'*, where database 1900 is the ID of the Payment created in the system.
+
+These behind the scenes API calls and their sequence of invocations show the API calls that may have to be performed for performing similar actions from a third party system like a CRM system for a similar action on jBilling.
+
+Similarly, logs can be used to check the API calls required for other actions that can be mimicked by peforming similar actions on the GUI.

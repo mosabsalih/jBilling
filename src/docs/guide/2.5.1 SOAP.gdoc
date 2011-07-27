@@ -1,0 +1,45 @@
+Once it is properly configured, you'll need to address all integration calls to *j*Billing's web
+service endpoint. This endpoint is accessible at the same server where *j*Billing was
+deployed, in a specific URL address, which follows this form:
+
+@http://localhost:8080/jbilling/services/api@
+
+You can query the service's WSDL (Web Service Description Language) file. It consists
+of an XML containing a description of the available service calls and parameters used by
+each call, and could be useful if your programming platform provides a way of
+automatically generating code for service calls from a WSDL, or you have a tool that can
+perform test calls (such as *SoapUI*).
+
+To query the WSDL file, you'll need to append the ?wsdl parameter to the call, for
+example:
+
+@http://localhost:8080/jbilling/services/api?wsdl@
+
+Below is a snapshot of the WSDL showing operation *getLatestInvoice*:
+
+{code:xml}
+<?xml version="1.0" encoding="UTF-8"?>
+	<wsdl:definitions xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" 
+		xmlns:tns="http://jbilling/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:ns2="http://schemas.xmlsoap.org/wsdl/soap/http" 
+		xmlns:ns1="http://util.server.jbilling.sapienter.com/" targetNamespace="http://jbilling/" name="ApiServiceService">
+		
+		<wsdl:import namespace="http://util.server.jbilling.sapienter.com/" 
+			location="http://localhost:9090/jbilling/services/api?wsdl=IWebServicesSessionBean.wsdl">
+		</wsdl:import> 
+
+		<wsdl:binding type="ns1:IWebServicesSessionBean" name="ApiServiceServiceSoapBinding">
+			<soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/> 
+			
+			<wsdl:operation name="getLatestInvoice"> <soap:operation style="document" soapAction=""/> 	
+				<wsdl:input name="getLatestInvoice"> <soap:body use="literal"/></wsdl:input>
+				<wsdl:output name="getLatestInvoiceResponse"> <soap:body use="literal"/></wsdl:output>
+				<wsdl:fault name="SessionInternalError">
+					<soap:fault name="SessionInternalError" use="literal"/> 
+				</wsdl:fault> 
+			</wsdl:operation>
+			
+		</wsdl:binding>
+	</wsdl>
+</xml>
+{code}
+

@@ -1,0 +1,83 @@
+If your current application program is not based on the Java platform/language, you can still integrate your system with 
+*j*Billing via direct SOAP calls. The beauty of SOAP is that it is independent of any particular language or framework in order to be usable. 
+SOAP is available for many, if not all, of the programming languages commonly used for Web. In this document, we've limited ourselves to 
+provide two of the most used programming languages for Web applications, besides Java i.e. C#.NET and PHP. Both provide SOAP support. 
+If your system of choice is not one of these, please refer to your language's documentation for clues on how to use SOAP service calls 
+effectively. You can however use these examples as a guideline on how to perform specific operations with *j*Billing.
+
+The provided examples perform the same login sequence as seen in an earlier section of this document, but implementing it in each of the 
+languages and platforms. Once the implementation in your specific language is clear, we advise you to follow the *Integration Tutorial* 
+as well, since it provides useful insight into the purpose of some of the most used web service calls. This information should be 
+of interest even if your system is not built on Java, as it explains the purpose of the calls, rather than their specific Java implementation.
+
+h3. Integration with C# .NET
+
+C# .NET provides seamless SOAP support, which requires no extra resources to be added to your application's execution environment. 
+Please refer to the MSDN resources for latest information on what support options you have.
+
+The difficult part in implementing SOAP on C# is to map the input and output parameters of the web call into appropriate data structures. Since there are many different calls, it
+quickly gets difficult to create all the necessary classes.
+
+{note}
+Therefore, a handy utility, distributed as part of the Visual Studio&reg; distribution, is the @wsdl.exe@. This utility takes care of 
+converting a WSDL file into appropriate data structures and creates an output file that contains a class that performs all web service
+calls. You can find this command line tool in the *Visual Studio 8\SDK\v2.0\Bin* directory of your Visual Studio installation. 
+Consult your Visual Studio documentation or just call *wsdl.exe* with no parameters to obtain some information on how to invoke this
+tool and what parameters are acceptable.
+
+If you use *SoapUI*, an Open Source tool for testing and handling web services, you can also set this program to generate the necessary 
+.NET files (it supports generation of Managed C++, VisualBasic and J# code, as well as C#). Simply indicate the location of
+the above mentioned wsdl.exe tool in your system in the Preferences dialog, connect to the *j*Billing web service url (as defined earlier)
+ from SoapUI, and click on *Tools -> .NET 2.0 Artifacts* in the main menu. You'll be presented with a set of generation
+options (WSDL file to use as input, output directory, the user name and password to pass to the service, etc.).
+{note}
+
+Once the class containing all the web service definitions has been generated (which will be named @WebServicesSessionLocalService.cs@), 
+it is a simple matter of using the generated class in your code, in a way that is akin to the *j*Billing Client API for Java: 
+
+{code}
+using WebServicesSessionLocalService;
+
+// create the interface instance of the class.
+WebServicesSessionLocalService service = new WebServicesSessionLocalService();
+int userId = service.getUserId(username);
+if (userId > 0) {
+	UserWS userData = service.getUserWS(userId);
+}
+{code}
+
+h3. Integration with PHP
+
+PHP provides SOAP support via an add on library (distributed with PHP itself). You'll need to activate the library support in your 
+*PHP.INI* file and probably need a library file (libxml) to be present in your system in order to use the SOAP support (refer to the
+PHP manual for details on how to activate SOAP support).
+
+In order to automate the generation of input and output parameters for your SOAP request, you may use the PEAR library, which comes with 
+the default PHP installation (unless you've used the @--without-pear@ configuration option during installation).
+
+PEAR can generate the PHP code for the data classes or it can generate the classes on the fly for immediate usage on the program. 
+While the first option is the recommended procedure (this way you can avoid parsing and generating the WSDL file each time your
+code executes), for simplicity we'll demonstrate the use of the PEAR module with the second option, using the classes on the fly:
+
+{code}
+require_once 'SOAP/Client.php';
+$requestParams = array ('user'=>'admin', 'pass'=>'asdfasdf');
+$wsdl = new SOAP_WSDL('http://localhost:8080/jbilling/services/api?wsdl',
+$requestParams);
+$client = $wsdl->getProxy();
+$userIdParams = array('in0' => $username);
+$result = $client->getUserId($userIdParams);
+$userId = $result->getUserIdReturn;
+$userDataParams = array('in0' => $userId);
+$result = $client->getUserWS($userId);
+$userData = $result->getUserWSReturn;
+{code}
+
+This is quite straightforward, as the PEAR library has done most of the dirty work of parsing the WSDL and setting up the calls. 
+The @$requestParams@ is an associative array containing the user name and password for the *j*Billing authentication. Parameters
+for the web service calls are passed in associative arrays as well.
+
+If you wish to generate the code for the web service calls for use in the program without having to parse the WSDL every time, 
+you can explore how to generate the code and save it to a file with the @$wsdl->generateProxyCode()@ function call of the
+SOAP_WSDL object.
+

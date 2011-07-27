@@ -1,0 +1,26 @@
+package InternalEventsRulesTask520
+
+#imports
+import com.sapienter.jbilling.server.order.event.OrderToInvoiceEvent
+import com.sapienter.jbilling.server.order.db.OrderDTO
+import com.sapienter.jbilling.server.order.db.OrderLineDTO
+
+#globals
+global org.apache.log4j.Logger LOG;
+
+
+rule 'Modify order'
+when
+        OrderToInvoiceEvent(userId == 1010)
+        order : OrderDTO(notes == "To be changed")
+then
+        order.setNotes("Modified by rules.");
+
+        # delete order lines with item id 1
+        for (OrderLineDTO line : order.getLines()) {
+            if (line.getItemId().equals(new Integer(1))) {
+                line.setDeleted(1);
+            }
+        }
+        LOG.debug("Removed item 1 from order " + order.getId());
+end

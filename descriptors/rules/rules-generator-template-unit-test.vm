@@ -1,0 +1,25 @@
+## Velocity template for unit tests. Note that the itemId isn't 
+## available to the unit tests, so isn't tested here.
+package InternalEventsRulesTask520
+
+import com.sapienter.jbilling.server.order.OrderLineBL
+import com.sapienter.jbilling.server.order.event.OrderToInvoiceEvent
+import com.sapienter.jbilling.server.order.db.OrderDTO
+import com.sapienter.jbilling.server.order.db.OrderLineDTO
+
+#foreach( $bundle in $data )
+rule 'Bundle $velocityCount'
+when
+        OrderToInvoiceEvent(userId == 1010)
+        $order : OrderDTO(notes == "Change me.")
+        $planLine : OrderLineDTO( itemId == 1) from $order.lines # Plan
+then
+        $order.setNotes("Modified by rules created by generateRules API method.");
+        $order.getLines().remove($planLine); # Plan is only for grouping
+
+#foreach( $product in $bundle.replacementProducts )
+        OrderLineBL.addItem($order, 1, false); # A product for this plan
+#end
+        update($order);
+end
+#end

@@ -1,0 +1,35 @@
+*j*Billing provides its 'integration' services in three distinct flavors: 
+
+# SOAP (Simple-Object Access Protocol)
+# Hessian/Burlap (lightweight web service protocols) 
+# Spring HTTP Invoker
+
+In order to fully acquire, and take advantage of, the information contained herein, you may
+need to have at least a basic grasp of what [SOAP|http://www.w3schools.com/soap/soap_intro.asp] is and how it works. 
+
+{note}
+To learn about Hessian and Burlap, visit their homepage at [http://hessian.caucho.com|http://hessian.caucho.com] 
+{note}
+
+SOAP is a XML-based 'programming language independent' protocol for exchanging information over HTTP. Therefore, it enables diverse 
+platforms to communicate without bias. Since *j*Billing implements its services through SOAP, even business applications running on 
+non-Java platforms can communicate to or integrate with *j*Billing because of its SOAP support.
+
+Hessian is a fast binary web services protocol that works over HTTP, with implementations available in a number of languages. 
+Like SOAP, it has the advantages of being firewall friendly and the ability to make use of authentication and encryption, yet it 
+is similar in speed and bandwidth performance to Java RMI. Hessian 2 provides even much better performance as compared to its previous version.
+Burlap is closely related to Hessian except that it uses human readable XML instead of binary messages. However, neither Hessian nor 
+Burlap require an externally defined WSDL file, which is required by SOAP.
+
+Most examples provided in this document are explained in Java, therefore, some knowledge of Java programming language 
+would prove very useful. There is still a small section dedicated to implementing *j*Billing integration in other
+languages such as C#.NET and PHP. Please refer to your language/platform's documentation in order to determine
+what specific SOAP support it provides, and how to make use of it (specifically, how to call remote SOAP services, 
+and how to pass parameters and decode the returned values).
+
+It is also recommended that you have a basic understanding of *j*Billing's functionality and usage. 
+You can find this information in other documents available from *[jBilling User Guide|guide:userGuide]* and *[Getting Started|http://www.jbilling.com/documentation/getting-started-with-jbilling]*.
+Knowing how the program works is of course necessary to understand the scope and usage of each service call. Last but not least, 
+you will need a running copy of *j*Billing in order to execute the examples contained in this document. 
+Following the *Trend* tutorial on the *[Getting Started|http://www.jbilling.com/documentation/getting-started-with-jbilling]* document is also necessary to generate some of the data required for the
+examples to work.

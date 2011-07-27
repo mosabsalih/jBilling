@@ -1,0 +1,18 @@
+
+!logo.jpg!
+
+Thank you for your interest in *j*Billing! 
+
+In this document, we will explore in detail the integration features of jBilling that help external applications to 
+to connect with the billing infrastructure provided by *j*Billing and perform seamless interaction.
+
+*j*Billing provides a comprehensive set of GUI enabled features for viewing, managing, and keeping 
+track of all billing and invoicing operations for your organization. Along with its core functionality, *j*Billing 
+provides a rich integration layer that enables your applications to tightly interact with the billing infrastructure and 
+streamline all billing-related operations into your organization's work flow.
+
+This document contains valuable information for application developers and architects what want to
+integrate *j*Billing with their own systems, or perform actions in *j*Billing from external applications.
+Here, you'll find a comprehensive reference to the *j*Billing Web Services APIs and an introductory examples including the 
+glue code that explains how many of these integration tasks can be accomplished.
+

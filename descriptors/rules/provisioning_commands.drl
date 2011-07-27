@@ -1,0 +1,59 @@
+package provisioning_commands
+
+# imports
+import com.sapienter.jbilling.server.order.db.OrderLineDTO
+import com.sapienter.jbilling.server.provisioning.task.ProvisioningCommandsRulesTask.CommandManager
+
+rule 'provisioning_activate'
+when
+    $orderLine : OrderLineDTO(itemId == 2, provisioningStatusId == 2)
+    $command : CommandManager(eventType == "activated")
+then
+    $command.addCommand("activate_user", $orderLine.getId());
+    $command.addParameter("msisdn", "12345");
+    $command.addParameter("imsi", "11111");
+end
+
+rule 'provisioning_deactivate'
+when
+    $orderLine : OrderLineDTO(itemId == 2, provisioningStatusId == 1)
+    $command : CommandManager(eventType == "deactivated")
+then
+    // just use 'activate_user' command again
+    $command.addCommand("activate_user", $orderLine.getId());
+    $command.addParameter("msisdn", "12345");
+end
+
+rule 'external_provisioning_test'
+when
+    $orderLine : OrderLineDTO(itemId == 251, quantityInt == 1, provisioningStatusId == 2)
+    $command : CommandManager(eventType == "activated")
+then
+    $command.addCommand("result_test", $orderLine.getId());
+    // should return 'sucess' then 'unavailable'
+    $command.addParameter("msisdn", "98765"); 
+    $command.addCommand("result_test", $orderLine.getId());
+    // should return 'fail'
+    $command.addParameter("msisdn", "54321");
+end
+
+rule 'cai_test'
+when
+    $orderLine : OrderLineDTO(itemId == 251, quantityInt == 2, provisioningStatusId == 2)
+    $command : CommandManager(eventType == "activated")
+then
+    $command.addCommand("cai_test", $orderLine.getId());
+    $command.addParameter("msisdn", "98765");
+    // should be removed from command
+    $command.addParameter("imsi", "VOID");
+end
+
+rule 'mmsc_test'
+when
+    $orderLine : OrderLineDTO(itemId == 251, quantityInt == 3, provisioningStatusId == 2)
+    $command : CommandManager(eventType == "activated")
+then
+    $command.addCommand("mmsc_test", $orderLine.getId());
+    $command.addParameter("msisdn", "99777");    
+    $command.addParameter("subscriptionType", "HK");
+end

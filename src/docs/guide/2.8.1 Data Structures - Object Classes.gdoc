@@ -1,0 +1,419 @@
+h3. User Management
+
+h4. UserWS
+
+{table}
+ *Property*|*Type*|*Description*
+ ach | AchDTO | ACH Payment details saved for the User. If available, the ACH info can be used during Automatic Payment processing. 
+ autoRecharge |[String|api:java.lang.String]| Amount by which the customer's account will be auto-recharged when depleted (the amount can be handled as a [BigDecimal|api:java.math.BigDecimal] Java type via the @setAutoRechargeAsDecimal()@ and @getAutoRechargeAsDecimal()@ methods. The system should be configured to use Auto-Recharge feature. 
+ automaticPaymentType |[Integer|api:java.lang.Integer]| Integer value to determine which of the three payment methods does the customer want to apply for automatic payment processing. Refer to Appendix A for acceptable values. 
+ balanceType |[Integer|api:java.lang.Integer]| The type of dynamic balance for this user. Refer to Appendix A for acceptable values. 
+ blacklistMatches |String[]| Lists any blacklist matches for this user. See the *[jBilling User Guide|guide:userGuide]* for more information on blacklists. 
+ childIds |  Integer[] | The identifiers of any sub-accounts for this user. 
+ companyName |[String|api:java.lang.String]| User's company name. 
+ contact | ContactWS | The primary contact information for this user. 
+ createDatetime |[Date|api:java.util.Date]| Creation date of this data record. 
+ creditCard | CreditCardDTO | Credit card information for this user. Not required for the user creation process. 
+ creditLimit | Double | The credit limit. Only valid if balanceType is of credit limit type. 
+ currencyId |[Integer|api:java.lang.Integer]| Contains the currency code for this user. Refer to Appendix A for acceptable values. 
+ customerId |[Integer|api:java.lang.Integer]| Reference to the Customer information for this user. 
+ deleted |[Integer|api:java.lang.Integer]| If the record has been deleted, this field contains '1', otherwise it contains '0'. Note that deletion cannot be carried out by simply setting a '1' in this field. 
+ dueDateUnitId |[Integer|api:java.lang.Integer]| Period Unit of this Customer's Invoice due date. Refer to Appendix A for Period Unit acceptable values. 
+ dueDateValue |[Integer|api:java.lang.Integer]| Customer specific Invoice Due date value 
+ dynamicBalance |[String|api:java.lang.String]| String representation of this Customer's dynamic balance. The dynamic balance. If balanceType is credit limit, this represents the amount of credit used on the account. If balanceType is pre paid, this represents the pre paid balance remaining. 
+ excludeAgeing | Boolean | Boolean value to indicate excluding this User/Customer from the Ageing process 
+ failedAttempts |[Integer|api:java.lang.Integer]| Number of login attempts that have been failed by this user (i.e., the user has entered the wrong password). 
+ invoiceChild | Boolean | @true@ if this is a sub-account (child of a parent account), but this user will still receive invoices. 
+ invoiceDeliveryMethodId |[Integer|api:java.lang.Integer]| Reference ID for one of the Invoice Delivery Methods. See appendix for acceptable values. 
+ isParent | Boolean | @true@ if this record is a "parent" user. A parent user can have sub-accounts (children). 
+ language |[String|api:java.lang.String]| Name of the language (i.e. "English"). 
+ languageId |[Integer|api:java.lang.Integer]| Contains the preferred language code for this user. Refer to Appendix A for acceptable values. 
+ lastLogin |[Date|api:java.util.Date]| Date of the last login performed by this user.  
+ lastStatusChange |[Date|api:java.util.Date]| Date of the last status change incurred by this user. 
+ mainOrderId |[Integer|api:java.lang.Integer]| The id of the main order for this customer. This is the order that sets the customer's billing cycle for the management of 'current' orders'. Current orders gather usage. See section: The user's "main" order for a description and examples of use of main orders. You can set this value to an order and call 'updateUser' to set a new order as the main order. 
+ mainRoleId |[Integer|api:java.lang.Integer]| The level of privilege granted to the user when logged into the system. See Appendix A for acceptable values. 
+ nextInvoiceDate |[Date|api:java.util.Date]| The earliest next billable date for this user's Orders. 
+ notes |[String|api:java.lang.String]| CRM notes for this user. 
+ owingBalance | [BigDecimal|api:java.math.BigDecimal] | A real-time calculated owing balance. (All Invoices - All Payments) 
+ parentId |[Integer|api:java.lang.Integer]| If the user belongs to a parent record, this field contains the identifier of the parent record. 
+ partnerId |[Integer|api:java.lang.Integer]| Identifier of the partner this user belongs to. 
+ password |[String|api:java.lang.String]| Authenticates the user's identity during login. This could be meaningless if the password is encrypted. 
+ role |[String|api:java.lang.String]| The name of the User's role (i.e. "Clerk" or "Customer"). 
+ status |[String|api:java.lang.String]| Name of the User's current status (i.e. "Suspended" or "Active"). 
+ statusId |[Integer|api:java.lang.Integer]| Current status identifier of the user. See Appendix A for acceptable values. 
+ subscriberStatusId |[Integer|api:java.lang.Integer]| Subscriber status for this user. See Appendix A for acceptable values. 
+ userIdBlacklisted | Boolean | *true* if the user id is blacklisted. See the *[jBilling User Guide|guide:userGuide]* for more information on blacklists. 
+ userName |[String|api:java.lang.String]| Identifies the user during login. 
+{table}
+
+h4. CreditCardDTO
+
+{table}
+ *Property*|*Type*|*Description*
+ deleted |[Integer|api:java.lang.Integer]| If the record has been deleted, this field contains '1', otherwise it contains '0'. Note that deletion cannot be carried out by simply setting a '1' in this field. 
+ expiry|[Date|api:java.util.Date]| Expiration date of the credit card. Usually, card expiration dates are expressed in month/year form, such as "05/11" or "May 2011". This field contains the last day the card is valid, in this example, "05/31/2011". 
+ id|[Integer|api:java.lang.Integer]|Unique identifier for this record. 
+ name|[String|api:java.lang.String]|Credit card owner's name. This is the name that appears physically on the credit card. 
+ number|[String|api:java.lang.String]|Credit card number. Usually, a 16 digit number. 
+ securityCode|[Integer|api:java.lang.Integer]|CCV (Credit Card Verification) code of the credit card. 
+ type|[Integer|api:java.lang.Integer]|Credit Card type. See Appendix A for acceptable values. 
+{table}
+
+h4. ContactWS
+
+{table}
+ *Property*|*Type*|*Description*
+ address1|[String|api:java.lang.String]|First line for the address. 
+ address2|[String|api:java.lang.String]|Second line for the address. 
+ city|[String|api:java.lang.String]|City of this contact. 
+ contactTypeDescr|[String|api:java.lang.String]|Description of the contact type of this contact namely 'Primary' 
+ contactTypeId|[Integer|api:java.lang.Integer]|Identifier for the type id of the Contact i.e. id of contact_type table. A contact has atleast one 'Primary' contact type and may have more Contact Types. 
+ countryCode|[String|api:java.lang.String]|Country code for this contact (Appendix A contains a list of acceptable country codes). 
+ createDate|[Date|api:java.util.Date]|Date this contact record was first created. 
+ deleted|[Integer|api:java.lang.Integer]|If the record has been deleted, this field contains '1', otherwise it contains '0'. Note that deletion cannot be carried out by simply setting a '1' in this field. 
+ email|[String|api:java.lang.String]|Email address of this contact. 
+ faxAreaCode|[Integer|api:java.lang.Integer]|Area Code for the fax number, if any. 
+ faxCountryCode|[Integer|api:java.lang.Integer]|Country Code for the fax number, if any. 
+ faxNumber|[String|api:java.lang.String]|Fax number. 
+ fieldIDs|Integer[]|Database table primary keys or ids of contact_field_type table. Used to identify Custom Contact Field types 
+ fieldNames|String[]|The name of each of the customized contact fields contained in this contact record. 
+ fieldValues|String[]|The values for each of the customized contact fields contained in this contact record. 
+ firstName|[String|api:java.lang.String]|First name of this contact. 
+ id|[Integer|api:java.lang.Integer]|Unique identifier of this contact. 
+ include|[Integer|api:java.lang.Integer]|*1* if this contact is marked as included in notifications. 
+ initial|[String|api:java.lang.String]|Middle name initials, if any. 
+ lastName|[String|api:java.lang.String]|Last name of this Contact. 
+ organizationName|[String|api:java.lang.String]|Name of the organization the contact belongs to. 
+ phoneAreaCode|[Integer|api:java.lang.Integer]|Phone number Area Code. 
+ phoneCountryCode|[Integer|api:java.lang.Integer]|Phone number Country Code. 
+ phoneNumber|[String|api:java.lang.String]|Phone number. 
+ postalCode|[String|api:java.lang.String]|ZIP Code for the contact's address. 
+ stateProvince|[String|api:java.lang.String]|State or Province of the contact's address. 
+ title|[String|api:java.lang.String]|Title for the contact, such as "Mr." or "Dr.". 
+{table}
+
+h4. UserTransitionResponseWS
+
+{table}
+ *Property*|*Type*|*Description*
+ fromStatusId|[Integer|api:java.lang.Integer]|Status of the subscription before the transition took place. See Appendix A for acceptable values. 
+ id|[Integer|api:java.lang.Integer]|Unique identifier for the transition record. 
+ toStatusId|[Integer|api:java.lang.Integer]|Status of the subscription after the transition took place. 
+ transitionDate|[Date|api:java.util.Date]|Date and time the transition took place. 
+ userId|[Integer|api:java.lang.Integer]|Identifies the user account that suffered the subscription status change. 
+{table}
+
+h3. Order Management Calls
+
+Useful for entering Orders and querying information about Orders.
+
+h4. OrderWS
+
+{table}
+ *Property*|*Type*|*Description*
+ activeSince|[Date|api:java.util.Date]|The point in time when this order will start being active, reflecting when the customer will be invoiced for the items included. A null value indicates that the order was active at creation time (see field createDate). 
+ activeUntil|[Date|api:java.util.Date]|The point in time when this order stops being active. After this date, the order will stop generating new invoices, indicating that the services included in this order should stop being delivered to the customer. A null value would specify an open-ended order. Such order never expires; it is considered on-going and will require explicit cancellation for it to stop generating invoices. 
+ anticipatePeriods|[Integer|api:java.lang.Integer]|How many periods in advance the order should invoice for. Leave with a '0' unless you have configured the system to work with anticipated periods. 
+ billingTypeId|[Integer|api:java.lang.Integer]|Indicates if this order is to be paid for before or after the service is provided. Pre-paid orders are invoiced in advance to the customer, while post-paid are only invoiced once the goods or services included in the order have been delivered. '1' means *pre-paid*, while '2' means *post-paid*. 
+ billingTypeStr|[String|api:java.lang.String]|(Read only). The word that represents the billing type. It is ignored when you submit the object. 
+ createDate|[Date|api:java.util.Date]|(Read only). A time stamp with the date and time when this order was originally created. 
+ createdBy|[Integer|api:java.lang.Integer]|The id of the user that has created this order. 
+ currencyId|[Integer|api:java.lang.Integer]|Currency code. Refer to Appendix A for a list of acceptable values. 
+ cycleStarts|[Date|api:java.util.Date]|The date at which the billable cycle starts. A recurring order will generate invoices at the day of the month specified in this field. The date provided in this field must comply with the following condition:		cycleStarts = createDate  For example, for an order created on 01/13/2009, setting this field to 01/28/2009 will make the system generate the invoices the 28th of each month (for orders with monthly periodicity). If set to null, the system will calculate the appropriate billing date based on the date of creation of the order and its activity period. 
+ deleted|[Integer|api:java.lang.Integer]|A flag that indicates if this record is logically deleted in the database. This allows for 'undo' of deletions. Valid values are 0 – the record is not deleted 1 – the record is considered deleted. 
+ dfFm|[Integer|api:java.lang.Integer]|Only used for specific Italian business rules. 
+ dueDateUnitId|[Integer|api:java.lang.Integer]|If this order has a specified due date, this will the the units (days, months, years). See Appendix A for valid values. 
+ dueDateValue|[Integer|api:java.lang.Integer]|How many units will be used for the due date. 
+ generatedInvoices|InvoiceWS[]|An array of InvoiceWS objects for all the invoices generated till the time for this Order. 
+ id|[Integer|api:java.lang.Integer]|A unique number that identifies this record. 
+ isCurrent|[Integer|api:java.lang.Integer]|A flag that indicates whether this order is the current main subscription. See section: The user's "main" order for a description and examples of usage of this field.  <p>Acceptable values are:</P><p>0 – The order is not the current main order.</p><p>1 – The order is the current main order. 
+ lastNotified|[Date|api:java.util.Date]|When the order has expiration notification, this field tells when the last one was sent. 
+ nextBillableDay|[Date|api:java.util.Date]|The date when this order should generate a new invoice. Meaning that until that date (and excluding that date), the customer has been invoiced for the service included in this order. 
+ notes|[String|api:java.lang.String]|A free text field for any notes for this Order. 
+ notesInInvoice|[Integer|api:java.lang.Integer]|'1' if this order's notes will be included in the invoice, or '0' if not. 
+ notificationStep|[Integer|api:java.lang.Integer]|What step has been completed in the order notifications. 
+ notify|[Integer|api:java.lang.Integer]|A flag to indicate if this order will generate notification as the 'active since' date approaches. 
+ orderLines|OrderLineWS[]|The order lines belonging to this order. These objects will specify the items included in this order with their prices and quantities. See the OrderLineWS specification for more information. 
+ ownInvoice|[Integer|api:java.lang.Integer]|A flag to indicate if this order should generate an invoice on its own. The default behavior is that many orders can generate one invoice. 
+ period|[Integer|api:java.lang.Integer]|Indicates the periodicity of this order. In other words, how often this order will generate an invoice. Examples of periods are: one time, monthly, weekly, etc. Period codes can be seen in jBilling's User Interface under "Orders -> Periods". 
+ periodStr|[String|api:java.lang.String]|(read only). The description of the order period. 
+ pricingFields|[String|api:java.lang.String]|An array of pricing fields encoded as a String. To encode, use the PricingField.setPricingFieldsValue() static method, which takes as parameter an array of PricingField structures and returns the encoded string. To decode, use the PricingField.getPricingFieldsValue() static method, which takes as parameter an encoded string and returns an array of PricingField structures. Pricing fields are descriptors that provide further information to the pricing engine and aid in forming the price for the order itself. See section "A word on pricing" for a more detailed explanation of the use of pricing fields. 
+ statusId|[Integer|api:java.lang.Integer]|An order has to be on status 'Active' in order to generate invoices. An order usually starts in active status, and only goes to suspended or finished when the customer fails to make the required payments. The steps and actions taken due to late payments are part of the ageing process. See Appendix A for a list of acceptable order status codes. 
+ statusStr|[String|api:java.lang.String]|(Read only) The description of the current order status. 
+ timeUnitStr|[String|api:java.lang.String]|(Read only) The description of the time unit used for billable periods. 
+ total|[String|api:java.lang.String]|(Read only) A string representation of the [BigDecimal|api:java.math.BigDecimal] value of sum-total of all the order lines of this order, in other words, total order amount. 
+ userId|[Integer|api:java.lang.Integer]|An identifier for the User to whome thiis order belongs. 
+{table}
+
+h4. OrderLineWS
+
+{table}
+ *Property*|*Type*|*Description*
+ amount|[BigDecimal|api:java.math.BigDecimal]|The total amount of this line. Usually, this field should equal to the product of price and quantity. This amount will be the one added to calculate the purchase order total. The currency of this field is the one specified in its parent order. The amount can be also set and obtained as a [BigDecimal|api:java.math.BigDecimal], using the @getAmountAsDecimal()@ and @setAmountAsDecimal()@ methods. 
+ createDatetime|[Date|api:java.util.Date]|A time stamp applied when this record is created. 
+ deleted|[Integer|api:java.lang.Integer]|A flag that indicates if this record is logically deleted in the database. This allows for 'undo' of deletions. Valid values are 0 – the record is not deleted 1 – the record is considered deleted. 
+ description|[String|api:java.lang.String]|A descriptive text for the services being included. This usually copies the description of the item related to this line. 
+ editable|[Boolean|api:java.lang.Boolean]|Indicates whether this order line is editable or not (i.e., it cannot be submitted for update). 
+ id|[Integer|api:java.lang.Integer]|A unique number that identifies this record. 
+ itemDto|ItemDTOEx|Contains information of the item this order line refers to. 
+ itemId|[Integer|api:java.lang.Integer]|The id of the item associated with this line, or null if this line is not directly related to an item. It is consider a good practice to have all order lines related to an item. This allows for better reporting. 
+ orderId|[Integer|api:java.lang.Integer]|Identifier of the order that contains this order line. 
+ price|[String|api:java.lang.String]|The price of one item, or null if there is no related item. Can also be manipulated as a [BigDecimal|api:java.math.BigDecimal] using the "getPriceAsDecimal()" and "setPriceAsDecimal()" methods. 
+ priceStr|[String|api:java.lang.String]|The price of the item as a string. 
+ provisioningRequestId|[String|api:java.lang.String]|The provisioning request UUID for this order line, if it exists. 
+ provisioningStatusId|[Integer|api:java.lang.Integer]|The provisioning status id for this order line. See Appendix A for valid values. 
+ quantity|[String|api:java.lang.String]|The quantity of the items included in the line, or null, if a quantity doesn't apply. It can also be handled using the "getQuantityAsDecimal()" and "setQuantityAsDecimal()" methods. 
+ typeId|[Integer|api:java.lang.Integer]|An order line usually has items. However, some lines are used for additional charges, like taxes. See Appendix A for a list of acceptable order line type codes. 
+ useItem|[Boolean|api:java.lang.Boolean]|If true, when submitted, this line will take the price and description from the item. This means that you would not need to give a price and description for the line. Instead, you only provide the id of the item. See the createOrder section for details. 
+{table}
+
+h4. CreateResponseWS
+
+{table}
+ *Property*|*Type*|*Description*
+ invoiceId |Integer  |  Identifier of the invoice that was generated. 
+ orderId|[Integer|api:java.lang.Integer]|Identifier of the order that was created. 
+ paymentId|[Integer|api:java.lang.Integer]|Identifier of the payment that was generated to pay the invoice. 
+ paymentResult|PaymentAuthorizationDTOEx|Payment Result data structure with the outcome details of the payment operation. 
+ userId|[Integer|api:java.lang.Integer]|Identifier of the new user created and for which the order, invoice and payment were created. 
+{table}
+
+h4. PricingField
+
+This data structure describes heterogeneous data that will be passed to the rules engine
+in order to calculate prices and/or flag specific conditions that affect pricing:
+
+{table}
+ *Property*|*Type*|*Description*
+ name|[String|api:java.lang.String]|Identifier of the pricing field. 
+ position|[Integer|api:java.lang.Integer]|(optional) 
+ strValue|[String|api:java.lang.String]|A multipurpose String value of the pricing field, which can be used  as deemed fit within the rules (for example, use the string value as a description for the Item). 
+ dateValue|[Date|api:java.util.Date]|Optional date value of the pricing field, which can be used as necessary by the rules (for example, to set the activeUntil date of the order). 
+ intValue|[Integer|api:java.lang.Integer]|Optional integer value of the pricing field, which can be used as necessary by the rules. 
+ decimalValue|[BigDecimal|api:java.math.BigDecimal]|Optional decimal value of the pricing field, which can be used as necessary by the rules (for example, to set a different price or apply as discount). 
+ booleanValue|[Boolean|api:java.lang.Boolean]|Optional boolean value of the pricing field, which can be used as necessary by the rules. 
+{table}
+
+h3. Item Management Calls
+
+Items are the building blocks of purchase orders. Items are usually managed from the GUI Web App since they don't have the 
+level of activity of orders or payments. Use this service for integration with other applications (for example, an inventory system)
+or when handling high volumes to get better throughput as compared to the Web Application. An item can have a simple price or a percentage price. 
+Items with a simple price will simply add that price to the total of a purchase order. A percentage price will impact that
+total by a percentage. Examples of items with percentage prices are taxes and interests.
+
+h4. ItemDTOEx
+
+{table}
+ *Property*|*Type*|*Description*
+ currencyId|[Integer|api:java.lang.Integer]|Identifier for the currency in which the item's price is expressed. See Appendix A for a list of acceptable values. 
+ deleted|[Integer|api:java.lang.Integer]|A flag that indicates if this record is logically deleted in the database. This allows for 'undo' of deletions. Valid values are: 0 – the record is not deleted 1 – the record is considered deleted. 
+ entityId|[Integer|api:java.lang.Integer]|Identifier for the entity to which this item belongs. 
+ hasDecimals|[Integer|api:java.lang.Integer]|An internal flag indicating whether the item accepts decimal quantities. Can have the following values: 0 – No decimals, quantities are expressed as an integer, 1 – Decimals allowed in quantity values. 
+ id|[Integer|api:java.lang.Integer]|A unique number that identifies this Item record. 
+ orderLineTypeId|[Integer|api:java.lang.Integer]|The order line type that this item will generate, such a 'taxes', or 'items'. 
+ types|Integer[]|A list of type identifiers that indicates to which types (categories) this item belongs. An item must belong to at least one type. 
+ defaultPrice|PriceModelWS|A default pricing model this Item follows. See PriceModelWS 
+ description|[String|api:java.lang.String]|Item description 
+ glCode|[String|api:java.lang.String]|General Ledger code for integration with Other systems like Accounting Systems. 
+ number|[String|api:java.lang.String]|This can be used to identify this item following an external coding system. For example, books can be identified by their ISBN codes. 
+ percentage|[BigDecimal|api:java.math.BigDecimal]|If this Item has percentage rate, that rate is specified using this field 
+ price|[BigDecimal|api:java.math.BigDecimal]|The price of this item or null if this is a percentage item. 
+ promoCode|[String|api:java.lang.String]|If this item is related to a promotion, this is the code that identifies the promotion. 
+{table}
+
+h4. PriceModelWS
+
+{table}
+ *Property*|*Type*|*Description*
+ id|[Integer|api:java.lang.Integer]|A unique number that identifies this record
+ type|[String|api:java.lang.String]|String value representing the PricingStrategy type name
+ attributes|SortedMap|A map of Price model attributes. Different attributes (name, value pairs) are required by individual PricingStrategy types for use in the calculation of price
+ rate|[String|api:java.lang.String]|A decimal value of the available rate in string. This is a default rate that is used for Price calculate, unless overridden by a PricingStrategy rate
+ currencyId|[Integer|api:java.lang.Integer]|The currency used for this PriceModel
+ next|PriceModeWS|The next PriceModel for the plan that references this PriceModel
+{table}
+
+h4. PriceItemWS
+
+{table}
+ *Property*|*Type*|*Description*
+{table}
+
+h4. ItemTypeWS
+
+{table}
+ *Property*|*Type*|*Description*
+ description |String  |  Description for this item type. 
+ id|[Integer|api:java.lang.Integer]|Identifier of this item type. 
+ orderLineTypeId|[Integer|api:java.lang.Integer]|Type of order line for this item. See "Order Line Type Codes" in "Appendix A" for valid values for this field. 
+{table}
+
+h4. ValidatePurchaseWS
+
+{table}
+ *Property*|*Type*|*Description*
+ authorized|Boolean  |@true@ if the validation has been authorized, @false@ otherwise. 
+ message|String[]|An array of messages detailing the result of the validation operation. 
+ quantity|[String|api:java.lang.String]|Quantity of the item that can be applied without exceeding the user's remaining credit limit or prepaid balance. 
+ success|[Boolean|api:java.lang.Boolean]|@true@ if the validation was successful, @false@ otherwise. 
+{table}
+
+h3. Invoice Management Calls
+
+The invoice management calls allow your application to query the system about
+invoices, and to attempt to pay an invoice through a payment gateway. Invoices in
+jBilling are, for the most part, read-only and are created based on purchase orders.
+Invoices can be generated, however, for orders that have yet to be invoiced.
+
+h4. InvoiceWS
+
+{table}
+ *Property*|*Type*|*Description* 
+ createDateTime|[Date|api:java.util.Date]|This is the invoice date, which is assigned to it by the billing process when it is generated. 
+ createTimeStamp|[Date|api:java.util.Date]|A time stamp of when this invoice record was created. 
+ dueDate|[Date|api:java.util.Date]|The due date of this invoice. After this date, the invoice should have been paid. 
+ lastReminder|[Date|api:java.util.Date]|Date and time of when the latest reminder was issued for this invoice. 
+ currencyId|[Integer|api:java.lang.Integer]|Identifier of the currency in which the invoice's amounts are being expressed. See Appendix A for a list of all acceptable values. 
+ delegatedInvoiceId|[Integer|api:java.lang.Integer]|If this invoice has been included in another invoice (usually for lack of payment), this field will indicate to which invoice it has been delegated. 
+ deleted|[Integer|api:java.lang.Integer]|A flag that indicates if this record is logically deleted in the database. This allows for 'undo' of deletions. Valid values are: 0 – the record is not deleted 1 – the record is considered deleted. 
+ id|[Integer|api:java.lang.Integer]|A unique number that identifies this record. 
+ inProcessPayment|[Integer|api:java.lang.Integer]|A flag indicating if this invoice will be paid using automated payment (through a payment processor), or if it will be paid externally (for example, with a paper check). 
+ isReview|[Integer|api:java.lang.Integer]|This is an internal value that indicates if this invoice is not a 'real' invoice, but one that belongs to a review process. If '1', it means that it is not a real Invoice. 
+ orders|Integer[]|A list of the ids of the purchase orders which have been included in this invoice. 
+ overdueStep|[Integer|api:java.lang.Integer]|This marks which step is this invoice in for the penalties (interests) process. 
+ paymentAttempts|[Integer|api:java.lang.Integer]|How many payment attempts have been done by the automated payment process to get this invoice paid. 
+ payments|Integer[]|A list of ids of the payments that have been applied to this invoice. 
+ statusId|[Integer|api:java.lang.Integer]|A flag that indicates the status of this invoice. See section *Invoice Status Codes* on Annexure A for valid values for this field. 
+ toProcess|[Integer|api:java.lang.Integer]|This is '1' if the invoice will be considered by the billing process as unpaid. Otherwise it is '0' and the invoices is either paid or carried over to another invoice. 
+ userId|[Integer|api:java.lang.Integer]|The customer to whom this invoice belongs. 
+ invoiceLines|InvoiceLineDTO[]|A list of objects representing each of this invoice's lines. 
+ balance|[String|api:java.lang.String]|The amount of this invoice that is yet to be paid. Can also be handled as a [BigDecimal|api:java.math.BigDecimal] via the "getBalanceAsDecimal()" and "setBalanceAsDecimal()" methods. 
+ carriedBalance|[String|api:java.lang.String]|How much of the total belonging to previous unpaid invoices that have been delegated to this one. It can also be handled via the "getCarriedBalanceAsDecimal()" and "setCarriedBalanceAsDecimal()" methods. 
+ customerNotes|[String|api:java.lang.String]|Notes that are entered in a purchase order can be applied to an invoice. If that is the case, this field will have those user notes. 
+ number|[String|api:java.lang.String]|The invoice number, which is assigned to it from a 'preference' field (see the user guide for more information).  This is not the ID, which is guaranteed to be unique. 
+ statusDescr|[String|api:java.lang.String]|The status name of the Invoice status as determined from the field statusId 
+ total|[String|api:java.lang.String]|The total amount of this invoice. It can also be handled as a [BigDecimal|api:java.math.BigDecimal] via the "getTotalAsDecimal()" and "setTotalAsDecimal()" methods. 
+{table}
+
+h4. InvoiceLineDTO
+
+This data structure contains data relative to a single line of an invoice.
+
+{table}
+ *Property*|*Type*|*Description* 
+ amount|[BigDecimal|api:java.math.BigDecimal]|The total amount for this line. Usually would follow the formula price * quantity.|	
+ deleted|[Integer|api:java.lang.Integer]|A flag that indicates if this record is logically deleted in the database. This allows for 'undo' of deletions.  Valid values are: 0 – the record is not deleted 1 – the record is considered deleted. 
+ description|[String|api:java.lang.String]|This description will be displayed in the invoice delivered to the customer. 
+ id|[Integer|api:java.lang.Integer]|A unique number that identifies this record. 
+ isPercentage|[Integer|api:java.lang.Integer]|Indicates whether the item referenced by this invoice line is a percentage item or not. This is used to aid how the order line is displayed to the customer. 
+ itemId|[Integer|api:java.lang.Integer]|Identifier of the item referenced by this invoice line. 
+ price|[BigDecimal|api:java.math.BigDecimal]|The pricing of a single unit of this item. 
+ quantity|[BigDecimal|api:java.math.BigDecimal]|The number of units of the item being invoiced. 
+ sourceUserId|[Integer|api:java.lang.Integer]|This field is useful only when many sub-accounts is invoiced together. This field would have the ID of the user that originally purchase an item. 
+{table}
+
+h3. Payment Management Calls
+
+Payments play a crucial role in determining the status of a customer. For the system to
+properly trace payments, they have to be linked to the invoices they are paying.
+Payments not related to an invoice should be avoided; they are intended for initial
+imports from legacy billing systems and exceptional circumstances. Arbitrary credit card
+payment processing not linked to any invoice is possible, however.
+There are three basic payment methods: Cheques, ACH and Credit Cards. Different objects are
+used as fields of PaymentWS for each for these types. 
+There are two different actions related to payments. One is to apply a payment. This
+means that the payment has already been processed and accepted by the company.
+Applying the payment will let the system know that a new payment has to be registered.
+A common example is when the company has received and successfully deposited a
+cheque. In this case, the system only has to apply the payment to the customer's
+account.
+A more comprehensive action is to process a payment. Processing a payment means
+the company will submit the payment information to the system, then the system will
+submit the payment to a payment process for its authorization in real-time, storing the
+result of this operation. The caller will get the results of this authorization. The most
+common example for this operation is a credit card payment.
+In summary, the system can both request authorization of a payment and apply the
+payment to the customer's account, or it can do only this last step.
+The payment management calls will let you query the system for payments, and also
+apply and submit a payment to get an invoice payed.
+
+h3. PaymentWS
+
+{table}
+ *Property*|*Type*|*Description* 
+ ach|AchDTO|If this is a payment done with Automatic Clearing House (ACH), this property contains the banking information needed. 
+ amount|[String|api:java.lang.String]|The amount of the payment operation. Can also be handled as a [BigDecimal|api:java.math.BigDecimal] via the "getAmountAsDecimal()" and "setAmountAsDecimal()" methods. 
+ authorization|PaymentAuthorizationDTO|Refund specific field. Contains the identifier of the authorization details for the refund. 
+ balance|[String|api:java.lang.String]|Balance of this payment. If greater than 0, this payment could pay part of another invoice. If 0, this payment has already been applied to an invoice, lowering the invoice's balance. It can also be handled as a [BigDecimal|api:java.math.BigDecimal] via the "getBalanceAsDecimal()" and "setBalanceAsDecimal()" methods. 
+ cheque|PaymentInfoChequeDTO|If this payment is done via check, this property contains information about the cheque, otherwise it contains "null". 
+ createDatetime|[Date|api:java.util.Date]|Date in which this payment record was created. 
+ creditCard|CreditCardDTO|If this is a credit card payment, this property contains information about the credit card, otherwise it contains "null". 
+ currencyId|[Integer|api:java.lang.Integer]|Identifier of the currency in which the payment is being made. See Appendix A for a list of acceptable values. 
+ deleted|[Integer|api:java.lang.Integer]|Delete flag. '1' if this record has been deleted, '0' otherwise. 
+ attempt|[Integer|api:java.lang.Integer]|Number of the attempt to process this payment. 
+ id|[Integer|api:java.lang.Integer]|Unique identifier of the payment record. 
+ invoiceIds|Integer[]|Contains the list of invoices this payment is paying. 
+ isPreauth|[Integer|api:java.lang.Integer]|'1' if this payment is a preauthorization, '0' otherwise. 
+ isRefund|[Integer|api:java.lang.Integer]|'1' if this payment constitutes a refund operation, '0' otherwise. 
+ method|[String|api:java.lang.String]|Name of the payment method used. 
+ paymentDate|[Date|api:java.util.Date]|Date of the payment. 
+ paymentId|[Integer|api:java.lang.Integer]|Refund specific field. When a refund is to be issued, this field holds the identifier of the payment that is to be refunded. 
+ paymentMethodId|[Integer|api:java.lang.Integer]|Identifier of the payment method. Refer to Appendix A for a list of acceptable values. 
+ paymentNotes|[String|api:java.lang.String]|Any notes related to this payment for e.g. relevant invoiceId can be added to notes or any relevant information. 
+ paymentPeriod|[Integer|api:java.lang.Integer]|Optional Payment period identifier 
+ resultId|[Integer|api:java.lang.Integer]|Identifier of the result of the payment attempt. Refer to Appendix A for a list of acceptable values. 
+ updateDatetime|[Date|api:java.util.Date]|Date in which this payment record was last updated. 
+ userId|[Integer|api:java.lang.Integer]|Identifier of the user this payment record belongs to. 
+{table}
+
+h3. PaymentInfoChequeDTO
+
+{table}
+ *Property*|*Type*|*Description* 
+ id|[Integer|api:java.lang.Integer]|The unique identifier of this record.
+ bank|[String|api:java.lang.String]|The name of the bank this cheque's account belongs to. 
+ number|[String|api:java.lang.String]|The cheque's number. 
+ date|[Date|api:java.util.Date]|The cheque's date. 
+{table}
+
+h3. AchDTO
+
+{table}
+ *Property*|*Type*|*Description* 
+ abcRouting|[String|api:java.lang.String]|ABA routing number.
+ accountName|[String|api:java.lang.String]|The account name.
+ accountType|[Integer|api:java.lang.Integer]|If this is chequings or a savings account. 
+ bankAccount|[String|api:java.lang.String]|The account number. 
+ bankName|[String|api:java.lang.String]|The bank name. 
+ id|[Integer|api:java.lang.Integer]|The unique identifier of this record. 
+{table}
+
+h3. PaymentAuthorizationDTO
+
+{table}
+ *Property*|*Type*|*Description* 
+ id|[Integer|api:java.lang.Integer]|Unique identifier of the payment authorization. 
+ processor|[String|api:java.lang.String]|Name of the payment processor. 
+ code1|[String|api:java.lang.String]|Request code number 1. 
+ code2|[String|api:java.lang.String]|Request code number 2. 
+ code3|[String|api:java.lang.String]|Request code number 3. 
+ approvalCode|[String|api:java.lang.String]|Approval code provided by the processor. 
+ AVS|[String|api:java.lang.String]|A code with the results of address verification. 
+ transactionId|[String|api:java.lang.String]|Identifier of the processor transaction. 
+ MD5|[String|api:java.lang.String]|Hash for the transaction. 
+ cardCode |String |Payment card code. 
+ createDate |Date |The creation date for this payment authorization record. 
+ responseMessage |String |The response provided by the processor. 
+{table}
+
+h3. PaymentAuthorizationDTOEx
+
+This data structure contains data about a payment authorization process. It extends the PaymentAuthorizationDTO structure (see above). 
+Thus, it shares all the same fields plus the following:
+
+{table}
+ *Property*|*Type*|*Description* 
+ result|[Boolean|api:java.lang.Boolean]|@true@ if the authorization succeeded, @false@ otherwise. 
+{table}
+

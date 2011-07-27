@@ -1,0 +1,31 @@
+Applications need to interface with other applications. More so, for a billing application that contains significant information 
+about things like Customer Status, Payments Overdue, Subscriptions for Customer etc. This information is likely to be important inputs for 
+decision making in other business applications and processes. 
+
+!need_for_integration1.png!
+
+A self-contained billing application, on the other hand, has another big drawback: 
+to keep it updated, you would need a separate data-entry process that feeds the billing data from your system into the billing application. 
+This is both time and resource consuming. For example:
+
+Let's suppose you own a website with a member's area. In order to access the member
+area, the customer would need to pay a monthly fee. If the billing data is kept separately,
+when a new user subscribes to the website, the billing data would need to wait until
+somebody enters data into the billing application, and after the payment is cleared the
+same person would need to update the website in order to grant access to the user.
+
+The manual authorization process would have a heavy impact on the site's functionality.
+Even if there are instant payment options, such as credit cards, the user would have to
+wait for a manual operation to take place before being granted access to the service he
+paid for.
+
+*j*Billing solves this problem by rendering common billing and data retrieval operations
+available to your system via service calls. With a relatively small programming effort, you
+can integrate the billing application with your own systems or business processes, so that when the new user
+signs in, you can instantly pass the data to the billing application, have the payment
+cleared and grant access without the need for manual operations.
+
+As we'll see in the following sections, integration services in *j*Billing are almost as
+comprehensive as the billing functionality provided through the standard web interface.
+Using the integration layer, you can retrieve lots of useful data from *j*Billing, as well as
+_create_, _update_ or _delete_ Users, Items, Orders and Invoices.

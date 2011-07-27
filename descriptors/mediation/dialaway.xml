@@ -1,0 +1,306 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE format SYSTEM "mediation.dtd" >
+<format>
+    <field>
+	<name>CDR</name>
+    	<type>integer</type>
+	<startPosition>1</startPosition>
+	<length>5</length>
+    </field>
+    <field>
+	<name>Source Phone</name>
+    	<type>string</type>
+	<startPosition>6</startPosition>
+	<length>21</length>
+    </field>
+    <field>
+	<name>Source ID</name>
+    	<type>integer</type>
+	<startPosition>27</startPosition>
+	<length>6</length>
+    </field>
+    <field>
+	<name>Source Port</name>
+    	<type>string</type>
+	<startPosition>34</startPosition>
+	<length>3</length>
+    </field>
+    <field>
+	<name>Manipulated Destination Number</name>
+    	<type>string</type>
+	<startPosition>37</startPosition>
+	<length>21</length>
+    </field>
+    <field>
+	<name>Destination ID</name>
+    	<type>integer</type>
+	<startPosition>58</startPosition>
+	<length>6</length>
+    </field>
+    <field>
+	<name>Destination port</name>
+    	<type>integer</type>
+	<startPosition>65</startPosition>
+	<length>3</length>
+    </field>
+    <field>
+	<name>Allocation time</name>
+    	<type>string</type>
+	<startPosition>68</startPosition>
+	<length>9</length>
+    </field>
+    <field>
+	<name>Call Start</name>
+    	<type>date</type>
+	<startPosition>77</startPosition>
+	<length>20</length>
+    </field>
+    <field>
+	<name>Call Stop</name>
+    	<type>date</type>
+	<startPosition>97</startPosition>
+	<length>20</length>
+    </field>
+    <field>
+	<name>Call Duration</name>
+    	<type>integer</type>
+	<startPosition>117</startPosition>
+	<length>11</length>
+	<durationFormat>_HHHH:MM:SS</durationFormat>
+    </field>
+    <field>
+	<name>Free Duration</name>
+    	<type>integer</type>
+	<startPosition>128</startPosition>
+	<length>11</length>
+	<durationFormat>_HHHH:MM:SS</durationFormat>
+    </field>
+    <field>
+	<name>Constant</name>
+    	<type>integer</type>
+	<startPosition>139</startPosition>
+	<length>3</length>
+    </field>
+    <field>
+	<name>Variable Zone</name>
+    	<type>integer</type>
+	<startPosition>142</startPosition>
+	<length>6</length>
+    </field>
+    <field>
+	<name>Fix Zone</name>
+    	<type>integer</type>
+	<startPosition>148</startPosition>
+	<length>6</length>
+    </field>
+    <field>
+	<name>Pay Pulse</name>
+    	<type>integer</type>
+	<startPosition>154</startPosition>
+	<length>6</length>
+    </field>
+    <field>
+	<name>Source Time Zone</name>
+    	<type>string</type>
+	<startPosition>160</startPosition>
+	<length>3</length>
+    </field>
+    <field>
+	<name>Constant</name>
+    	<type>integer</type>
+	<startPosition>163</startPosition>
+	<length>3</length>
+    </field>
+    <field>
+	<name>CDR / 100000</name>
+    	<type>integer</type>
+	<startPosition>166</startPosition>
+	<length>6</length>
+    </field>
+    <field>
+	<name>K Inbound</name>
+    	<type>integer</type>
+	<startPosition>172</startPosition>
+	<length>4</length>
+    </field>
+    <field>
+	<name>K Outbound</name>
+    	<type>integer</type>
+	<startPosition>176</startPosition>
+	<length>4</length>
+    </field>
+    <field>
+	<name>Src.Num_inb_msg</name>
+    	<type>integer</type>
+	<startPosition>180</startPosition>
+	<length>7</length>
+    </field>
+    <field>
+	<name>Src.Num_outb_msg</name>
+    	<type>string</type>
+	<startPosition>187</startPosition>
+	<length>7</length>
+    </field>
+    <field>
+	<name>Routing Group</name>
+    	<type>integer</type>
+	<startPosition>194</startPosition>
+	<length>6</length>
+    </field>
+    <field>
+	<name>Vox</name>
+    	<type>integer</type>
+	<startPosition>200</startPosition>
+	<length>4</length>
+    </field>
+    <field>
+	<name>Call Type</name>
+    	<type>integer</type>
+	<startPosition>204</startPosition>
+	<length>4</length>
+    </field>
+    <field>
+	<name>Rate / 100</name>
+    	<type>integer</type>
+	<startPosition>208</startPosition>
+	<length>4</length>
+    </field>
+    <field>
+	<name>Dialed Number</name>
+    	<type>string</type>
+	<startPosition>212</startPosition>
+	<length>21</length>
+    </field>
+    <field>
+	<name>Translated Number</name>
+    	<type>string</type>
+	<startPosition>233</startPosition>
+	<length>21</length>
+    </field>
+    <field>
+	<name>Src.Discard_msg</name>
+    	<type>integer</type>
+	<startPosition>254</startPosition>
+	<length>7</length>
+    </field>
+    <field>
+	<name>Dst.Discard_msg</name>
+    	<type>integer</type>
+	<startPosition>261</startPosition>
+	<length>7</length>
+    </field>
+    <field>
+	<name>Src.Extension</name>
+    	<type>integer</type>
+	<startPosition>268</startPosition>
+	<length>3</length>
+    </field>
+    <field>
+	<name>Src.type</name>
+    	<type>integer</type>
+	<startPosition>271</startPosition>
+	<length>3</length>
+    </field>
+    <field>
+	<name>Src.VIC</name>
+    	<type>integer</type>
+	<startPosition>274</startPosition>
+	<length>4</length>
+    </field>
+    <field>
+	<name>Src.Termination_cause</name>
+    	<type>integer</type>
+	<startPosition>278</startPosition>
+	<length>4</length>
+    </field>
+    <field>
+	<name>Src.Termination_type</name>
+    	<type>integer</type>
+	<startPosition>282</startPosition>
+	<length>4</length>
+    </field>
+    <field>
+	<name>Dst.Extension</name>
+    	<type>integer</type>
+	<startPosition>286</startPosition>
+	<length>3</length>
+    </field>
+    <field>
+	<name>Dst.type</name>
+    	<type>integer</type>
+	<startPosition>289</startPosition>
+	<length>3</length>
+    </field>
+    <field>
+	<name>Dst.VIC</name>
+    	<type>integer</type>
+	<startPosition>292</startPosition>
+	<length>4</length>
+    </field>
+    <field>
+	<name>Dst.Termination_cause</name>
+    	<type>integer</type>
+	<startPosition>296</startPosition>
+	<length>4</length>
+    </field>
+    <field>
+	<name>Dst.Termination_type</name>
+    	<type>integer</type>
+	<startPosition>300</startPosition>
+	<length>4</length>
+    </field>
+    <field>
+	<name>Dst.Num_inb_msg</name>
+    	<type>integer</type>
+	<startPosition>304</startPosition>
+	<length>7</length>
+    </field>
+    <field>
+	<name>Dst.Num_outb_msg</name>
+    	<type>integer</type>
+	<startPosition>311</startPosition>
+	<length>7</length>
+    </field>
+    <field>
+	<name>DA Frequency</name>
+    	<type>integer</type>
+	<startPosition>318</startPosition>
+	<length>6</length>
+    </field>
+    <field>
+	<name>VDA Slots</name>
+    	<type>integer</type>
+	<startPosition>324</startPosition>
+	<length>3</length>
+    </field>
+    <field>
+	<name>Zone Prefix</name>
+    	<type>string</type>
+	<startPosition>327</startPosition>
+	<length>14</length>
+    </field>
+    <field>
+	<name>GID Group Identification Definition</name>
+    	<type>integer</type>
+	<startPosition>341</startPosition>
+	<length>4</length>
+    </field>
+    <field>
+	<name>CID Channel Identification Definition</name>
+    	<type>integer</type>
+	<startPosition>345</startPosition>
+	<length>5</length>
+    </field>
+    <field>
+	<name>SS7 end cause</name>
+    	<type>integer</type>
+	<startPosition>350</startPosition>
+	<length>4</length>
+    </field>
+    <field>
+	<name>CRV Call Reference Identification</name>
+    	<type>integer</type>
+	<startPosition>354</startPosition>
+	<length>17</length>
+    </field>
+</format>

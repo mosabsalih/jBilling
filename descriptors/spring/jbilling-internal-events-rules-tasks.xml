@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Configuration for InternalEventsRulesTasks
+-->
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+       http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.5.xsd">
+
+  <!-- List of internal events that a task subscribes to. -->
+  <util:list id="invoiceEvents">
+      <value>com.sapienter.jbilling.server.order.event.OrderToInvoiceEvent</value>
+  </util:list>
+
+  <!-- Map linking pluggable task ids to an event list defined above. -->
+  <util:map id="internalEventsRulesTaskConfig">
+      <entry key="540" value-ref="invoiceEvents"/>
+  </util:map>
+
+</beans>

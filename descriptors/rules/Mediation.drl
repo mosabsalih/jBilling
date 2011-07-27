@@ -1,0 +1,282 @@
+package Mediation
+
+import com.sapienter.jbilling.server.item.PricingField;
+import com.sapienter.jbilling.server.mediation.task.MediationResult;
+import com.sapienter.jbilling.server.user.UserBL;
+import com.sapienter.jbilling.server.order.OrderLineBL;
+import com.sapienter.jbilling.server.order.OrderBL;
+import com.sapienter.jbilling.server.order.db.OrderDTO;
+import com.sapienter.jbilling.server.user.db.CompanyDTO;
+import com.sapienter.jbilling.server.order.db.OrderLineDTO;
+import com.sapienter.jbilling.server.item.tasks.PricingResult;
+import com.sapienter.jbilling.server.item.tasks.SubscriptionResult;
+import com.sapienter.jbilling.server.order.db.OrderDAS;
+
+import org.apache.log4j.Logger;
+
+import java.util.List;
+import java.math.BigDecimal;
+
+global org.apache.log4j.Logger LOG;
+
+function int convert_to_minutes(Integer seconds) {
+	return ((int)  Math.ceil(seconds / 60)) + 1;
+}
+
+function Integer getUserIdFromUsername(String username, Integer entityId) {
+    UserBL user = new UserBL(username, entityId);
+    return user.getEntity() != null ? user.getEntity().getUserId() : null;
+}
+
+function int getDefaultCurrency(Integer userId) {
+    return new UserBL(userId).getCurrencyId();
+}
+
+function OrderLineDTO newLine(Integer itemId, BigDecimal quantity) {
+    OrderLineDTO line =  new OrderLineDTO();
+    line.setItemId(itemId);
+    line.setQuantity(quantity);
+    line.setDefaults();
+    return line;
+}
+
+function PricingResult priceRequest(Integer itemId, MediationResult result) {
+    PricingResult pricing = new PricingResult(itemId, result.getUserId(),
+            result.getCurrencyId());
+    pricing.setPricingFieldsResultId(result.getId());
+    return pricing;
+ }
+
+# updates the current order
+function void addLine(MediationResult result) {
+    result.setOldLines(OrderLineBL.copy(result.getCurrentOrder().getLines()));
+   
+    if (!result.getLines().isEmpty())
+        OrderLineBL.addLine(result.getCurrentOrder(), result.getLines().get(0), false);
+}
+
+rule 'user setter'
+no-loop  #because the user might be wrong and the set gets a null
+when
+    $result : MediationResult(step == MediationResult.STEP_1_START, userId == null)
+    $field : PricingField( name == "userfield", resultId == $result.id)
+    $company : CompanyDTO( ) # needed to determine a user by its user name
+then
+    modify( $result ) {
+        setUserId( getUserIdFromUsername($field.getStrValue(), $company.getId()) );
+    }
+        
+    LOG.debug("The user " + $field.getStrValue() + " was set to " + $result.getUserId() + " record " + $result.getRecordKey());
+end
+
+rule 'currency setter'
+when
+    $result : MediationResult(step == MediationResult.STEP_2_AFTER_USER, currencyId == null)
+then
+    modify( $result ) {
+        setCurrencyId( getDefaultCurrency($result.getUserId()) );
+    }
+    LOG.debug("The currency was set to " + $result.getCurrencyId() + " record " + $result.getRecordKey());
+end
+
+rule 'date setter'
+when
+    $result : MediationResult(step == MediationResult.STEP_1_START, eventDate == null)
+    $field : PricingField( name == "start", resultId == $result.id)
+then
+    modify( $result ) {
+        setEventDate( $field.getDateValue() );
+    }
+    LOG.debug("day set to " + $result.getEventDate() + " record " + $result.getRecordKey());
+end
+
+rule 'get current order'
+when
+    $result : MediationResult(step == MediationResult.STEP_3_CURRENT_ORDER, currentOrder == null)
+then
+    modify( $result ) {
+        setCurrentOrder( OrderBL.getOrCreateCurrentOrder($result.getUserId(),
+                $result.getEventDate(), $result.getCurrencyId(), $result.getPersist()) );
+    }
+    LOG.debug("The current order was fetched" + " record " + $result.getRecordKey());
+end
+
+rule 'check call duration'
+when
+    $result : MediationResult(step == MediationResult.STEP_1_START, done == false )
+    $field : PricingField( name == "duration", resultId == $result.id, value < 0 )
+then
+    $result.setDone(true);
+    $result.addError("ERR-DURATION");
+    retract($result);
+    LOG.debug("Incorrect call duration for record " + $result.getRecordKey() + " record " + $result.getRecordKey());
+end
+
+rule 'cancel not answered call'
+when
+    $result : MediationResult(step == MediationResult.STEP_1_START, done == false )
+    $field : PricingField( name == "disposition", resultId == $result.id, value != "ANSWERED" )
+then
+    $result.setDone(true);
+    retract($result);
+    LOG.debug("not billable record " + $result.getRecordKey() + " record " + $result.getRecordKey());
+end
+
+rule 'resolve call item and request price'
+when
+    $result : MediationResult(step == MediationResult.STEP_4_RESOLVE_ITEM)
+    $quantity : PricingField( name == "duration", resultId == $result.id)
+    not ( OrderLineDTO( itemId == 2900 ) from $result.lines ) // not needed, since the step is imediatelly changed in this case
+then
+    $result.getLines().add(newLine(2900, new BigDecimal($quantity.getStrValue())));
+    $result.setStep(MediationResult.STEP_5_PRICING);
+    update( $result );
+    LOG.debug("Added line with item 2900 for quantity " + $quantity);
+
+    PricingResult request = priceRequest(2800, $result); // because it will be converted to this...
+    insert( request );
+    LOG.debug("Price request " + request + " record " + $result.getRecordKey());
+end
+
+rule 'resolve call destination'
+when
+    $result : MediationResult(step == MediationResult.STEP_4_RESOLVE_ITEM, description == null )
+    $phoneCalled : PricingField( name == "dst", resultId == $result.id)
+then
+    # set mediation event description to the call destination
+    modify( $result ) {
+        setDescription("Phone call to " + $phoneCalled.getStrValue());
+    }
+end
+
+# this might or might not run... depending if there are pricing with rules
+# if not, then the default price will be used
+# This only helps if the item management rules do not swap the initial item
+# or change things that need other pricing done
+# If that is the case, the price assignment has to be done from the item
+# management rules
+rule 'price assignment'
+when
+    $result : MediationResult(step < MediationResult.STEP_6_ITEM_MANAGEMENT)
+    $price : PricingResult( pricingFieldsResultId == $result.id, price != null )
+    $line : OrderLineDTO( itemId == $price.itemId) from $result.lines
+then
+    $line.setPrice( $price.getPrice() );
+    update( $result );
+    LOG.debug("Price assigned " + $line + " record " + $result.getRecordKey());
+end
+
+rule 'line creation'
+when
+    $result : MediationResult(step == MediationResult.STEP_6_ITEM_MANAGEMENT, oldLines == null )
+then
+    addLine($result); # will add the first line to the current order and set oldLines
+    update($result); 
+
+    # to allow item management rules
+    insert($result.getCurrentOrder());
+    LOG.debug("current order updated id " + $result.getCurrentOrder().getId()  + " record " + $result.getRecordKey());
+end
+
+# this rule will set the diff lines . This provides data for the mediation_record_line table
+rule 'resolve diff lines'
+when
+    $result : MediationResult( step == MediationResult.STEP_7_DIFF)
+    $company : CompanyDTO()
+then
+    if ($result.getPersist()) { // validatePruchase does not want things persisted in the DB
+        new OrderDAS().save($result.getCurrentOrder());
+    }
+    $result.setDiffLines(OrderLineBL.diffOrderLines($result.getOldLines(), $result.getCurrentOrder().getLines()));
+    $result.setDone(true);
+    retract($result);
+    retract($result.getCurrentOrder()); #doable because we can count with one record being process for a give user at a time
+    if ($result.getPersist()) {
+        new OrderBL().checkOrderLineQuantities($result.getOldLines(), $result.getCurrentOrder().getLines(), 
+            $company.getId(), $result.getCurrentOrder().getId(), true);
+    }
+    LOG.debug("diff done for record " + $result.getRecordKey() + " diff is " + $result.getDiffLines() + " record " + $result.getRecordKey());
+end
+
+rule 'clean up pricing fields'
+when
+    $field : PricingField()
+    not ( exists( MediationResult(id == $field.resultId) ) )
+then
+    retract($field);
+    LOG.debug("Removed field " + $field);
+end
+
+rule 'clean up pricing results'
+when
+    $result : PricingResult()
+    not ( exists( MediationResult(id == $result.pricingFieldsResultId) ) )
+then
+    retract($result);
+    LOG.debug("Removed pricing result " + $result);
+end
+
+# step management
+
+# this ensures that there is only one record being processed for a given user at the same time
+# otherwise, item management and diffs fail
+rule 'from start to after user'
+when
+    $result : MediationResult(step == MediationResult.STEP_1_START, userId != null, eventDate != null, currencyId == null)
+    # only one record for a given user at a time
+    not( exists( MediationResult( $result.userId == userId, step > MediationResult.STEP_1_START) ) )
+then
+    modify( $result ) {
+        setStep(MediationResult.STEP_2_AFTER_USER);
+    }
+end
+
+rule "from after user to current order"
+when
+    $result : MediationResult(step == MediationResult.STEP_2_AFTER_USER, currencyId != null, currentOrder == null)
+then
+    modify( $result ) {
+        setStep(MediationResult.STEP_3_CURRENT_ORDER);
+    }
+end
+
+rule "from current order to resolve item"
+when
+    $result : MediationResult(step == MediationResult.STEP_3_CURRENT_ORDER,  currentOrder != null, done == false )
+then
+    modify( $result ) {
+        setStep(MediationResult.STEP_4_RESOLVE_ITEM);
+    }
+end
+
+# not needed in this example. There is only one insert of a price request, where the step is set to pricing
+rule "from resolve item to pricing"
+when
+    $result : MediationResult(step == MediationResult.STEP_4_RESOLVE_ITEM, description != null )
+    PricingResult( price == null, pricingFieldsResultId == $result.id )
+then
+    modify( $result ) {
+        setStep(MediationResult.STEP_5_PRICING);
+    }
+end
+
+rule "from pricing to item"
+salience -10  # has to run after the pricing rules had a chance of setting the price
+when
+    $result : MediationResult(step == MediationResult.STEP_5_PRICING)
+    PricingResult(pricingFieldsResultId == $result.id ) # probably not needed
+then
+    modify( $result ) {
+        setStep(MediationResult.STEP_6_ITEM_MANAGEMENT);
+    }
+end
+
+rule "from item to diffs"
+salience -10 # let all the item management rules fire first
+when
+    $result : MediationResult(step == MediationResult.STEP_6_ITEM_MANAGEMENT, oldLines != null)
+then
+    modify( $result ) {
+        setStep(MediationResult.STEP_7_DIFF);
+    }
+end
