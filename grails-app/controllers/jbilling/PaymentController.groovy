@@ -306,7 +306,8 @@ class PaymentController {
     def confirm = {
         def payment = new PaymentWS()
         bindPayment(payment, params)
-
+        session['user_payment']= payment
+        
         // make sure the user still exists before
         def users
         try {
@@ -344,11 +345,13 @@ class PaymentController {
      */
     @Secured(["hasAnyRole('PAYMENT_30', 'PAYMENT_31')"])
     def save = {
-        def payment = new PaymentWS()
-        bindPayment(payment, params)
+        
+        /* Reuse the same payment that was bound earlier during confirm */
+        def payment = session['user_payment'];
+        //def payment = new PaymentWS()
+        //bindPayment(payment, params)
 
         def invoiceId = params.int('invoiceId')
-
 
         // save or update
         try {
@@ -419,7 +422,9 @@ class PaymentController {
 
             render view: 'edit', model: [ payment: payment, user: user, invoices: invoices, currencies: currencies, paymentMethods: paymentMethods, invoiceId: params.int('invoiceId') ]
             return
-        }
+        } 
+        
+        session.removeAttribute("user_payment")
 
         chain action: 'list', params: [ id: payment.id ]
     }
