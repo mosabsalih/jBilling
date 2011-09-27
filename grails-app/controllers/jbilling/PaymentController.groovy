@@ -429,6 +429,27 @@ class PaymentController {
         chain action: 'list', params: [ id: payment.id ]
     }
 
+    /**
+     * Notify about this payment.
+     */
+    def emailNotify = {
+        
+        def pymId= params.id.toInteger()
+        try {
+            def result= webServicesSession.notifyPaymentByEmail(pymId)
+            if (result) {
+                flash.info = 'payment.notification.sent'
+                flash.args = [ pymId ]
+            } else {
+                flash.error = 'payment.notification.sent.fail'
+                flash.args = [ pymId ]
+            }
+        } catch (SessionInternalError e) {
+            viewUtils.resolveException(flash, session.local, e)
+        } 
+        chain action: 'list', params: [ id: pymId]
+    }
+    
     def bindPayment(PaymentWS payment, GrailsParameterMap params) {
         bindData(payment, params, 'payment')
 

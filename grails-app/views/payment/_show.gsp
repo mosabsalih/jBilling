@@ -388,6 +388,12 @@
                 <em><g:message code="payment.cant.edit.linked"/></em>
             </g:else>
         </div>
+        
+        <div class="row">
+            <g:link action="emailNotify" id="${selected.id}" class="submit email">
+                <span><g:message code="button.payment.notify"/></span>
+            </g:link>
+        </div>
     </div>
 
     <g:render template="/confirm"

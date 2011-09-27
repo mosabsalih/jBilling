@@ -195,7 +195,7 @@ public interface IWebServicesSessionBean {
 
     public byte[] getPaperInvoicePDF(Integer invoiceId) throws SessionInternalError;
     public boolean notifyInvoiceByEmail(Integer invoiceId);
-
+    public boolean notifyPaymentByEmail(Integer paymentId);
 
     /*
         Payments
