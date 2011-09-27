@@ -82,6 +82,14 @@ public class OrderLineDAS extends AbstractDAS<OrderLineDTO> {
         return query.list();
     }
 
+    /**
+     * Returns the first recurring order line found for the given user and item ID.
+     *
+     * @param userId user id
+     * @param itemId item id
+     * @return first recurring order line found, null if none found
+     */
+    @SuppressWarnings("unchecked")
     public OrderLineDTO findRecurringByUserItem(Integer userId, Integer itemId) {
         final String hql =
                 "select line "
@@ -99,7 +107,8 @@ public class OrderLineDAS extends AbstractDAS<OrderLineDTO> {
         query.setParameter("period", Constants.ORDER_PERIOD_ONCE);
         query.setParameter("status", Constants.ORDER_STATUS_ACTIVE);
 
-        return (OrderLineDTO) query.uniqueResult();
+        List<OrderLineDTO> results = query.list();
+        return results.isEmpty() ? null : results.get(0);
     }
 
     @SuppressWarnings("unchecked")
