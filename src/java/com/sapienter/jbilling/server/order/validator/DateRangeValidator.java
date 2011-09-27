@@ -21,8 +21,8 @@
 package com.sapienter.jbilling.server.order.validator;
 
 import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.joda.time.DateMidnight;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
@@ -60,10 +60,10 @@ public class DateRangeValidator implements ConstraintValidator<DateRange, Object
             String endDateString = BeanUtils.getProperty(object, endDateFieldName);
 
             // only validate if both dates are present
-            if (startDateString == null || startDateString.equals(""))
+            if (StringUtils.isBlank(startDateString))
                 return true;
 
-            if (endDateString == null || endDateString.equals(""))
+            if (StringUtils.isBlank(endDateString))
                 return true;
 
             Date startDate = DEFAULT_DATE_FORMAT.parse(startDateString);
