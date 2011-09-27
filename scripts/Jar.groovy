@@ -28,7 +28,7 @@ target(jar: "Packages all core jbilling classes in a .jar file.") {
     delete(dir: targetDir, includes: "${grailsAppName}.jar")
 
     exec(executable: "git", outputproperty: "version") {
-        arg(line: "describe")
+        arg(line: "describe --tags")
     }
 
     tstamp()

@@ -81,14 +81,13 @@ public class ContactBL {
     
     private void setEntityFromUser(Integer userId) {
         // id the entity
-        UserBL user;
-        try {
-            user = new UserBL();
-            entityId = user.getEntityId(userId);
-        } catch (Exception e) {
-            LOG.error("Finding the entity", e);
-        } 
-
+        if (userId != null) {
+            try {
+                entityId = new UserBL().getEntityId(userId);
+            } catch (Exception e) {
+                LOG.error("Finding the entity", e);
+            }
+        }
     }
  
     public void set(Integer userId, Integer contactTypeId) {
@@ -381,10 +380,11 @@ public class ContactBL {
         contact.setStateProvince(dto.getStateProvince());
         contact.setTitle(dto.getTitle());
         contact.setInclude(dto.getInclude());
+
         if (entityId == null) {
             setEntityFromUser(contact.getUserId());
         }
-        
+
         NewContactEvent event = new NewContactEvent(contact, entityId);
         EventManager.process(event);
 

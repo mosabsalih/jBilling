@@ -10,7 +10,7 @@
 		<queryString>
 			<![CDATA[select
               sum(i.total) as total,
-              count(i.id) as count,
+              count(i.id) as invoice_count,
               to_char(i.create_datetime, 'WW') as week_of_year,
               to_char(i.create_datetime, 'yyyy') as year
             from
@@ -26,6 +26,7 @@
             order by year, week_of_year]]>
 		</queryString>
 		<field name="total" class="java.math.BigDecimal"/>
+        <field name="invoice_count" class="java.lang.Long"/>
 		<field name="week_of_year" class="java.lang.String"/>
 		<field name="year" class="java.lang.String"/>
 	</subDataset>

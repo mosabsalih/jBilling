@@ -115,7 +115,6 @@ class EntityDefaults {
         /*
             Reports
          */
-        // todo: for now add all reports to the company. restrict this to core reports once they've been written.
         ReportDTO.list().each { report ->
             company.reports << report
         }
@@ -151,6 +150,15 @@ class EntityDefaults {
         def paymentTask = new PluggableTaskDTO(entityId: company.id, type: new PluggableTaskTypeDTO(21), processingOrder: 1).save()
         new PluggableTaskParameterDTO(task: paymentTask, name: 'all', strValue: 'yes').save()
 
+        // BasicEmailNotificationTask
+        def emailTask = new PluggableTaskDTO(entityId: company.id, type: new PluggableTaskTypeDTO(9), processingOrder: 1).save()
+        new PluggableTaskParameterDTO(task: emailTask, name: 'smtp_server', strValue: 'localhost').save()
+        new PluggableTaskParameterDTO(task: emailTask, name: 'port', strValue: '25').save()
+        new PluggableTaskParameterDTO(task: emailTask, name: 'ssl_auth', strValue: 'false').save()
+        new PluggableTaskParameterDTO(task: emailTask, name: 'tls', strValue: 'false').save()
+        new PluggableTaskParameterDTO(task: emailTask, name: 'username', strValue: 'username').save()
+        new PluggableTaskParameterDTO(task: emailTask, name: 'password', strValue: 'password').save()
+
         // PaperInvoiceNotificationTask
         def notificationTask = new PluggableTaskDTO(entityId: company.id, type: new PluggableTaskTypeDTO(12), processingOrder: 2,).save()
         new PluggableTaskParameterDTO(task: notificationTask, name: 'design', strValue: 'simple_invoice_b2b').save()
@@ -161,14 +169,15 @@ class EntityDefaults {
         new PluggableTaskDTO(entityId: company.id, type: new PluggableTaskTypeDTO(5), processingOrder: 1).save()    // BasicOrderFilterTask
         new PluggableTaskDTO(entityId: company.id, type: new PluggableTaskTypeDTO(6), processingOrder: 1).save()    // BasicInvoiceFilterTask
         new PluggableTaskDTO(entityId: company.id, type: new PluggableTaskTypeDTO(7), processingOrder: 1).save()    // BasicOrderPeriodTask
-        new PluggableTaskDTO(entityId: company.id, type: new PluggableTaskTypeDTO(9), processingOrder: 1).save()    // BasicEmailNotificationTask
         new PluggableTaskDTO(entityId: company.id, type: new PluggableTaskTypeDTO(10), processingOrder: 1).save()   // BasicPaymentInfoTask
         new PluggableTaskDTO(entityId: company.id, type: new PluggableTaskTypeDTO(25), processingOrder: 1).save()   // NoAsyncParameters
+        new PluggableTaskDTO(entityId: company.id, type: new PluggableTaskTypeDTO(61), processingOrder: 1).save()   // RulesPricingTask2
         new PluggableTaskDTO(entityId: company.id, type: new PluggableTaskTypeDTO(28), processingOrder: 1).save()   // BasicItemManager
         new PluggableTaskDTO(entityId: company.id, type: new PluggableTaskTypeDTO(33), processingOrder: 1).save()   // RulesMediationTask
         new PluggableTaskDTO(entityId: company.id, type: new PluggableTaskTypeDTO(54), processingOrder: 1).save()   // DynamicBalanceManagerTask
         new PluggableTaskDTO(entityId: company.id, type: new PluggableTaskTypeDTO(82), processingOrder: 1).save()   // BillingProcessTask
-
+        new PluggableTaskDTO(entityId: company.id, type: new PluggableTaskTypeDTO(88), processingOrder: 2).save()   // AgeingProcessTask
+        new PluggableTaskDTO(entityId: company.id, type: new PluggableTaskTypeDTO(87), processingOrder: 1).save()   // BasicAgeingTask
 
 
         /*

@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE log4j:configuration SYSTEM "log4j.dtd" >
 <log4j:configuration>
+
   <!-- A time/date based rolling appender -->
   <appender name="FILE" class="org.apache.log4j.DailyRollingFileAppender">
     <param name="File" value="logs/server.log"/>
-    <param name="Append" value="false"/>
+    <param name="Append" value="true"/>
     <param name="Threshold" value="INFO"/>
 
     <!-- Rollover at midnight each day -->
@@ -70,7 +71,7 @@
   
   <appender name="jbillingAppender" class="org.apache.log4j.DailyRollingFileAppender">
     <param name="File" value="logs/jbilling.log"/>
-    <param name="Append" value="false"/>
+    <param name="Append" value="true"/>
 
     <!-- Rollover at midnight each day -->
     <param name="DatePattern" value="'.'yyyy-MM-dd"/>

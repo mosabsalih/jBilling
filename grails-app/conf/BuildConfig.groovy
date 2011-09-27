@@ -61,6 +61,10 @@ grails.project.dependency.resolution = {
             excludes 'junit', 'xml-apis'
         }
 
+        compile('org.apache.geronimo.javamail:geronimo-javamail_1.4_mail:1.5')
+        compile('org.apache.geronimo.javamail:geronimo-javamail_1.4_provider:1.5')
+        compile('org.apache.geronimo.specs:geronimo-javamail_1.4_spec:1.5')
+
         compile 'org.drools:drools-core:5.0.1'
         compile 'org.drools:drools-compiler:5.0.1'
         build 'org.drools:drools-decisiontables:5.0.1'

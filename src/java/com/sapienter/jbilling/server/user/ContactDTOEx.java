@@ -113,7 +113,7 @@ public class ContactDTOEx extends ContactDTO implements Serializable  {
         setEmail(ws.getEmail());
         setCreateDate(ws.getCreateDate());
         setDeleted(ws.getDeleted());
-        setInclude(ws.getInclude());
+        setInclude( ( ws.getInclude() ? 1 : 0 ) );
 
         // contacts from ws are always included in notifications
         //setInclude(new Integer(1));
@@ -141,9 +141,5 @@ public class ContactDTOEx extends ContactDTO implements Serializable  {
 }
     public void setType(Integer type) {
         this.type = type;
-    }
-    
-    public String toString(){
-        return super.toString() + fieldsTable.toString(); 
     }
 }

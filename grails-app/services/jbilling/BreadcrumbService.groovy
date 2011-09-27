@@ -95,8 +95,12 @@ class BreadcrumbService implements InitializingBean, Serializable {
                 crumb.save()
 
                 crumbs << crumb
-                if (crumbs.size() > MAX_ITEMS)
-                    crumbs.remove(0).delete()
+
+                if (crumbs.size() > MAX_ITEMS) {
+                    def remove = crumbs.subList(5, crumbs.size())
+                    remove.each{ it.delete(flush: true) }
+                    remove.clear()
+                }
 
                 session[SESSION_BREADCRUMBS] = crumbs
             }
@@ -105,7 +109,6 @@ class BreadcrumbService implements InitializingBean, Serializable {
             log.error("Exception caught adding breadcrumb", t)
             session.error = 'breadcrumb.failed'
         }
-
     }
 
     /**

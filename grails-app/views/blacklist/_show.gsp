@@ -90,9 +90,8 @@
                             <tr>
                                 <td><g:message code="blacklist.entry.label.phone.number"/></td>
                                 <td class="value">
-                                    <g:if test="${selected.contact?.phoneCountryCode}">${selected.contact?.phoneCountryCode}.</g:if>
-                                    <g:if test="${selected.contact?.phoneAreaCode}">${selected.contact?.phoneAreaCode}.</g:if>
-                                    ${selected.contact?.phoneNumber}
+                                    <g:phoneNumber countryCode="${selected.contact?.phoneCountryCode}" 
+                                        areaCode="${selected.contact?.phoneAreaCode}" number="${selected.contact?.phoneNumber}"/>
                                 </td>
                             </tr>
                         </g:if>

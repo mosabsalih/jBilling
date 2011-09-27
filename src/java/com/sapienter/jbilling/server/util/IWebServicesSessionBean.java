@@ -86,7 +86,9 @@ public interface IWebServicesSessionBean {
     public Integer createContactTypeWS(ContactTypeWS contactType) throws SessionInternalError;
 
     public void updateCreditCard(Integer userId, com.sapienter.jbilling.server.entity.CreditCardDTO creditCard) throws SessionInternalError;
+    public void deleteCreditCard(Integer userId);
     public void updateAch(Integer userId, AchDTO ach) throws SessionInternalError;
+    public void deleteAch(Integer userId);
 
     public void setAuthPaymentType(Integer userId, Integer autoPaymentType, boolean use) throws SessionInternalError;
     public Integer getAuthPaymentType(Integer userId) throws SessionInternalError;

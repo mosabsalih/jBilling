@@ -19,7 +19,7 @@
   --}%
 
 <%@ page import="com.sapienter.jbilling.server.util.db.CountryDTO" %>
-<div id="contact-${contactType.id}" class="contact" style="${contactType.isPrimary > 0 ? '' : 'display: none;'}">
+<div id="contact-${contactType.id}" class="contact" style="${contactType.isPrimary == 1 ? '' : 'display: none;'}">
 
     <g:hiddenField name="contact-${contactType?.id}.id" value="${contact?.id}"/>
 
@@ -104,6 +104,6 @@
     <g:applyLayout name="form/checkbox">
         <content tag="label"><g:message code="prompt.include.in.notifications"/></content>
         <content tag="label.for">contact-${contactType?.id}.include</content>
-        <g:checkBox class="cb checkbox" name="contact-${contactType?.id}.include" checked="${contact?.include > 0}"/>
+        <g:checkBox class="cb checkbox" name="contact-${contactType?.id}.include" checked="${contact?.include}"/>
     </g:applyLayout>
 </div>

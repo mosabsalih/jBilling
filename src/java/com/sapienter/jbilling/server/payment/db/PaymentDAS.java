@@ -123,10 +123,11 @@ public class PaymentDAS extends AbstractDAS<PaymentDTO> {
     
     public BigDecimal findTotalBalanceByUser(Integer userId) {
         Criteria criteria = getSession().createCriteria(PaymentDTO.class);
+        
         criteria.add(Restrictions.eq("deleted", 0))
-                .createAlias("baseUser", "u")
-                    .add(Restrictions.eq("u.id", userId));
-        criteria.add(Restrictions.ne("balance", BigDecimal.ZERO));
+            .createAlias("baseUser", "u")
+            .add(Restrictions.eq("u.id", userId));
+        
         criteria.setProjection(Projections.sum("balance"));
         criteria.setComment("PaymentDAS.findTotalBalanceByUser");
 

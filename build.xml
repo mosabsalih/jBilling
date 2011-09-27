@@ -34,6 +34,9 @@
 
         <!-- compiled jbilling classes -->
         <pathelement path="${build.classes.dir}"/>
+
+        <!-- resource files -->
+        <pathelement location="${source.java.dir}"/>
     </path>
 
     

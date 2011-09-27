@@ -88,10 +88,11 @@ class FilterService implements Serializable {
      *
      * Note that this is not persisted across sessions unless the user saves the filter set.
      *
-     * @param type
-     * @param filter
+     * @param type type of filter list
+     * @param filter filter with value to set
+     * @param reset reset other filters by clearing their value, optional; defaults to true
      */
-    def void setFilter(FilterType type, Filter filter) {
+    def void setFilter(FilterType type, Filter filter, boolean reset = true) {
         def filters = getFilters(type, null)
 
         if (filters) {
@@ -100,6 +101,15 @@ class FilterService implements Serializable {
                 filters.putAt(index, filter)
             } else {
                 filters.add(filter)
+            }
+
+            // clear all other filters values
+            if (reset) {
+                filters.each {
+                    if (!it.equals(filter)) {
+                        it.clear()
+                    }
+                }
             }
 
             session[getSessionKey(type)] = filters

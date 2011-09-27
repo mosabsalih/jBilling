@@ -37,9 +37,8 @@
     <tr>
         <td><g:message code="customer.detail.contact.telephone"/></td>
         <td class="value">
-            <g:if test="${contact?.phoneCountryCode}">${contact?.phoneCountryCode}.</g:if>
-            <g:if test="${contact?.phoneAreaCode}">${contact?.phoneAreaCode}.</g:if>
-            ${contact?.phoneNumber}
+            <g:phoneNumber countryCode="${contact?.phoneCountryCode}" 
+                    areaCode="${contact?.phoneAreaCode}" number="${contact?.phoneNumber}"/>
         </td>
 
         <td><g:message code="customer.detail.contact.fax"/></td>
@@ -72,7 +71,7 @@
     </tr>
     <tr>
         <td><g:message code="prompt.include.in.notifications"/></td>
-        <td class="value"><g:formatBoolean boolean="${contact?.include > 0}"/></td>
+        <td class="value"><g:formatBoolean boolean="${ (contact?.include instanceof Boolean) ? contact.include : (contact.include > 0) }"/></td>
     </tr>
     </tbody>
 </table>

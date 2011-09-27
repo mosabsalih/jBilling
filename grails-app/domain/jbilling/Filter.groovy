@@ -88,6 +88,14 @@ class Filter implements Serializable {
         this.endDateValue = filter.endDateValue
     }
 
+    void setVisible(Boolean visible) {
+        this.visible = visible
+    }
+
+    Boolean isVisible() {
+        return getValue() != null ? false : visible;
+    }
+
     def Object getValue() {
         if (booleanValue != null)
             return booleanValue
@@ -121,6 +129,8 @@ class Filter implements Serializable {
         booleanValue = null
         stringValue = null
         integerValue = null
+        decimalValue = null
+        decimalHighValue = null
         startDateValue = null
         endDateValue = null
     }

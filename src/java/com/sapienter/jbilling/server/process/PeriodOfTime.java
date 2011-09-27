@@ -24,7 +24,10 @@ import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.TimeZone;
+
 import org.joda.time.DateMidnight;
+import org.joda.time.DateTimeZone;
 import org.joda.time.Days;
 
 public class PeriodOfTime implements Serializable {
@@ -35,14 +38,18 @@ public class PeriodOfTime implements Serializable {
     private final int daysInCycle;
 
     public PeriodOfTime(Date start, Date end, int dayInCycle, int position) {
-        this.start = new DateMidnight(start);
-        this.end = new DateMidnight(end);
+        this.start = start != null ? new DateMidnight(start.getTime()) : null;
+        this.end = end != null ? new DateMidnight(end.getTime()) : null;
         this.position = position;
         this.daysInCycle = dayInCycle;
     }
 
     public Date getEnd() {
-        return end.toDate();
+        return end != null ? end.toDate() : null;
+    }
+
+    public DateMidnight getDateMidnightEnd() {
+        return end;
     }
 
     public int getPosition() {
@@ -50,7 +57,11 @@ public class PeriodOfTime implements Serializable {
     }
 
     public Date getStart() {
-        return start.toDate();
+        return start != null ? start.toDate() : null;
+    }
+
+    public DateMidnight getDateMidnightStart() {
+        return start;
     }
 
     public int getDaysInCycle() {
@@ -68,7 +79,7 @@ public class PeriodOfTime implements Serializable {
      * @return number of days between start and end dates
      */
     public int getDaysInPeriod() {
-        if (end.isBefore(start)) { // not sure why this is necessary. 
+        if (start == null || end == null || end.isBefore(start)) {
             return 0;
         }
         return Days.daysBetween(start, end).getDays();

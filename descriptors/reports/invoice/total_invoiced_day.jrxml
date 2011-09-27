@@ -10,7 +10,7 @@
 		<queryString>
 			<![CDATA[select
                 sum(i.total) as total,
-                      count(i.id) as invoice_count,
+                count(i.id) as invoice_count,
                 i.create_datetime
             from
                 invoice i
@@ -24,7 +24,7 @@
             group by i.create_datetime]]>
 		</queryString>
 		<field name="total" class="java.math.BigDecimal"/>
-		<field name="count" class="java.lang.Long"/>
+		<field name="invoice_count" class="java.lang.Long"/>
 		<field name="create_datetime" class="java.sql.Timestamp"/>
 	</subDataset>
 	<parameter name="entityId" class="java.lang.Integer"/>

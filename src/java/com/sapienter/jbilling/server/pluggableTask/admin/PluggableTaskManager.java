@@ -31,6 +31,8 @@ import org.apache.log4j.Logger;
 
 import com.sapienter.jbilling.server.pluggableTask.PluggableTask;
 import com.sapienter.jbilling.server.util.Context;
+import org.springframework.util.ClassUtils;
+
 import java.util.ArrayList;
 
 public class PluggableTaskManager<T> {
@@ -91,51 +93,91 @@ public class PluggableTaskManager<T> {
 
     }
 
-    public T getInstance(String className, String interfaceName, PluggableTaskDTO aRule)
+    /**
+     * Get a plug-in instance initialized using the parameters from the given PluggableTaskDTO entity. Used to
+     * load and initialize a plug-in from the database.
+     *
+     * @param className class name to get instance of
+     * @param interfaceName plug-in interface
+     * @param pluggableTask pluggable task entity to initialize plug-in parameters from
+     * @return instance of the plug-in class initialized with parameters
+     * @throws PluggableTaskException throw if an unhandled exception occurs
+     */
+    @SuppressWarnings("unchecked")
+    public T getInstance(String className, String interfaceName, PluggableTaskDTO pluggableTask)
             throws PluggableTaskException {
+
         try {
-            Class task = Class.forName(className);
-            Class taskInterface = Class.forName(interfaceName);
+            T instance = (T) getInstance(className, interfaceName);
+            ((PluggableTask) instance).initializeParamters(pluggableTask);
+            return instance;
 
-            if (taskInterface.isAssignableFrom(task)) {
-                T thisTask = (T) task.newInstance();
-                ((PluggableTask) thisTask).initializeParamters(aRule);
-                return thisTask;
+        } catch (Exception e) {
+            throw new PluggableTaskException("Unhandled exception initializing plug-in instance", e);
+        }
+    }
 
+    /**
+     * Get a plug-in instance for the given class name, ensuring that the resulting instance matches
+     * the desired plug-in interface.
+     *
+     * @param className class name to get instance of
+     * @param interfaceName plug-in interface
+     * @return instance of the plug-in class
+     * @throws PluggableTaskException thrown if plug-in class or interface could not be found, or if plug-in
+     *                                does not implement the interface.
+     */
+    public static Object getInstance(String className, String interfaceName) throws PluggableTaskException {
+        try {
+            Class task = getClass(className);
+            Class iface =  getClass(interfaceName);
+
+            if (task == null) {
+                throw new PluggableTaskException("Could not load plug-in class '" + className + "', class not found.");
             }
-            throw new PluggableTaskException("The task " + className + " is not implementing "
-                    + interfaceName);
+
+            if (iface == null) {
+                throw new PluggableTaskException("Could not load interface '" + interfaceName + "', class not found.");
+            }
+
+            if (!iface.isAssignableFrom(task)) {
+                throw new PluggableTaskException("Plug-in '" + className + "' does not implement '" + interfaceName + "'");
+            }
+
+            LOG.debug("Creating a new instance of " + className);
+            return task.newInstance();
+
+        } catch (Exception e) {
+            throw new PluggableTaskException("Unhandled exception fetching plug-in instance", e);
+        }
+    }
+
+    /**
+     * Attempts to fetch the class by name. This method goes through all the common class loaders
+     * allow the loading of plug-ins from 3rd party libraries and to ensure portability across containers.
+     *
+     * @param className class to load
+     * @return class if name found and loadable, null if class could not be found in any class loader
+     */
+    private static Class getClass(String className) {
+        // attempt to load from the thread class loader
+        try {
+            ClassLoader loader = Thread.currentThread().getContextClassLoader();
+            return loader.loadClass(className);
 
         } catch (ClassNotFoundException e) {
-            throw new PluggableTaskException("Can't find the classes for this" + " task. Class: "
-                    + className + " Interface: " + interfaceName, e);
-        } catch (Exception e) {
-            throw new PluggableTaskException(e);
+            LOG.debug("Cannot load class from the current thread context class loader.");
         }
 
-    }
-    
-    public static Object getInstance(String className, String interfaceName) 
-            throws PluggableTaskException {
+        // last ditch attempt to load from whatever class loader was used to execute this code
         try {
-            Class task = Class.forName(className);
-            Class taskInterface = Class.forName(interfaceName);
-
-            if (taskInterface.isAssignableFrom(task)) {
-                Object thisTask = (Object) task.newInstance();
-                return thisTask;
-
-            }
-            throw new PluggableTaskException("The task " + className
-                    + " is not implementing " + interfaceName);
+            return Class.forName(className);
 
         } catch (ClassNotFoundException e) {
-            throw new PluggableTaskException("Can't find the classes for this"
-                    + " task. Class: " + className + " Interface: "
-                    + interfaceName, e);
-        } catch (Exception e) {
-            throw new PluggableTaskException(e);
+            LOG.fatal("Cannot load class from the caller class loader.", e);
         }
 
+        return null;
     }
+
 }

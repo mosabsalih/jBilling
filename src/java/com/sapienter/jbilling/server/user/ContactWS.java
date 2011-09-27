@@ -69,7 +69,7 @@ public class ContactWS implements Serializable {
     private String email;
     private Date createDate;
     private int deleted;
-    private Integer include;
+    private Boolean include;
 
     private Integer[] fieldIDs = null;
     private String[] fieldNames = null;
@@ -103,7 +103,7 @@ public class ContactWS implements Serializable {
                      Integer phoneCountryCode, Integer phoneAreaCode,
                      String phoneNumber, Integer faxCountryCode, Integer faxAreaCode,
                      String faxNumber, String email, Date createDate, Integer deleted,
-                     Integer include) {
+                     Boolean include) {
         this.id = id;
         this.organizationName = organizationName;
         this.address1 = address1;
@@ -175,7 +175,7 @@ public class ContactWS implements Serializable {
         setEmail(other.getEmail());
         setCreateDate(other.getCreateDate());
         setDeleted(other.getDeleted());
-        setInclude(other.getInclude());
+        setInclude(other.getInclude() != null && other.getInclude().equals(1) );
         setType(other.getType());
         fieldIDs = new Integer[other.getFieldsTable().size()];
         fieldNames = new String[other.getFieldsTable().size()];
@@ -364,11 +364,11 @@ public class ContactWS implements Serializable {
         this.deleted = deleted;
     }
 
-    public Integer getInclude() {
-        return include;
+    public Boolean getInclude() {
+        return include == null ? new Boolean(false) : include;
     }
 
-    public void setInclude(Integer include) {
+    public void setInclude(Boolean include) {
         this.include = include;
     }
 

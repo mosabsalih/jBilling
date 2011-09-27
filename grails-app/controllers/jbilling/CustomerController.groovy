@@ -52,6 +52,8 @@ import org.hibernate.criterion.Subqueries
 import org.hibernate.criterion.Restrictions
 import org.hibernate.criterion.Criterion
 import org.codehaus.groovy.grails.plugins.springsecurity.SpringSecurityUtils
+import com.sapienter.jbilling.server.user.ContactWS
+import com.sapienter.jbilling.server.user.contact.db.ContactDAS
 
 @Secured(["MENU_90"])
 class CustomerController {
@@ -170,7 +172,7 @@ class CustomerController {
     @Secured(["CUSTOMER_15"])
     def show = {
         def user = UserDTO.get(params.int('id'))
-        def contact = ContactDTO.findByUserId(user.userId)
+        def contact = new ContactDAS().findPrimaryContact(user.userId)
         def revenue = webServicesSession.getTotalRevenueByUser(user.userId)
 
         recentItemService.addRecentItem(user.userId, RecentItemType.CUSTOMER)
@@ -198,8 +200,6 @@ class CustomerController {
         }
 
         def parent = UserDTO.get(params.int('id'))
-        System.out.println("Parent id: " + params.id + "  = " + parent)
-
         render template: 'customers', model: [ users: children, parent: parent ]
     }
 
@@ -267,7 +267,6 @@ class CustomerController {
         def crumbDescription = params.id ? UserHelper.getDisplayName(user, user.contact) : null
         breadcrumbService.addBreadcrumb(controllerName, actionName, crumbName, params.int('id'), crumbDescription)
 
-        def company = CompanyDTO.get(session['company_id'])
         [ user: user, contacts: contacts, parent: parent, company: company, currencies: currencies ]
     }
 
@@ -280,7 +279,6 @@ class CustomerController {
         UserHelper.bindUser(user, params)
 
         def contacts = []
-        def company = CompanyDTO.get(session['company_id'])
         UserHelper.bindContacts(user, contacts, company, params)
 
         def oldUser = (user.userId && user.userId != 0) ? webServicesSession.getUserWS(user.userId) : null
@@ -311,8 +309,21 @@ class CustomerController {
 
                     webServicesSession.updateUser(user)
 
+                    // ACH updates are not handled through updateUser. Make a separate API call
+                    // to update the customers ACH data if it's present
                     if (user.ach) {
                         webServicesSession.updateAch(user.userId, user.ach)
+                    }
+
+                    // payment data deletions
+                    if (params.deleteAch) {
+                        log.debug("deleting ACH for user ${user.userId}")
+                        webServicesSession.deleteAch(user.userId)
+                    }
+
+                    if (params.deleteCreditCard) {
+                        log.debug("deleting Credit Card for user ${user.userId}")
+                        webServicesSession.deleteCreditCard(user.userId)
                     }
 
                     flash.message = 'customer.updated'
@@ -324,7 +335,7 @@ class CustomerController {
                 }
             }
 
-            // save secondary contacts
+            // save contacts
             if (user.userId) {
                 contacts.each{
                     webServicesSession.updateUserContact(user.userId, it.type, it);
@@ -333,7 +344,6 @@ class CustomerController {
 
         } catch (SessionInternalError e) {
             viewUtils.resolveException(flash, session.locale, e)
-            company = CompanyDTO.get(session['company_id'])
             render view: 'edit', model: [ user: user, contacts: contacts, company: company, currencies: currencies ]
             return
         }
@@ -344,5 +354,9 @@ class CustomerController {
     def getCurrencies() {
         def currencies = new CurrencyBL().getCurrencies(session['language_id'].toInteger(), session['company_id'].toInteger())
         return currencies.findAll { it.inUse }
+    }
+    
+    def getCompany() {
+        CompanyDTO.get(session['company_id'])
     }
 }

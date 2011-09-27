@@ -24,6 +24,7 @@ import org.codehaus.groovy.grails.web.servlet.mvc.GrailsParameterMap
 import com.sapienter.jbilling.server.user.UserWS
 import org.codehaus.groovy.grails.web.metaclass.BindDynamicMethod
 import com.sapienter.jbilling.server.entity.CreditCardDTO
+import com.sapienter.jbilling.server.user.CreditCardBL
 import com.sapienter.jbilling.common.Constants
 import com.sapienter.jbilling.server.user.ContactWS
 import com.sapienter.jbilling.server.user.db.CompanyDTO
@@ -62,30 +63,37 @@ class UserHelper {
         log.debug("User ${user}")
 
         // bind credit card object if parameters present
-        if (params.creditCard.any { key, value -> value }) {
+        if (!params.deleteCreditCard && params.creditCard.any { key, value -> value }) {
             def creditCard = new CreditCardDTO()
             bindData(creditCard, params, 'creditCard')
             bindExpiryDate(creditCard, params)
-            user.setCreditCard(creditCard)
+
+            if (!creditCard.number.startsWith('*')) {
+                // update credit card only if not obscured
+                user.setCreditCard(creditCard)
+
+            } else {
+                // or only if we have an ID for the existing card
+                // in this case, pull the original number from the users existing card
+                if (creditCard.id) {
+                    def existingCard =  new CreditCardBL(creditCard.id).getEntity();
+                    if (existingCard) {
+                        creditCard.number = existingCard.getNumber()
+                        user.setCreditCard(creditCard)
+                    }
+                }
+            }
 
             log.debug("Credit card ${creditCard}")
-
-            // set automatic payment type
-            if (params.creditCardAutoPayment)
-                user.setAutomaticPaymentType(Constants.AUTO_PAYMENT_TYPE_CC)
         }
 
         // bind ach object if parameters present
-        if (params.ach.any { key, value -> value }) {
+        if (!params.deleteAch && params.ach.any { key, value -> value }) {
             def ach = new AchDTO()
             bindData(ach, params, 'ach')
             user.setAch(ach)
 
             log.debug("Ach ${ach}")
-
-            // set automatic payment type
-            if (params.achAutoPayment)
-                user.setAutomaticPaymentType(Constants.AUTO_PAYMENT_TYPE_ACH)
         }
 
         return user
@@ -106,23 +114,25 @@ class UserHelper {
         def primaryContactTypeId = params.int('primaryContactTypeId')
 
         // bind primary user contact and custom contact fields
-        def contact = new ContactWS()
-        bindData(contact, params, "contact-${params.primaryContactTypeId}")
-        contact.type = primaryContactTypeId
-		contact.include = params.get("contact-${params.primaryContactTypeId}.include") ? 1 : 0
+        def primaryContact = new ContactWS()
+        bindData(primaryContact, params, "contact-${primaryContactTypeId}")
+        primaryContact.type = primaryContactTypeId
+
+        // manually bind primary contact "include in notifications" flag
+		primaryContact.include = params."contact-${primaryContactTypeId}".include != null ? 1 : 0
 
         if (params.contactField) {
-            contact.fieldIDs = new Integer[params.contactField.size()]
-            contact.fieldValues = new Integer[params.contactField.size()]
+            primaryContact.fieldIDs = new Integer[params.contactField.size()]
+            primaryContact.fieldValues = new Integer[params.contactField.size()]
             params.contactField.eachWithIndex { id, value, i ->
-                contact.fieldIDs[i] = id.toInteger()
-                contact.fieldValues[i] = value
+                primaryContact.fieldIDs[i] = id.toInteger()
+                primaryContact.fieldValues[i] = value
             }
         }
 
-        user.setContact(contact)
+        user.setContact(primaryContact)
 
-        log.debug("Primary contact: ${contact}")
+        log.debug("Primary contact (type ${primaryContactTypeId}): ${primaryContact}")
 
 
         // bind secondary contact types
@@ -133,8 +143,8 @@ class UserHelper {
                 bindData(otherContact, params, "contact-${it.id}")
                 otherContact.type = it.id
 
-				//checkbox values are not bound automatically since it throws a data conversion error
-				otherContact.include = params.get("contact-${it.id}.include") ? 1 : 0
+				// manually bind secondary contact "include in notifications" flag
+				otherContact.include = params."contact-${it.id}".include != null ? 1 : 0
 
                 contacts << otherContact;
             }
@@ -188,7 +198,7 @@ class UserHelper {
         if (expiryMonth && expiryYear)  {
             Calendar calendar = Calendar.getInstance()
             calendar.clear()
-            calendar.set(Calendar.MONTH, expiryMonth - 1) // calendar API months start at 0
+            calendar.set(Calendar.MONTH, expiryMonth - 1)
             calendar.set(Calendar.YEAR, expiryYear)
 
             creditCard.expiry = calendar.getTime()

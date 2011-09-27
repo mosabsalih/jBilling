@@ -442,9 +442,6 @@ public class OrderDTO implements Serializable, Exportable {
     }
     
     @OneToMany(cascade=CascadeType.ALL, fetch=FetchType.LAZY, mappedBy="purchaseOrder")
-    @Cascade( 
-            value= org.hibernate.annotations.CascadeType.DELETE_ORPHAN
-            )
     @Fetch (FetchMode.SUBSELECT)
     @OrderBy(clause="id")
     public List<OrderLineDTO> getLines() {

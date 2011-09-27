@@ -477,7 +477,7 @@ public class UserDTO implements Serializable, Exportable {
      *
      * @return users primary contact
      */
-    @OneToOne(cascade = CascadeType.REFRESH, fetch = FetchType.LAZY, mappedBy = "baseUser")
+    @OneToOne(fetch = FetchType.LAZY, mappedBy = "baseUser")
     public ContactDTO getContact() {
         return contact;
     }

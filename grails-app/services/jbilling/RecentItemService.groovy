@@ -87,8 +87,12 @@ class RecentItemService implements InitializingBean, Serializable {
                 item.save()
 
                 items << item
-                if (items.size() > MAX_ITEMS)
-                    items.remove(0).delete(flush: true)
+
+                if (items.size() > MAX_ITEMS) {
+                    def remove = items.subList(5, items.size())
+                    remove.each{ it.delete(flush: true) }
+                    remove.clear()
+                }
 
                 session[SESSION_RECENT_ITEMS] = items
             }

@@ -29,6 +29,7 @@ import com.sapienter.jbilling.server.pluggableTask.admin.ParameterDescription;
 import com.sapienter.jbilling.server.util.PreferenceBL;
 import org.apache.log4j.Logger;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.CannotGetJdbcConnectionException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
@@ -117,9 +118,15 @@ public abstract class AbstractJDBCReader extends AbstractReader {
     private boolean useLowercaseNames;
 
     public boolean validate(List<String> messages) {
-        super.validate(messages);
-        init();
-        return true;
+        boolean result = super.validate(messages);
+        try {
+            init();
+        } catch (Exception ex) {
+            LOG.error("Exception during reader plugin validation", ex);
+            messages.add(ex.getMessage());
+            return false;
+        }
+        return result;
     }
 
     /**
@@ -137,9 +144,10 @@ public abstract class AbstractJDBCReader extends AbstractReader {
         // briefly create a connection to determine case-corrected table and column names
         // then terminate and discard connection as soon as it's not needed.
         DataSource dataSource = getDataSource();
-        Connection connection = DataSourceUtils.getConnection(dataSource);
-        
+        Connection connection = null;
         try {
+            connection = DataSourceUtils.getConnection(dataSource);
+
             this.tableName = JDBCUtils.correctTableName(connection, getParameter(PARAM_TABLE_NAME.getName(), TABLE_NAME_DEFAULT));
             LOG.debug("Table name: '" + getTableName() + "'");
 
@@ -153,8 +161,12 @@ public abstract class AbstractJDBCReader extends AbstractReader {
 
         } catch (SQLException e) {
             throw new SessionInternalError("Could not validate table or column names against the database.", e);
+        } catch (CannotGetJdbcConnectionException e) {
+            throw new SessionInternalError("Could not establish connection to the database.", e);
         } finally {
-            DataSourceUtils.releaseConnection(connection, dataSource);
+            if (connection != null) {
+                DataSourceUtils.releaseConnection(connection, dataSource);
+            }
         }
 
         // determine marking method for this reader

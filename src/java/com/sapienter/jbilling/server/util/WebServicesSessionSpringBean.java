@@ -692,8 +692,9 @@ public class WebServicesSessionSpringBean implements IWebServicesSessionBean {
 
         // now update the contact info
         if (user.getContact() != null) {
-            ContactDTOEx primaryContact = new ContactDTOEx(user.getContact());
-            new ContactBL().createUpdatePrimaryForUser(primaryContact, user.getUserId(), entityId);
+            ContactBL contactBl = new ContactBL();
+            contactBl.setEntity(entityId);
+            contactBl.createUpdatePrimaryForUser(new ContactDTOEx(user.getContact()), user.getUserId(), entityId);
         }
 
         // and the credit card
@@ -944,30 +945,6 @@ public class WebServicesSessionSpringBean implements IWebServicesSessionBean {
         }
 
         return result;
-    }
-
-    /**
-     * Updates a user's credit card.
-     * @param userId
-     * The id of the user updating credit card data.
-     * @param creditCard
-     * The credit card data to be updated.
-     */
-    public void updateCreditCard(Integer userId, com.sapienter.jbilling.server.entity.CreditCardDTO creditCard)
-            throws SessionInternalError {
-        if (creditCard != null && (creditCard.getName() == null ||
-                creditCard.getExpiry() == null)) {
-            LOG.debug("WS - updateCreditCard: " + "credit card validation error.");
-            throw new SessionInternalError("Missing cc data.");
-        }
-
-        Integer executorId = getCallerId();
-        IUserSessionBean sess = (IUserSessionBean) Context.getBean(
-                Context.Name.USER_SESSION);
-        CreditCardDTO cc = creditCard != null ? new CreditCardDTO(creditCard) : null;
-
-        sess.updateCreditCard(executorId, userId, cc);
-
     }
 
     /*
@@ -1501,11 +1478,11 @@ public class WebServicesSessionSpringBean implements IWebServicesSessionBean {
         }
 
         // populate payment method based on the payment instrument
-        if (dto.getCreditCard() != null)
+        if (dto.getCreditCard() != null) {    
             dto.setPaymentMethod(new PaymentMethodDTO(dto.getCreditCard().getCcType()));
-
-        if (dto.getAch() != null)
+        } else if (dto.getAch() != null) { 
             dto.setPaymentMethod(new PaymentMethodDTO(Constants.PAYMENT_METHOD_ACH));
+        }
 
         // process payment
         IPaymentSessionBean session = (IPaymentSessionBean) Context.getBean(Context.Name.PAYMENT_SESSION);
@@ -2271,21 +2248,67 @@ public class WebServicesSessionSpringBean implements IWebServicesSessionBean {
         return ret;
     }
 
+
+    /**
+     * Updates a users stored credit card.
+     *
+     * @param userId user to update
+     * @param creditCard credit card details
+     * @throws SessionInternalError
+     */
+    public void updateCreditCard(Integer userId, com.sapienter.jbilling.server.entity.CreditCardDTO creditCard)
+            throws SessionInternalError {
+
+        if (creditCard == null)
+            return;
+
+        if (creditCard.getName() == null || creditCard.getExpiry() == null)
+            throw new SessionInternalError("Missing credit card name or expiry date");
+
+        IUserSessionBean userSession = Context.getBean(Context.Name.USER_SESSION);
+        userSession.updateCreditCard(getCallerId(), userId, new CreditCardDTO(creditCard));
+    }
+
+    /**
+     * Deletes a users stored credit card. Payments that were made using the deleted credit
+     * card will not be affected.
+     *
+     * @param userId user to delete the credit card from
+     */
+    public void deleteCreditCard(Integer userId) {
+        IUserSessionBean userSession = Context.getBean(Context.Name.USER_SESSION);
+        userSession.deleteCreditCard(getCallerId(), userId);
+    }
+
+    /**
+     * Updates a users stored ACH details.
+     *
+     * @param userId user to update
+     * @param ach ach details
+     * @throws SessionInternalError
+     */
     public void updateAch(Integer userId, com.sapienter.jbilling.server.entity.AchDTO ach)
             throws SessionInternalError {
 
-        if (ach != null && (ach.getAbaRouting() == null ||
-                ach.getBankAccount() == null)) {
-            LOG.debug("WS - updateAch: " + "ACH validation error.");
-            throw new SessionInternalError("Missing ACH data.");
-        }
+        if (ach == null)
+            return;
 
-        Integer executorId = getCallerId();
-        IUserSessionBean sess = (IUserSessionBean) Context.getBean(
-                Context.Name.USER_SESSION);
-        AchDTO ac = ach != null ? new AchDTO(ach) : null;
+        if (ach.getAbaRouting() == null || ach.getBankAccount() == null)
+            throw new SessionInternalError("Missing ACH routing number of bank account number.");
 
-        sess.updateACH(userId, executorId, ac);
+        IUserSessionBean userSession = Context.getBean(Context.Name.USER_SESSION);
+        userSession.updateACH(userId, getCallerId(), new AchDTO(ach));
+    }
+
+    /**
+     * Deletes a users stored ACH details. Payments that were made using the deleted ACH
+     * details will not be affected.
+     *
+     * @param userId user to delete the ACH details from.
+     */
+    public void deleteAch(Integer userId) {
+        IUserSessionBean userSession = Context.getBean(Context.Name.USER_SESSION);
+        userSession.removeACH(userId, getCallerId());
     }
 
     public Integer getAuthPaymentType(Integer userId)
